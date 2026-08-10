@@ -8,7 +8,7 @@ public class LC34 {
         int[] nums = { 5, 7, 7, 8, 8, 10 };
         int target = 8;
         int[] ans = { -1, -1 };
-        //   int[] ans = new int[2];
+        // int[] ans = new int[2];
         int start = searchRange(nums, target, true);
         int end = searchRange(nums, target, false);
         ans[0] = start;
@@ -39,49 +39,48 @@ public class LC34 {
     }
 }
 
-
-//for time complexity O(n)
+// for time complexity O(n)
 // class Solution {
-//     public int[] searchRange(int[] nums, int target) {
+// public int[] searchRange(int[] nums, int target) {
 
-//         int start = 0;
-//         int end = nums.length - 1;
+// int start = 0;
+// int end = nums.length - 1;
 
-//         int[] ans = {-1, -1};
+// int[] ans = {-1, -1};
 
-//         boolean starting = false;
-//         boolean ending = false;
+// boolean starting = false;
+// boolean ending = false;
 
-//         while (start <= end) {
+// while (start <= end) {
 
-//             // Find first occurrence
-//             if (!starting) {
+// // Find first occurrence
+// if (!starting) {
 
-//                 if (nums[start] == target) {
-//                     ans[0] = start;
-//                     starting = true;
-//                 } else {
-//                     start++;
-//                 }
-//             }
+// if (nums[start] == target) {
+// ans[0] = start;
+// starting = true;
+// } else {
+// start++;
+// }
+// }
 
-//             // Find last occurrence
-//             if (!ending) {
+// // Find last occurrence
+// if (!ending) {
 
-//                 if (nums[end] == target) {
-//                     ans[1] = end;
-//                     ending = true;
-//                 } else {
-//                     end--;
-//                 }
-//             }
+// if (nums[end] == target) {
+// ans[1] = end;
+// ending = true;
+// } else {
+// end--;
+// }
+// }
 
-//             // Both found
-//             if (starting && ending) {
-//                 return ans;
-//             }
-//         }
+// // Both found
+// if (starting && ending) {
+// return ans;
+// }
+// }
 
-//         return ans;
-//     }
+// return ans;
+// }
 // }
