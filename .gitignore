@@ -1,0 +1,15 @@
+# Java compiled files
+*.class
+
+# Java build/output folders
+bin/
+out/
+
+# VS Code
+.vscode/
+
+# Temporary Code Runner file
+tempCodeRunnerFile.java
+
+# JDK installation
+oracleJdk-26/
