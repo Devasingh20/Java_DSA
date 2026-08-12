@@ -26,6 +26,6 @@ public class searchIn2DsortedArray {
                 row++;
             }
         }
-        return new int[] { -1, 1 };
+        return new int[] { -1, -1 };
     }
 }
