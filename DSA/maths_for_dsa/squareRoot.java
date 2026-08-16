@@ -1,5 +1,5 @@
 // package DSA.maths_for_dsa;
-
+//sqrt without using Math.sqrt method, but using Binary search.
 public class squareRoot {
     public static void main(String[] args) {
         int num = 259;
