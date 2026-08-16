@@ -2,7 +2,7 @@
 
 public class primeNumber {
     public static void main(String[] args) {
-        int num = 12;
+        int num = 40;
         boolean ans = isPrime(num);
         System.out.println(ans);
     }
