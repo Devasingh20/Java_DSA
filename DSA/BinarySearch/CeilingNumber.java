@@ -37,5 +37,3 @@ public class CeilingNumber {
         return nums[start];
     }
 }
-
-
