@@ -17,15 +17,19 @@
 //O(sqrt(n)) time complexity.
 public class factors {
     public static void main(String[] args) {
-        int num = 20;
+        int num = 36;
         factors1(num);
     }
 
     static void factors1(int num) {
         for (int i = 1; i * i <= num; i++) {
             if (num % i == 0) {
-                System.out.print(i + " " + num / i + " ");
+                System.out.print(i + " ");
+                if (i != num / i) {
+                    System.out.print(num / i + " ");
+                }
             }
         }
     }
 }
+
