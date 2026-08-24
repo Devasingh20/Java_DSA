@@ -1,7 +1,8 @@
-public class binarySearch {
+//https://leetcode.com/problems/binary-search/submissions/2118771039/
+public class binarySearchLC704 {
     public static void main(String[] args) {
         int[] arr = { 1, 2, 3, 4, 55, 66, 78 };
-        int target = 79;
+        int target = 55;
         System.out.println(BS(arr, target, 0, arr.length - 1));
     }
 
