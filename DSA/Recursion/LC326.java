@@ -1,3 +1,4 @@
+//https://leetcode.com/problems/power-of-three/
 public class LC326 {
     public static void main(String[] args) {
         int n = 729;
