@@ -1,10 +1,10 @@
 public class LC326 {
     public static void main(String[] args) {
         int n = 729;
-        System.out.println(isPowerOfTwo(n));
+        System.out.println(isPowerOfThree(n));
     }
 
-    static boolean isPowerOfTwo(int n) {
+    static boolean isPowerOfThree(int n) {
         if (n == 1) {
             return true;
         }
@@ -18,7 +18,7 @@ public class LC326 {
         // essentially we are checking->can i divide this number the base exactly.that
         // is why we can also use % operator as below.
         if (n % 3 == 0) {
-            return isPowerOfTwo(n / 3);
+            return isPowerOfThree(n / 3);
         }
         return false;
     }
