@@ -11,6 +11,6 @@ public class concepts {
         return Concept(n--);
         // Post-decrement passes the original value of n to the recursive call,
         // so n is not actually decreased before the call. This causes infinite
-        // recursion.
+        // recursion. use pre-decrement (--n) instead to decrease n before the recursive call.
     }
 }
