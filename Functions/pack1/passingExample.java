@@ -50,10 +50,11 @@
 // The confusing part is that when you pass an object, the value being passed is
 // a reference to that object.
 
-// When an object is passed to a method, Java copies the reference. If the
+// When an object is passed to a method, the value being copied is the object's reference. If the
 // method modifies the object through that reference, the caller sees the
-// modification. But if the method makes the parameter reference point to a new
-// object, the caller's reference does not change.
+// modification.
+//  But if the method makes the parameter reference point to a new
+// object, the caller's reference does not change. The method can modify the object, but it cannot replace the caller's variable.
 
 public class passingExample {
 
