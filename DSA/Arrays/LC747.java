@@ -8,7 +8,7 @@ public class LC747 {
         int[] arr = { 3, 6, 1, 0 };
         int n = arr.length;
         long largest = Long.MIN_VALUE;
-        long second = Long.MAX_VALUE;
+        long second = Long.MIN_VALUE;
         int index = -1;
         for (int i = 0; i < n; i++) {
             if (arr[i] > largest) {
