@@ -1,3 +1,5 @@
+
+//Java implementation using Hoare Partition;
 import java.util.*;
 
 public class QuickSort2 {
@@ -34,3 +36,9 @@ public class QuickSort2 {
         quickSort(arr, s, high);
     }
 }
+// The Hoare Partition Scheme is an efficient algorithm used by QuickSort to
+// divide an array around a designated pivot. It uses two pointers starting from
+// opposite ends of the array that move inward until they find elements that are
+// out of place and swap them.Compared to the Lomuto scheme, Hoare's method is
+// typically faster because it performs fewer swaps on average and only requires
+// a single traversal of the data.
