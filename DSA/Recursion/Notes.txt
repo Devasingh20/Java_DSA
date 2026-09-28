@@ -1,5 +1,6 @@
 Recursive call tree of Merge Sort, I am using the word "tree" to visualize the function-call relationships.
 input [8,3,5,4,7,6,1,2]; or you can take any input, it is just a example for understanding
+initiaaly low = 0, high = 7
 tree is :
 mergeSort(0,7)
 │
@@ -65,6 +66,8 @@ mergeSort(0,7) finishes
 
 
 Recursive call tree of Quick Sort
+input [5,3,8,4,2,7,1,6] or you can take any input, it is just a example for understanding
+initiaaly low = 0, high = 7
 quickSort(0,7)
 │
 ├── partition(0,7)
