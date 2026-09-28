@@ -1,4 +1,4 @@
-//Java implementation using Lomuto Partitionimport java.util.*;
+//Java implementation using Lomuto Partition;
 
 import java.util.Arrays;
 
