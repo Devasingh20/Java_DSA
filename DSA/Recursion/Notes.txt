@@ -144,3 +144,129 @@ quickSort(0,7)
 quickSort(0,7) finishes
 → return to main()
 
+
+-------------------------------------------
+important notes for leet code question 493
+-------------------------------------------
+1. Main idea
+
+The important observation is:
+
+Use Merge Sort to divide the array and make each half sorted. Then use the sorted halves to count reverse pairs efficiently before merging them.
+
+The overall structure is:
+
+Merge Sort
+    │
+    ├── Sort left half
+    │
+    ├── Sort right half
+    │
+    ├── Count reverse pairs between the halves
+    │
+    └── Merge the two sorted halves
+
+Your code follows exactly this pattern:
+
+mergeSortInPlace(arr, low, mid);
+mergeSortInPlace(arr, mid + 1, high);
+
+reversePairs(arr, low, mid, mid + 1);
+
+mergeInPlace(arr, low, mid, high);
+
+2. Why do we count before merging?
+After these two calls:
+
+mergeSortInPlace(arr, low, mid);
+mergeSortInPlace(arr, mid + 1, high);
+
+we know:
+
+Left half       Right half
+sorted          sorted
+
+For example:
+
+[2, 4] | [1, 3, 5]
+  ↑          ↑
+sorted      sorted
+
+Now we can efficiently count:
+
+arr[i] > 2L * arr[j]
+
+using the fact that both halves are sorted.
+
+After counting, we merge them:
+
+[2,4] + [1,3,5]
+       ↓
+[1,2,3,4,5]
+
+The sorted result is important because the parent Merge Sort call depends on both halves being sorted.
+
+
+3. What reversePairs() actually does
+Your method:
+
+static void reversePairs(int[] arr, int low, int mid, int high) {
+
+    int j = mid + 1;
+
+    for (int i = low; i <= mid; i++) {
+
+        while (j <= high && arr[i] > 2L * arr[j]) {
+            j++;
+        }
+
+        count += j - (mid + 1);
+    }
+}
+
+Think of the two halves as:
+
+Left half                 Right half
+
+low ... mid              mid+1 ... high
+   ↑                         ↑
+   i                         j
+
+i moves through the left half.
+
+j moves through the right half.
+
+
+4. Why j does not reset
+This is one of the most important things to remember.
+
+Suppose:
+
+Left  = [5, 6, 10]
+Right = [1, 2, 4]
+
+For 5:
+
+5 > 2×1  ✓
+5 > 2×2  ✓
+5 > 2×4  ✗
+
+So j stops at 4.
+
+Now move to 6.
+
+Because the left half is sorted:
+
+5 < 6
+
+If:
+
+5 > 2×4
+
+was already false, then there is no reason to move j backward and check 1 or 2 again.
+
+Therefore:
+
+j only moves forward and never moves backward.
+
+This is what makes the counting step linear.
