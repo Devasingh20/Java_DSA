@@ -2,6 +2,7 @@ public class wordSkip {
     public static void main(String[] args) {
         skip("", "bachapplefagyauia");
         System.out.println(skipWithReturnType("bachapplefagyauia"));
+        System.out.println(skipAppNotApple("bachappapplefagyauia"));
     }
 
     static void skip(String p, String up) {
@@ -26,6 +27,18 @@ public class wordSkip {
             return skipWithReturnType(up.substring(5));
         } else {
             return up.charAt(0) + skipWithReturnType(up.substring(1));
+        }
+    }
+
+    static String skipAppNotApple(String up) {
+        if (up.isEmpty()) {
+            return "";
+        }
+        boolean starts = up.startsWith("app") && !up.startsWith("apple");
+        if (starts) {
+            return skipAppNotApple(up.substring(3));
+        } else {
+            return up.charAt(0) + skipAppNotApple(up.substring(1));
         }
     }
 }
