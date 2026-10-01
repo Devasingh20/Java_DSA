@@ -12,6 +12,9 @@ public class subsequence {
         // generate subsequences of a string using arraylist without passing the list as
         // a parameter
         System.out.println(subseq2("", "abc"));
+        // Generate subsequences using three choices:
+        // include character, exclude character, or include its ASCII value
+        System.out.println(subseqAscii("", "abc"));
     }
 
     // For String
@@ -51,5 +54,24 @@ public class subsequence {
         ArrayList<String> right = subseq2(p, up.substring(1));
         left.addAll(right);
         return left;
+    }
+
+    // Generate subsequences with three choices for each character:
+    // 1. Include the character
+    // 2. Exclude the character
+    // 3. Include the ASCII value of the character
+    static ArrayList<String> subseqAscii(String p, String up) {
+        if (up.isEmpty()) {
+            ArrayList<String> list = new ArrayList<>();
+            list.add(p);
+            return list;
+        }
+        char ch = up.charAt(0);
+        ArrayList<String> first = subseqAscii(p + ch, up.substring(1));
+        ArrayList<String> second = subseqAscii(p, up.substring(1));
+        ArrayList<String> third = subseqAscii(p + (ch + 0), up.substring(1));
+        first.addAll(second);
+        first.addAll(third);
+        return first;
     }
 }
