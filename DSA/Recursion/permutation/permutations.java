@@ -8,6 +8,8 @@ public class permutations {
         // using array list but without passing the list as a parameter
         ArrayList<String> ans = per1("", "abc");
         System.out.println(ans);
+        // permutation count
+        System.out.println(perCount("", "abcde"));
     }
 
     static void per(String p, String up) {
@@ -37,5 +39,19 @@ public class permutations {
             ans.addAll(per1(f + ch + s, up.substring(1)));
         }
         return ans;
+    }
+
+    static int perCount(String p, String up) {
+        if (up.isEmpty()) {
+            return 1;
+        }
+        char ch = up.charAt(0);
+        int count = 0;
+        for (int i = 0; i <= p.length(); i++) {
+            String f = p.substring(0, i);
+            String s = p.substring(i, p.length());
+            count += perCount(f + ch + s, up.substring(1));
+        }
+        return count;
     }
 }
