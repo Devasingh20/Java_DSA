@@ -10,6 +10,8 @@ public class permutations {
         System.out.println(ans);
         // permutation count
         System.out.println(perCount("", "abcde"));
+        // return a list of permutations : lists inside a list
+        System.out.println(permutationsList("", "abc"));
     }
 
     static void per(String p, String up) {
@@ -53,5 +55,23 @@ public class permutations {
             count += perCount(f + ch + s, up.substring(1));
         }
         return count;
+    }
+
+    static ArrayList<ArrayList<String>> permutationsList(String p, String up) {
+        if (up.isEmpty()) {
+            ArrayList<String> list = new ArrayList<>();
+            list.add(p);
+            ArrayList<ArrayList<String>> result = new ArrayList<>();
+            result.add(list);
+            return result;
+        }
+        ArrayList<ArrayList<String>> ans = new ArrayList<>();
+        char ch = up.charAt(0);
+        for (int i = 0; i <= p.length(); i++) {
+            String f = p.substring(0, i);
+            String s = p.substring(i, p.length());
+            ans.addAll(permutationsList(f + ch + s, up.substring(1)));
+        }
+        return ans;
     }
 }
