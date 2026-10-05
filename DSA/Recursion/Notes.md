@@ -2,6 +2,9 @@ Recursive call tree of Merge Sort, I am using the word "tree" to visualize the f
 input [8,3,5,4,7,6,1,2]; or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
 tree is :
+## Recursive Call Tree of Merge Sort
+
+```text
 mergeSort(0,7)
 │
 ├── mergeSort(0,3)
@@ -61,7 +64,6 @@ mergeSort(0,7)
 
 mergeSort(0,7) finishes
 └── return to main()
-
 
 
 
