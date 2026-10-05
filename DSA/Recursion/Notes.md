@@ -1,9 +1,10 @@
+
+# Explanation for codes
 Recursive call tree of Merge Sort, I am using the word "tree" to visualize the function-call relationships.
 input [8,3,5,4,7,6,1,2]; or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
 tree is :
-## Recursive Call Tree of Merge Sort
-
+# Recursive Call Tree of Merge Sort
 ```text
 mergeSort(0,7)
 │
@@ -64,11 +65,12 @@ mergeSort(0,7)
 
 mergeSort(0,7) finishes
 └── return to main()
+```
 
-
-## Recursive Call Tree of Quick Sort
+# Recursive Call Tree of Quick Sort
 input [5,3,8,4,2,7,1,6] or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
+```text
 quickSort(0,7)
 │
 ├── partition(0,7)
@@ -144,11 +146,11 @@ quickSort(0,7)
 
 quickSort(0,7) finishes
 → return to main()
+```
 
 
-
-## important notes for leet code question 493
-
+# important notes for leet code question 493
+```text
 1. Main idea
 
 The important observation is:
@@ -275,9 +277,9 @@ This is what makes the counting step linear.
 
 
 subset generation with duplicate handling (SubsetWithDuplicates .java question)
-
-why the below code is inefficient
-
+```
+# why the below code is inefficient
+```java
 static List<List<Integer>> subSetWithDuplicates(int[] arr) {
         List<List<Integer>> outer = new ArrayList<>();
         outer.add(new ArrayList<>());
@@ -293,7 +295,7 @@ static List<List<Integer>> subSetWithDuplicates(int[] arr) {
         }
         return outer;
     }
-
+```
  Why This Code Is Inefficient
 The main problem is this line:
 if (!outer.contains(internal))
@@ -389,23 +391,19 @@ by the previous occurrence
        ↓
 No contains() required
 Complexity
-
 Let n be the number of input elements.
 For distinct elements, there can be up to:
-
 2^n
-
 subsets.
 Your code repeatedly performs contains() over the growing outer list, and each list comparison can itself examine multiple elements.
 Therefore, the algorithm has substantial extra overhead compared with the standard duplicate-handling technique.
 The important interview point is:
-
 The main inefficiency is that outer.contains(internal) repeatedly searches and compares the existing subsets, while the start/end technique avoids generating duplicate candidates in the first place.
 
 
-## LeetCode 315 – Count of Smaller Numbers After Self
+# LeetCode 315 – Count of Smaller Numbers After Self
 
-# LC 315 – Count of Smaller Numbers After Self
+ **LC 315 – Count of Smaller Numbers After Self**
 
 ## Question
 
