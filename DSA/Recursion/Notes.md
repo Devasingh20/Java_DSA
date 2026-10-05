@@ -66,8 +66,7 @@ mergeSort(0,7) finishes
 └── return to main()
 
 
-
-Recursive call tree of Quick Sort
+## Recursive Call Tree of Quick Sort
 input [5,3,8,4,2,7,1,6] or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
 quickSort(0,7)
@@ -147,9 +146,9 @@ quickSort(0,7) finishes
 → return to main()
 
 
--------------------------------------------
-important notes for leet code question 493
--------------------------------------------
+
+## important notes for leet code question 493
+
 1. Main idea
 
 The important observation is:
@@ -274,9 +273,9 @@ j only moves forward and never moves backward.
 This is what makes the counting step linear.
 
 
------------------------------------------------------------------------
+
 subset generation with duplicate handling (SubsetWithDuplicates .java question)
------------------------------------------------------------------------
+
 why the below code is inefficient
 
 static List<List<Integer>> subSetWithDuplicates(int[] arr) {
@@ -404,9 +403,8 @@ The important interview point is:
 The main inefficiency is that outer.contains(internal) repeatedly searches and compares the existing subsets, while the start/end technique avoids generating duplicate candidates in the first place.
 
 
------------------------------------------------------------------
-LeetCode 315 – Count of Smaller Numbers After Self
------------------------------------------------------------------
+## LeetCode 315 – Count of Smaller Numbers After Self
+
 # LC 315 – Count of Smaller Numbers After Self
 
 ## Question
