@@ -4,7 +4,7 @@ Recursive call tree of Merge Sort, I am using the word "tree" to visualize the f
 input [8,3,5,4,7,6,1,2]; or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
 tree is :
-# Recursive Call Tree of Merge Sort
+# 🌳Recursive Call Tree of Merge Sort
 ```text
 mergeSort(0,7)
 │
@@ -67,7 +67,7 @@ mergeSort(0,7) finishes
 └── return to main()
 ```
 
-# Recursive Call Tree of Quick Sort
+# 🌳Recursive Call Tree of Quick Sort
 input [5,3,8,4,2,7,1,6] or you can take any input, it is just a example for understanding
 initiaaly low = 0, high = 7
 ```text
@@ -278,7 +278,7 @@ This is what makes the counting step linear.
 
 subset generation with duplicate handling (SubsetWithDuplicates .java question)
 ```
-# why the below code is inefficient
+# 💻why the below code is inefficient
 ```java
 static List<List<Integer>> subSetWithDuplicates(int[] arr) {
         List<List<Integer>> outer = new ArrayList<>();
