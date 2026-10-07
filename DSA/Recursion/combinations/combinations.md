@@ -856,3 +856,944 @@ for (int i = start; i < n; i++) {
 ```
 
 > **Combination = choose elements from left to right, use `i + 1` to move forward, and undo the choice after the recursive call.**
+##
+
+# Combination Sum — LeetCode 39
+
+## 1. What is the Question?
+
+You are given an array of **distinct positive integers** `candidates` and a target integer `target`.
+
+Return **all unique combinations** of candidates where the chosen numbers add up to `target`.
+
+The important rule is:
+
+> **You can use the same number unlimited times.**
+
+### Example
+
+```text
+candidates = [2,3,6,7]
+target = 7
+
+Valid combinations:
+[2,2,3]
+[7]
+
+Because:
+2 + 2 + 3 = 7
+
+and:
+7 = 7
+```
+## 2. Combination vs Combination Sum
+```text
+This is very important.
+In the Combinations problem you just learned:
+n = 4
+k = 2
+
+we choose exactly k elements:
+[1,2]
+[1,3]
+[1,4]
+[2,3]
+[2,4]
+[3,4]
+
+Each element can be selected only once.
+In Combination Sum:
+candidates = [2,3,6,7]
+target = 7
+
+we don't know how many elements we need.
+We keep selecting until:
+sum == target
+
+And we can reuse an element:
+2 → 2 → 2 → ...
+
+So:
+[2,2,3]
+
+is allowed.
+```
+## 3. The Biggest Difference
+```text
+Combination
+combinations(..., i + 1, ...)
+
+We move forward because an element cannot be reused.
+Combination Sum
+combinations(..., i, ...)
+
+We do not move to i + 1 after choosing an element.
+Why?
+Because we are allowed to choose the same element again.
+This is the most important idea in Combination Sum.
+```
+## 4. Backtracking Idea
+```text
+We use:
+Choose
+   ↓
+Explore
+   ↓
+Undo
+
+For example:
+candidates = [2,3,6,7]
+target = 7
+
+Start:
+current = []
+sum = 0
+
+Choose 2:
+current = [2]
+sum = 2
+
+Because 2 can be reused, we can choose 2 again:
+current = [2,2]
+sum = 4
+
+Again:
+current = [2,2,2]
+sum = 6
+
+Again:
+current = [2,2,2,2]
+sum = 8
+
+Now:
+8 > 7
+```
+So this branch is invalid.
+We backtrack.
+## 5. The Three Important Cases
+```text
+At every recursive call, there are three possibilities.
+Case 1 — Target reached
+sum == target
+
+We found a valid combination.
+SAVE current
+
+Case 2 — Sum becomes too large
+sum > target
+
+This branch can never work.
+So:
+RETURN
+
+Case 3 — Sum is still smaller
+sum < target
+```
+Continue choosing elements.
+## 6. Code
+A clean version is:
+```java
+class Solution {
+
+    public List<List<Integer>> combinationSum(
+            int[] candidates,
+            int target) {
+
+        List<List<Integer>> result = new ArrayList<>();
+        List<Integer> current = new ArrayList<>();
+
+        combinations(
+                candidates,
+                target,
+                0,
+                current,
+                result
+        );
+
+        return result;
+    }
+
+    static void combinations(
+            int[] candidates,
+            int target,
+            int start,
+            List<Integer> current,
+            List<List<Integer>> result) {
+
+        // Target reached
+        if (target == 0) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        // Target exceeded
+        if (target < 0) {
+            return;
+        }
+
+        for (int i = start; i < candidates.length; i++) {
+
+            // Choose
+            current.add(candidates[i]);
+
+            // Explore
+            combinations(
+                    candidates,
+                    target - candidates[i],
+                    i,
+                    current,
+                    result
+            );
+
+            // Undo
+            current.remove(current.size() - 1);
+        }
+    }
+}
+```
+## 7. Why Do We Pass i Instead of i + 1?
+This is the heart of Combination Sum.
+Look at:
+```java
+combinations(
+    candidates,
+    target - candidates[i],
+    i,
+    current,
+    result
+);
+```
+Notice:
+i
+
+not:
+i + 1
+
+Suppose:
+candidates = [2,3,6,7]
+
+We choose:
+2
+
+Now:
+current = [2]
+
+We want to be able to choose 2 again:
+[2,2]
+
+Therefore we call:
+```java
+combinations(..., i, ...)
+```
+instead of:
+```java
+combinations(..., i + 1, ...)
+```
+## 8. Compare With Your Previous Combination Code
+Your previous code had:
+```java
+combinations(
+    arr,
+    result,
+    current,
+    i + 1,
+    k
+);
+```
+because:
+Element can be used only once
+
+For Combination Sum:
+```java
+combinations(
+    candidates,
+    target - candidates[i],
+    i,
+    current,
+    result
+);
+```
+because:
+Element can be used unlimited times
+
+Remember this:
+Combination
+       ↓
+i + 1
+       ↓
+Don't reuse
+
+Combination Sum
+       ↓
+i
+       ↓
+Can reuse
+
+## 9. Recursive Tree
+Let's understand:
+candidates = [2,3,6,7]
+target = 7
+```text
+At the beginning:
+                        []
+                     target = 7
+                    /    |    |    \
+                  2      3    6     7
+
+Choose 2:
+                         []
+                          |
+                       choose 2
+                          ↓
+                       [2]
+                     target = 5
+
+Because 2 can be reused:
+                         [2]
+                          |
+                         2
+                          ↓
+                       [2,2]
+                     target = 3
+
+Again:
+                       [2,2]
+                          |
+                         2
+                          ↓
+                     [2,2,2]
+                    target = 1
+```
+Now no candidate can make the remaining target 1.
+So this branch returns.
+```text
+Backtrack:
+[2,2]
+
+Now choose 3:
+[2,2,3]
+target = 0
+
+Therefore:
+💾 SAVE [2,2,3]
+
+10. Another Valid Branch
+From:
+[]
+target = 7
+
+choose 7:
+[7]
+target = 0
+
+Therefore:
+💾 SAVE [7]
+
+Final result:
+[
+    [2,2,3],
+    [7]
+]
+```
+## 11. Why Don't We Get [3,2,2]?
+This is another very important concept.
+Suppose we already generated:
+```text
+[2,2,3]
+
+We don't want:
+[2,3,2]
+[3,2,2]
+
+because these represent the same combination.
+Combination means:
+[2,2,3] = [2,3,2] = [3,2,2]
+```
+So we maintain the start index.
+Once we move forward, we don't go backward.
+For example:
+2 → 3
+
+is allowed.
+But:
+3 → 2
+
+is not allowed.
+That's how we avoid duplicate combinations.
+## 12. The Core Difference
+This is the part I want you to remember for DSA:
+```text
+Problem	Recursive Call	Meaning
+Permutation	i / visited	Elements can appear in different orders
+Combination	i + 1	Element used once
+Combination Sum	i	Element can be reused
+```
+
+**For Combination Sum:**
+combinations(..., i, ...)
+
+means:
+"I chose candidates[i], but I am allowed to choose it again."
+
+# Complete Recursive Trace — Combination Sum
+
+Let's trace **the exact code**.
+
+**`candidates = [2,3,6,7]`**  
+**`target = 7`**
+
+### Symbols
+
+- 🟢 **Choose**
+- 🔵 **Recursive call**
+- 💾 **Save**
+- 🔴 **`target < 0` → return**
+- ↩️ **Return from recursive call**
+- ↩️ **Undo**
+- `i` = current loop index
+- `start` = index from where the current recursive call is allowed to choose
+- `target` = remaining target at that level
+
+---
+
+# Complete Recursive Tree
+
+```text
+combinationSum([2,3,6,7], 7)
+│
+└── combinations(
+        target = 7,
+        start = 0,
+        current = []
+    )
+    │
+    ├── i = 0 → choose 2 🟢
+    │
+    │   current = [2]
+    │   target  = 7 - 2 = 5
+    │   start   = 0
+    │
+    │   🔵 Recursive call:
+    │
+    │   combinations(
+    │       target = 5,
+    │       start = 0,
+    │       current = [2]
+    │   )
+    │
+    │   ├── i = 0 → choose 2 🟢
+    │   │
+    │   │   current = [2,2]
+    │   │   target  = 5 - 2 = 3
+    │   │   start   = 0
+    │   │
+    │   │   🔵 Recursive call:
+    │   │
+    │   │   combinations(
+    │   │       target = 3,
+    │   │       start = 0,
+    │   │       current = [2,2]
+    │   │   )
+    │   │
+    │   │   ├── i = 0 → choose 2 🟢
+    │   │   │
+    │   │   │   current = [2,2,2]
+    │   │   │   target  = 3 - 2 = 1
+    │   │   │   start   = 0
+    │   │   │
+    │   │   │   🔵 Recursive call:
+    │   │   │
+    │   │   │   combinations(
+    │   │   │       target = 1,
+    │   │   │       start = 0,
+    │   │   │       current = [2,2,2]
+    │   │   │   )
+    │   │   │
+    │   │   │   ├── i = 0 → choose 2 🟢
+    │   │   │   │
+    │   │   │   │   current = [2,2,2,2]
+    │   │   │   │   target  = 1 - 2 = -1
+    │   │   │   │   start   = 0
+    │   │   │   │
+    │   │   │   │   🔵 Recursive call:
+    │   │   │   │
+    │   │   │   │   combinations(
+    │   │   │   │       target = -1,
+    │   │   │   │       start = 0,
+    │   │   │   │       current = [2,2,2,2]
+    │   │   │   │   )
+    │   │   │   │
+    │   │   │   │   target < 0
+    │   │   │   │
+    │   │   │   │   🔴 RETURN
+    │   │   │   │
+    │   │   │   │   ↩️ Return to:
+    │   │   │   │   [2,2,2]
+    │   │   │   │
+    │   │   │   │   ↩️ Undo
+    │   │   │   │   current = [2,2,2]
+    │   │   │   │
+    │   │   │   ├── i = 1 → choose 3 🟢
+    │   │   │   │
+    │   │   │   │   current = [2,2,2,3]
+    │   │   │   │   target  = 1 - 3 = -2
+    │   │   │   │   start   = 1
+    │   │   │   │
+    │   │   │   │   🔵 Recursive call:
+    │   │   │   │
+    │   │   │   │   combinations(
+    │   │   │   │       target = -2,
+    │   │   │   │       start = 1,
+    │   │   │   │       current = [2,2,2,3]
+    │   │   │   │   )
+    │   │   │   │
+    │   │   │   │   target < 0
+    │   │   │   │
+    │   │   │   │   🔴 RETURN
+    │   │   │   │
+    │   │   │   │   ↩️ Return
+    │   │   │   │
+    │   │   │   │   ↩️ Undo
+    │   │   │   │   current = [2,2,2]
+    │   │   │   │
+    │   │   │   ├── i = 2 → choose 6 🟢
+    │   │   │   │
+    │   │   │   │   current = [2,2,2,6]
+    │   │   │   │   target  = 1 - 6 = -5
+    │   │   │   │   start   = 2
+    │   │   │   │
+    │   │   │   │   🔵 Recursive call
+    │   │   │   │
+    │   │   │   │   target < 0
+    │   │   │   │
+    │   │   │   │   🔴 RETURN
+    │   │   │   │
+    │   │   │   │   ↩️ Return
+    │   │   │   │
+    │   │   │   │   ↩️ Undo
+    │   │   │   │   current = [2,2,2]
+    │   │   │   │
+    │   │   │   └── i = 3 → choose 7 🟢
+    │   │   │
+    │   │   │       current = [2,2,2,7]
+    │   │   │       target  = 1 - 7 = -6
+    │   │   │       start   = 3
+    │   │   │
+    │   │   │       🔵 Recursive call
+    │   │   │
+    │   │   │       target < 0
+    │   │   │
+    │   │   │       🔴 RETURN
+    │   │   │
+    │   │   │       ↩️ Return
+    │   │   │
+    │   │   │       ↩️ Undo
+    │   │   │       current = [2,2,2]
+    │   │   │
+    │   │   └── loop finished
+    │   │       ↩️ RETURN
+    │   │
+    │   │   ↩️ Return to [2,2]
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [2,2]
+    │   │
+    │   ├── i = 1 → choose 3 🟢
+    │   │
+    │   │   current = [2,2,3]
+    │   │   target  = 3 - 3 = 0
+    │   │   start   = 1
+    │   │
+    │   │   🔵 Recursive call:
+    │   │
+    │   │   combinations(
+    │   │       target = 0,
+    │   │       start = 1,
+    │   │       current = [2,2,3]
+    │   │   )
+    │   │
+    │   │   target == 0
+    │   │
+    │   │   💾 SAVE [2,2,3]
+    │   │
+    │   │   ↩️ RETURN
+    │   │
+    │   │   ↩️ Return to [2,2]
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [2,2]
+    │   │
+    │   ├── i = 2 → choose 6 🟢
+    │   │
+    │   │   current = [2,2,6]
+    │   │   target  = 3 - 6 = -3
+    │   │   start   = 2
+    │   │
+    │   │   🔵 Recursive call
+    │   │
+    │   │   target < 0
+    │   │
+    │   │   🔴 RETURN
+    │   │
+    │   │   ↩️ Return
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [2,2]
+    │   │
+    │   └── i = 3 → choose 7 🟢
+    │
+    │       current = [2,2,7]
+    │       target  = 3 - 7 = -4
+    │       start   = 3
+    │
+    │       🔵 Recursive call
+    │
+    │       target < 0
+    │
+    │       🔴 RETURN
+    │
+    │       ↩️ Return
+    │
+    │       ↩️ Undo
+    │       current = [2,2]
+    │
+    │   loop finished
+    │   ↩️ RETURN
+    │
+    │   ↩️ Return to [2]
+    │
+    │   ↩️ Undo
+    │   current = [2]
+    │
+    ├── i = 1 → choose 3 🟢
+    │
+    │   current = [2,3]
+    │   target  = 5 - 3 = 2
+    │   start   = 1
+    │
+    │   🔵 Recursive call:
+    │
+    │   combinations(
+    │       target = 2,
+    │       start = 1,
+    │       current = [2,3]
+    │   )
+    │   │
+    │   ├── i = 1 → choose 3 🟢
+    │   │   │
+    │   │   current = [2,3,3]
+    │   │   target  = 2 - 3 = -1
+    │   │   start   = 1
+    │   │
+    │   │   🔵 Recursive call
+    │   │
+    │   │   target < 0
+    │   │
+    │   │   🔴 RETURN
+    │   │
+    │   │   ↩️ Return
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [2,3]
+    │   │
+    │   ├── i = 2 → choose 6 🟢
+    │   │
+    │   │   current = [2,3,6]
+    │   │   target  = 2 - 6 = -4
+    │   │   start   = 2
+    │   │
+    │   │   🔵 Recursive call
+    │   │
+    │   │   target < 0
+    │   │
+    │   │   🔴 RETURN
+    │   │
+    │   │   ↩️ Return
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [2,3]
+    │   │
+    │   └── i = 3 → choose 7 🟢
+    │
+    │       current = [2,3,7]
+    │       target  = 2 - 7 = -5
+    │       start   = 3
+    │
+    │       🔵 Recursive call
+    │
+    │       target < 0
+    │
+    │       🔴 RETURN
+    │
+    │       ↩️ Return
+    │
+    │       ↩️ Undo
+    │       current = [2,3]
+    │
+    │   loop finished
+    │   ↩️ RETURN
+    │
+    │   ↩️ Return to [2]
+    │
+    │   ↩️ Undo
+    │   current = [2]
+    │
+    ├── i = 2 → choose 6 🟢
+    │
+    │   current = [2,6]
+    │   target  = 5 - 6 = -1
+    │   start   = 2
+    │
+    │   🔵 Recursive call
+    │
+    │   target < 0
+    │
+    │   🔴 RETURN
+    │
+    │   ↩️ Return
+    │
+    │   ↩️ Undo
+    │   current = [2]
+    │
+    └── i = 3 → choose 7 🟢
+        │
+        current = [2,7]
+        target  = 5 - 7 = -2
+        start   = 3
+        │
+        🔵 Recursive call
+        │
+        target < 0
+        │
+        🔴 RETURN
+        │
+        ↩️ Return
+        │
+        ↩️ Undo
+        current = [2]
+    │
+    │
+    │ loop finished
+    │ ↩️ RETURN
+    │
+    ↩️ Return to []
+    │
+    ↩️ Undo
+    current = []
+    
+    
+    ├── i = 1 → choose 3 🟢
+    │
+    │   current = [3]
+    │   target  = 7 - 3 = 4
+    │   start   = 1
+    │
+    │   🔵 Recursive call:
+    │
+    │   combinations(
+    │       target = 4,
+    │       start = 1,
+    │       current = [3]
+    │   )
+    │   │
+    │   ├── i = 1 → choose 3 🟢
+    │   │   │
+    │   │   current = [3,3]
+    │   │   target  = 4 - 3 = 1
+    │   │   start   = 1
+    │   │
+    │   │   🔵 Recursive call:
+    │   │
+    │   │   combinations(
+    │   │       target = 1,
+    │   │       start = 1,
+    │   │       current = [3,3]
+    │   │   )
+    │   │   │
+    │   │   ├── i = 1 → choose 3 🟢
+    │   │   │
+    │   │   │   current = [3,3,3]
+    │   │   │   target  = 1 - 3 = -2
+    │   │   │   start   = 1
+    │   │   │
+    │   │   │   🔵 Recursive call
+    │   │   │
+    │   │   │   target < 0
+    │   │   │
+    │   │   │   🔴 RETURN
+    │   │   │
+    │   │   │   ↩️ Return
+    │   │   │
+    │   │   │   ↩️ Undo
+    │   │   │   current = [3,3]
+    │   │   │
+    │   │   ├── i = 2 → choose 6 🟢
+    │   │   │
+    │   │   │   current = [3,3,6]
+    │   │   │   target  = 1 - 6 = -5
+    │   │   │   start   = 2
+    │   │   │
+    │   │   │   🔵 Recursive call
+    │   │   │
+    │   │   │   target < 0
+    │   │   │
+    │   │   │   🔴 RETURN
+    │   │   │
+    │   │   │   ↩️ Return
+    │   │   │
+    │   │   │   ↩️ Undo
+    │   │   │   current = [3,3]
+    │   │   │
+    │   │   └── i = 3 → choose 7 🟢
+    │   │
+    │   │       current = [3,3,7]
+    │   │       target  = 1 - 7 = -6
+    │   │       start   = 3
+    │   │
+    │   │       🔵 Recursive call
+    │   │
+    │   │       target < 0
+    │   │
+    │   │       🔴 RETURN
+    │   │
+    │   │       ↩️ Return
+    │   │
+    │   │       ↩️ Undo
+    │   │       current = [3,3]
+    │   │
+    │   │   loop finished
+    │   │   ↩️ RETURN
+    │   │
+    │   │   ↩️ Return to [3]
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [3]
+    │   │
+    │   ├── i = 2 → choose 6 🟢
+    │   │
+    │   │   current = [3,6]
+    │   │   target  = 4 - 6 = -2
+    │   │   start   = 2
+    │   │
+    │   │   🔵 Recursive call
+    │   │
+    │   │   target < 0
+    │   │
+    │   │   🔴 RETURN
+    │   │
+    │   │   ↩️ Return
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [3]
+    │   │
+    │   └── i = 3 → choose 7 🟢
+    │
+    │       current = [3,7]
+    │       target  = 4 - 7 = -3
+    │       start   = 3
+    │
+    │       🔵 Recursive call
+    │
+    │       target < 0
+    │
+    │       🔴 RETURN
+    │
+    │       ↩️ Return
+    │
+    │       ↩️ Undo
+    │       current = [3]
+    │
+    │   loop finished
+    │   ↩️ RETURN
+    │
+    ↩️ Return to []
+    │
+    ↩️ Undo
+    current = []
+    
+    
+    ├── i = 2 → choose 6 🟢
+    │
+    │   current = [6]
+    │   target  = 7 - 6 = 1
+    │   start   = 2
+    │
+    │   🔵 Recursive call:
+    │
+    │   combinations(
+    │       target = 1,
+    │       start = 2,
+    │       current = [6]
+    │   )
+    │   │
+    │   ├── i = 2 → choose 6 🟢
+    │   │   │
+    │   │   current = [6,6]
+    │   │   target  = 1 - 6 = -5
+    │   │   start   = 2
+    │   │
+    │   │   🔵 Recursive call
+    │   │
+    │   │   target < 0
+    │   │
+    │   │   🔴 RETURN
+    │   │
+    │   │   ↩️ Return
+    │   │
+    │   │   ↩️ Undo
+    │   │   current = [6]
+    │   │
+    │   └── i = 3 → choose 7 🟢
+    │
+    │       current = [6,7]
+    │       target  = 1 - 7 = -6
+    │       start   = 3
+    │
+    │       🔵 Recursive call
+    │
+    │       target < 0
+    │
+    │       🔴 RETURN
+    │
+    │       ↩️ Return
+    │
+    │       ↩️ Undo
+    │       current = [6]
+    │
+    │   loop finished
+    │   ↩️ RETURN
+    │
+    ↩️ Return to []
+    │
+    ↩️ Undo
+    current = []
+    
+    
+    └── i = 3 → choose 7 🟢
+        │
+        current = [7]
+        target  = 7 - 7 = 0
+        start   = 3
+        │
+        🔵 Recursive call:
+        │
+        combinations(
+            target = 0,
+            start = 3,
+            current = [7]
+        )
+        │
+        target == 0
+        │
+        💾 SAVE [7]
+        │
+        ↩️ RETURN
+        │
+        ↩️ Return to []
+        │
+        ↩️ Undo
+        current = []
+        
+    loop finished
+    
+    ↩️ RETURN
