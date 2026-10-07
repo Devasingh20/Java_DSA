@@ -17,6 +17,55 @@ select 2 elements:
 [1, 3]
 [2, 3]
 ```
+# Combination
+
+## Meaning
+
+Combination = Selection only + Order does NOT matter
+
+## Formula
+
+$$
+\boxed{{}^nC_r = \frac{n!}{r!(n-r)!}}
+$$
+
+## Example
+
+From 5 people, select 3:
+
+$$
+{}^5C_3 = \frac{5!}{3!(5-3)!}
+$$
+
+$$
+= \frac{5!}{3!2!}
+$$
+
+$$
+= \frac{120}{6 \times 2}
+$$
+
+$$
+= 10
+$$
+
+So there are **10 combinations**.
+
+---
+
+## Combination vs Permutation
+
+### Combination
+
+$$
+[1,2] = [2,1]
+$$
+
+Order does **not** matter.
+
+
+---
+
 
 `[1,2]` and `[2,1]` represent the same combination.
 
@@ -29,6 +78,16 @@ Combination:
 Permutation:
 [1,2] != [2,1]
 ```
+ # Main Difference
+
+|          | Permutation             | Combination               |
+|----------|-------------------------|----------------------------|
+| Meaning  | Arrangement             | Selection                  |
+| Order    | **Matters**             | **Doesn't matter**         |
+| Formula  | \(\frac{n!}{(n-r)!}\)  | \(\frac{n!}{r!(n-r)!}\)   |
+| Notation | \(nP_r\)                | \(nC_r\)                   |
+| Example  | ABC ≠ BAC               | ABC = BAC                  |
+
 
 The main idea is:
 
