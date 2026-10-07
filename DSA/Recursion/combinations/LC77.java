@@ -9,7 +9,7 @@ public class LC77 {
         int k = 2;
         List<List<Integer>> result = new ArrayList<>();
         List<Integer> current = new ArrayList<>();
-        combinations(result, current, 1, k, n);
+        combinations(result, current, 0, k, n);
         System.out.println(result);
     }
 
@@ -18,9 +18,8 @@ public class LC77 {
             result.add(new ArrayList<>(current));
             return;
         }
-        int need = k - current.size();
-        for (int i = start; i <= n - need + 1; i++) {
-            current.add(i);
+        for (int i = start; i < n ; i++) {
+            current.add(i+1);
             combinations(result, current, i + 1, k, n);
             current.remove(current.size() - 1);
         }
