@@ -78,15 +78,15 @@ Combination:
 Permutation:
 [1,2] != [2,1]
 ```
- # Main Difference
+Main Difference
 
-|          | Permutation             | Combination               |
-|----------|-------------------------|----------------------------|
-| Meaning  | Arrangement             | Selection                  |
-| Order    | **Matters**             | **Doesn't matter**         |
-| Formula  | \(\frac{n!}{(n-r)!}\)  | \(\frac{n!}{r!(n-r)!}\)   |
-| Notation | \(nP_r\)                | \(nC_r\)                   |
-| Example  | ABC ≠ BAC               | ABC = BAC                  |
+|          | Permutation | Combination |
+|----------|-------------|-------------|
+| Meaning  | Arrangement  | Selection   |
+| Order    | **Matters** | **Doesn't matter** |
+| Formula  | $$\frac{n!}{(n-r)!}$$ | $$\frac{n!}{r!(n-r)!}$$ |
+| Notation | $$nP_r$$ | $$nC_r$$ |
+| Example  | ABC ≠ BAC | ABC = BAC |
 
 
 The main idea is:
