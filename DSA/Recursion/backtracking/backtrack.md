@@ -205,3 +205,22 @@ Remember these four points:
 One subtle point: your code counts paths, not the actual movement sequences. It doesn't create a maze array or check blocked cells; it assumes an unobstructed rectangular grid and movement in only two directions.
 
 **Time complexity:** `O(2^(r+c))` as a simple upper bound for the recursive implementation, because it repeats many subproblems. The same problem can be optimized using dynamic programming.
+
+
+## 6. recursion tree
+```text 
+                         count(3,3)
+                        /          \
+                 left /              \ right
+                     /                \
+              count(2,3)              count(3,2)
+              /       \                /       \
+             /         \              /         \
+       count(1,3)  count(2,2)    count(2,2)  count(3,1)
+           |          /    \          |          |
+        return 1  count(1,2) count(2,1)        return 1
+                      |          |
+                   return 1   return 1
+                      \          /
+                       \        /
+                       count(2,2) = 2
