@@ -224,3 +224,282 @@ One subtle point: your code counts paths, not the actual movement sequences. It 
                       \          /
                        \        /
                        count(2,2) = 2
+```
+
+# Print Maze Paths — Recursion and Backtracking in Java
+
+Your code prints all possible paths from the top-left corner to the bottom-right corner of a maze, assuming you can move only Down (`D`) and Right (`R`).
+
+The most important thing to understand is that this problem uses recursion with two choices at each step. It is closely related to decision-tree recursion, not directly to the usual subsequence or permutation patterns.
+
+## 1. First, understand the maze
+
+You call:
+
+```java
+path("", 3, 3);
+```
+
+This means:
+
+- `p = ""` — the path is initially empty.
+- `row = 3` — there are 3 rows remaining.
+- `column = 3` — there are 3 columns remaining.
+
+Imagine a `3 × 3` grid:
+
+```text
+S  ·  ·
+·  ·  ·
+·  ·  D
+```
+
+- `S` = Start
+- `D` = Destination
+
+To reach the destination, you need exactly:
+
+- 2 Down moves (`D`)
+- 2 Right moves (`R`)
+
+The possible movement sequences are:
+
+- `DDRR`
+- `DRDR`
+- `DRRD`
+- `RDDR`
+- `RDRD`
+- `RRDD`
+
+Therefore, your code prints 6 paths.
+
+## 2. Which approach does this code use?
+
+| Algorithm pattern | Is it used here? | Why? |
+|---|---|---|
+| Recursion | Yes | The method calls itself with smaller dimensions. |
+| Decision-tree recursion | Yes | Each call can choose Down or Right. |
+| Backtracking | Related, but no explicit undo | Each recursive call explores a separate path; the path string is immutable. |
+| Subsequences | No, not directly | You aren't deciding whether to include or exclude each element of an input array. |
+| Permutations | Not the standard pattern | You aren't freely arranging distinct elements; you are arranging a fixed number of `D` and `R` moves subject to the maze rules. |
+
+The best classification is: **recursive path generation using a decision tree.**
+
+It has a similar branching structure to subsequence and permutation problems, but the choices and constraints are different.
+
+## 3. Complete recursive tree for `path("", 3, 3)`
+
+Let's trace every recursive call. Your code checks Down first (`D`) and Right second (`R`), so the tree explores all Down-first branches before the Right-first branches.
+
+```text
+path("", 3, 3)
+│
+├── D → path("D", 2, 3)
+│   │
+│   ├── D → path("DD", 1, 3)
+│   │   │
+│   │   └── R → path("DDR", 1, 2)
+│   │       │
+│   │       └── R → path("DDRR", 1, 1)
+│   │           └── PRINT "DDRR"
+│   │
+│   └── R → path("DR", 2, 2)
+│       │
+│       ├── D → path("DRD", 1, 2)
+│       │   │
+│       │   └── R → path("DRDR", 1, 1)
+│       │       └── PRINT "DRDR"
+│       │
+│       └── R → path("DRR", 2, 1)
+│           │
+│           └── D → path("DRRD", 1, 1)
+│               └── PRINT "DRRD"
+│
+└── R → path("R", 3, 2)
+    │
+    ├── D → path("RD", 2, 2)
+    │   │
+    │   ├── D → path("RDD", 1, 2)
+    │   │   │
+    │   │   └── R → path("RDDR", 1, 1)
+    │   │       └── PRINT "RDDR"
+    │   │
+    │   └── R → path("RDR", 2, 1)
+    │       │
+    │       └── D → path("RDRD", 1, 1)
+    │           └── PRINT "RDRD"
+    │
+    └── R → path("RR", 3, 1)
+        │
+        └── D → path("RRD", 2, 1)
+            │
+            └── D → path("RRDD", 1, 1)
+                └── PRINT "RRDD"
+```
+
+Every leaf reaches `(1, 1)`, so the path is printed.
+
+### Output
+
+```text
+DDRR
+DRDR
+DRRD
+RDDR
+RDRD
+RRDD
+```
+
+## 4. Understand the code line by line
+
+### A. The initial call
+
+```java
+path("", 3, 3);
+```
+
+We start with an empty path because we haven't moved yet.
+
+The recursion gradually builds the path by appending `D` or `R`.
+
+### B. The base case
+
+```java
+if (row == 1 && column == 1) {
+    System.out.println(p);
+    return;
+}
+```
+
+When both dimensions reach `1`, we have reached the destination.
+
+We print the path accumulated so far and return to the previous recursive call.
+
+**Why use `&&` instead of `||` here?**
+
+Because we print a completed path only when both dimensions have reached `1`. If either dimension alone reaches `1`, movement along the other dimension may still be necessary.
+
+### C. The Down choice
+
+```java
+if (row > 1) {
+    path(p + 'D', row - 1, column);
+}
+```
+
+If more than one row remains, we can move Down.
+
+For example:
+
+```java
+path("", 3, 3);
+```
+
+makes this recursive call:
+
+```java
+path("D", 2, 3);
+```
+
+Notice two changes:
+
+- `p + 'D'` changes the path from `""` to `"D"`.
+- `row - 1` changes the remaining row dimension from `3` to `2`.
+
+### D. The Right choice
+
+```java
+if (column > 1) {
+    path(p + 'R', row, column - 1);
+}
+```
+
+If more than one column remains, we can move Right.
+
+For example:
+
+```java
+path("", 3, 3);
+```
+
+also makes this call:
+
+```java
+path("R", 3, 2);
+```
+
+The path becomes `"R"`, and the column dimension decreases by one.
+
+**Important:** Both `if` statements are independent. We don't use `else` because both choices must be explored to generate all possible paths.
+
+## 5. Why don't we need an undo statement?
+
+Compare this with N-Queens:
+
+```java
+board[row][col] = 'Q';
+solve(...);
+board[row][col] = '.';
+```
+
+In N-Queens, we modify a shared board, so we must undo the modification.
+
+Your maze code instead uses:
+
+```java
+path(p + 'D', row - 1, column);
+```
+
+Java creates a new `String` for `p + 'D'`. The original `p` remains unchanged.
+
+For example, if the current path is `"D"`:
+
+- Down creates `"DD"`.
+- Right creates `"DR"`.
+
+The two branches do not overwrite each other's paths. Therefore, no explicit undo statement is required.
+
+## 6. How is this related to subsequences and permutations?
+
+Consider these three patterns:
+
+### Maze paths
+
+Choose a valid direction at each step.
+
+`D` or `R` → explore the remaining maze.
+
+### Subsequences
+
+Decide whether to include an element.
+
+`Take` or `Skip` → process the next element.
+
+### Permutations
+
+Choose an unused element for the next position.
+
+`Choose` → recurse → `Undo` the selection.
+
+All three can use recursion trees. What changes is the meaning of the choices.
+
+For a `3 × 3` maze, every complete path contains exactly two `D` moves and two `R` moves. Thus, the number of paths is also:
+
+$$
+\binom{4}{2}=\frac{4!}{2!\,2!}=6
+$$
+
+This combinatorial formula gives the same result, but your code obtains it by exploring the recursive tree.
+
+## 7. Complexity
+
+For a maze with \(r\) rows and \(c\) columns, where only Down and Right are allowed:
+
+- **Time complexity:** \(O\left(\binom{r+c-2}{r-1}(r+c)\right)\) when accounting for constructing and printing each complete path, using a straightforward string-based implementation.
+- **Auxiliary recursion depth:** \(O(r+c)\), excluding the output.
+
+Remember the key distinction: Your code doesn't search a maze with obstacles. It generates all valid Down/Right movement sequences for an unobstructed rectangular grid.
+
+## Recursion Tree
+
+![Maze Path Recursion Tree](mazePath.png)
