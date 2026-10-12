@@ -7,6 +7,13 @@ public class printMazePath {
         System.out.println(pathAsList("", 3, 3));
         // include diagonal moves
         System.out.println(pathDiagonal("", 3, 3));
+        // with obstacle: 1 means obstacle
+        int[][] maze = {
+                { 0, 0, 0 },
+                { 0, 1, 0 },
+                { 0, 0, 0 }
+        };
+        pathRestriction("", maze, 0, 0);
     }
 
     static void path(String p, int row, int column) {
@@ -57,6 +64,23 @@ public class printMazePath {
             ans.addAll(pathDiagonal(p + 'D', row - 1, column - 1));
         }
         return ans;
+    }
+
+    // with obstacle
+    static void pathRestriction(String p, int[][] maze, int row, int column) {
+        if (row == maze.length - 1 && column == maze[0].length - 1) {
+            System.out.println(p);
+            return;
+        }
+        if (maze[row][column] == 1) {
+            return;
+        }
+        if (row < maze.length - 1) {
+            pathRestriction(p + 'V', maze, row + 1, column);
+        }
+        if (column < maze[0].length - 1) {
+            pathRestriction(p + 'H', maze, row, column + 1);
+        }
     }
 
 }
