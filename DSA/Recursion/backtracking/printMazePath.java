@@ -68,11 +68,11 @@ public class printMazePath {
 
     // with obstacle
     static void pathRestriction(String p, int[][] maze, int row, int column) {
-        if (row == maze.length - 1 && column == maze[0].length - 1) {
-            System.out.println(p);
+        if (maze[row][column] == 1) {
             return;
         }
-        if (maze[row][column] == 1) {
+        if (row == maze.length - 1 && column == maze[0].length - 1) {
+            System.out.println(p);
             return;
         }
         if (row < maze.length - 1) {
