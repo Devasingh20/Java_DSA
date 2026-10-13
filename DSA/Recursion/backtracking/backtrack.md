@@ -758,3 +758,526 @@ RRDLDR
 [7, 8, 9]
 RRDLLDRR
 ```
+
+## uniquePaths — Complete Explanation
+
+Your program uses **recursion, backtracking, and in-place visited-cell tracking** to find all valid paths from the starting cell to the destination in a grid.
+
+Unlike the previous version, this implementation does not use a separate `boolean[][] maze` matrix. Instead, it temporarily modifies the original `grid` to mark visited cells and restores their original values after exploring each path.
+
+We'll understand the problem first, then the approach, code execution, recursion, backtracking, and time and space complexity.
+
+## 1. What is the problem?
+
+You are given a 2D grid containing four types of cells:
+
+| Value | Meaning |
+|---|---|
+| `1` | Starting cell |
+| `0` | Empty cell |
+| `2` | Destination cell |
+| `-1` | Obstacle — cannot enter |
+
+You must find the number of paths from the starting cell to the destination such that **every non-obstacle cell is visited exactly once**.
+
+You can move in four directions:
+
+- **Down:** `row + 1`
+- **Up:** `row - 1`
+- **Right:** `column + 1`
+- **Left:** `column - 1`
+
+Your input grid is:
+
+```java
+int[][] grid = {
+    { 1, 0, 0, 0 },
+    { 0, 0, 0, 0 },
+    { 0, 0, 2, -1 }
+};
+```
+
+There are 12 cells in total. One cell is an obstacle, so there are **11 non-obstacle cells**.
+
+Therefore, a valid path must visit all 11 non-obstacle cells exactly once, including the starting and destination cells.
+
+Since the starting cell is counted as step 1, the destination must be reached at **step 11**.
+
+## 2. What is the approach?
+
+Your approach is **Depth-First Search (DFS) with backtracking**.
+
+The algorithm explores one possible route as far as it can, then returns to earlier cells to try alternative routes.
+
+The basic process is:
+
+1. Find the starting cell (`1`) and count all non-obstacle cells.
+2. Start recursion from the starting cell with `steps = 1`.
+3. Save the original value of the current cell.
+4. Temporarily change the current cell to `-1` to mark it as visited.
+5. Explore Down, Right, Up, and Left wherever movement is allowed.
+6. When the destination (`2`) is reached, accept the route only if `steps == totalCells`.
+7. Restore the original value of the current cell after exploring all directions.
+
+The crucial distinction is that **reaching the destination does not automatically make a route valid**. Every non-obstacle cell must have been visited first.
+
+## 3. Understand the `main()` method
+
+### Step 1: Create the grid
+
+```java
+int[][] grid = {
+    { 1, 0, 0, 0 },
+    { 0, 0, 0, 0 },
+    { 0, 0, 2, -1 }
+};
+```
+
+This represents the actual maze. The values tell us which cell is the start, destination, empty, or obstacle.
+
+### Step 2: Create the `path` matrix
+
+```java
+int[][] path = new int[grid.length][grid[0].length];
+```
+
+This matrix records the order in which cells are visited.
+
+For example, a cell visited as the first cell gets `1`, the next gets `2`, and so on.
+
+It is used only to visualize the path. It is not required to calculate the answer.
+
+### Step 3: Count all required cells and find the start
+
+```java
+int totalCells = 0;
+int startRow = 0;
+int startCol = 0;
+
+for (int r = 0; r < grid.length; r++) {
+    for (int c = 0; c < grid[0].length; c++) {
+        if (grid[r][c] != -1) {
+            totalCells++;
+        }
+
+        if (grid[r][c] == 1) {
+            startRow = r;
+            startCol = c;
+        }
+    }
+}
+```
+## Why Do We Use `totalCells` and `steps == totalCells`?
+these two variables ensure that **every non-obstacle cell is visited exactly once before reaching the destination**.
+
+### 1. Why Do We Use `totalCells`?
+
+```java
+int totalCells = 0;
+
+for (int r = 0; r < grid.length; r++) {
+    for (int c = 0; c < grid[0].length; c++) {
+        if (grid[r][c] != -1) {
+            totalCells++;
+        }
+    }
+}
+```
+
+`totalCells` stores the total number of cells that must be visited. We exclude obstacles (`-1`) because they cannot be visited.
+
+For your grid:
+
+```java
+int[][] grid = {
+    { 1, 0, 0, 0 },
+    { 0, 0, 0, 0 },
+    { 0, 0, 2, -1 }
+};
+```
+
+There are 12 cells in total, but one is an obstacle.
+
+
+These 11 cells include:
+
+- 1 starting cell
+- 9 empty cells
+- 1 destination cell
+
+### 2. Why Do We Start `steps` at `1`?
+
+Your recursive call is:
+
+```java
+int count = allPath(
+    "", path, grid,
+    startRow, startCol, 1, totalCells
+);
+```
+
+We start `steps` at `1` because the starting cell itself counts as the first visited cell.
+
+Suppose a route visits the cells in this order:
+
+| Step | Meaning |
+|---:|---|
+| 1 | Starting cell |
+| 2 | Second cell visited |
+| 3 | Third cell visited |
+| ... | ... |
+| 11 | Eleventh cell visited |
+
+This continues until the destination is reached.
+
+Whenever you move to another cell, you pass:
+
+```java
+steps + 1
+```
+
+For example:
+
+```java
+allPath(
+    p + 'D', path, grid,
+    row + 1, column, steps + 1, totalCells
+);
+```
+
+So, `steps` represents the **number of cells visited along the current route**, including the current cell. It does not represent the number of moves.
+
+### 3. Why Do We Check `steps == totalCells`?
+
+Your destination condition is:
+
+```java
+if (grid[row][column] == 2) {
+    if (steps == totalCells) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+```
+
+This condition checks whether the route visited every required cell before reaching the destination.
+
+For your grid, `totalCells = 11`.
+
+| When the destination is reached | `steps` | Result |
+|---|---:|---|
+| An incomplete route | 5 | `return 0` |
+| An incomplete route | 8 | `return 0` |
+| After visiting every required cell | 11 | `return 1` |
+
+**Why reject a route that reaches the destination at step 8?**
+
+Because three required cells would remain unvisited. Even though the destination was reached, the route does not satisfy the problem's conditions.
+
+### 4. How Do These Two Variables Work Together?
+
+The relationship is simple:
+
+- `totalCells` tells us how many cells must be visited.
+- `steps` tells us how many cells have been visited on the current route.
+- `steps == totalCells` confirms that the entire route has covered every required cell when it reaches the destination.
+
+The recursive calls increment `steps` as they move, while `totalCells` stays constant.
+
+\[
+\boxed{\text{Valid path: destination reached and steps}=\text{totalCells}}
+\]
+
+**Remember:** We use `totalCells` as the target and `steps` as the current progress. Together, they prevent the algorithm from counting paths that reach the destination too early.
+
+The condition `grid[r][c] != -1` excludes obstacles from the count.
+
+For your grid:
+
+- Empty cells: 9
+- Starting cell: 1
+- Destination cell: 1
+- Obstacle cells: 1
+- Total required cells: **11**
+
+The starting coordinates are `(0, 0)`.
+
+### Step 4: Call the recursive function
+
+```java
+int count = allPath(
+    "", path, grid,
+    startRow, startCol, 1, totalCells
+);
+
+System.out.println(count);
+```
+
+The arguments mean:
+
+| Argument | Purpose |
+|---|---|
+| `""` | Initially, the path string is empty |
+| `path` | Stores the visit order for printing |
+| `grid` | Stores the maze and tracks visited cells |
+| `startRow`, `startCol` | Starting coordinates |
+| `1` | The start is step 1 |
+| `totalCells` | Number of cells that must be visited |
+
+Notice that the `maze` matrix is no longer passed to the function. Your code uses `grid` itself to track visited cells.
+
+## 4. Understand the `allPath()` method
+
+### A. Reject an obstacle or visited cell
+
+```java
+if (grid[row][column] == -1) {
+    return 0;
+}
+```
+
+If the current cell contains `-1`, the route cannot continue.
+
+This condition handles two situations:
+
+- A permanent obstacle that was already present in the input.
+- A cell that was temporarily marked as visited by the current recursive route.
+
+`return 0` means this recursive branch contributes zero valid paths.
+
+### B. Check whether the destination has been reached
+
+```java
+if (grid[row][column] == 2) {
+    if (steps == totalCells) {
+        path[row][column] = steps;
+
+        for (int[] arr : path) {
+            System.out.println(Arrays.toString(arr));
+        }
+
+        System.out.println(p);
+        System.out.println();
+
+        return 1;
+    } else {
+        return 0;
+    }
+}
+```
+
+This is the most important condition in the program.
+
+- If the destination is reached after visiting every required cell, return `1`.
+- Otherwise, return `0`.
+
+Why return `1`? Because the method counts valid routes. Every valid completed route contributes one to the total count.
+
+For your grid, a route reaching the destination at step 11 is valid. If it reaches the destination at step 8, it is invalid because some cells remain unvisited.
+
+### C. Save the original value and mark the current cell
+
+```java
+int count = 0;
+
+int original = grid[row][column];
+grid[row][column] = -1;
+
+path[row][column] = steps;
+```
+
+Before exploring the next cells:
+
+- `count = 0` initializes the number of valid paths found from this position.
+- `original` saves the current cell's original value.
+- `grid[row][column] = -1` temporarily marks the cell as visited.
+- `path[row][column] = steps` records the current step number.
+
+The cell remains marked as visited while all four directions are explored.
+
+### Why do we use `int original` instead of `boolean[][] maze`?
+
+In the previous implementation, you used a separate matrix:
+
+```java
+boolean[][] maze = new boolean[grid.length][grid[0].length];
+```
+
+You marked a cell as visited using:
+
+```java
+maze[row][column] = false;
+```
+
+In your updated code, you modify the original grid instead:
+
+```java
+int original = grid[row][column];
+grid[row][column] = -1;
+```
+
+Suppose the current cell contains `0`.
+
+Before visiting:
+
+```text
+grid[row][column] = 0
+```
+
+After marking it visited:
+
+```text
+grid[row][column] = -1
+```
+
+After exploring all directions:
+
+```java
+grid[row][column] = original;
+```
+
+The cell becomes `0` again.
+
+The variable `original` is necessary because the cell might originally contain `0` or `1`. You must restore its actual previous value, not always set it to `0`.
+
+| Feature | Separate `boolean[][] maze` | Reusing `grid` with `int original` |
+|---|---|---|
+| Mark visited | `maze[row][column] = false` | `grid[row][column] = -1` |
+| Restore state | `maze[row][column] = true` | `grid[row][column] = original` |
+| Extra visited matrix | Required | Not required |
+| Original grid during recursion | Unmodified | Temporarily modified |
+| Additional space | One extra matrix | No extra visited matrix |
+
+Both approaches are correct. Reusing `grid` is more space-efficient because it eliminates the separate visited matrix.
+
+### D. Explore all four directions
+
+```java
+if (row < grid.length - 1) {
+    count += allPath(
+        p + 'D', path, grid,
+        row + 1, column, steps + 1, totalCells
+    );
+}
+```
+
+This explores Down, provided the next row is within the grid.
+
+The other three calls follow the same logic:
+
+```java
+// Right
+if (column < grid[0].length - 1) {
+    count += allPath(
+        p + 'R', path, grid,
+        row, column + 1, steps + 1, totalCells
+    );
+}
+
+// Up
+if (row > 0) {
+    count += allPath(
+        p + 'U', path, grid,
+        row - 1, column, steps + 1, totalCells
+    );
+}
+
+// Left
+if (column > 0) {
+    count += allPath(
+        p + 'L', path, grid,
+        row, column - 1, steps + 1, totalCells
+    );
+}
+```
+
+Each call explores a separate choice. The boundary checks prevent the recursion from moving outside the grid.
+
+**Why use `count +=`?**
+
+Suppose the Down branch finds 2 valid routes and the Right branch finds 3. Their combined contribution is:
+
+\[
+count = 2 + 3 = 5
+\]
+
+Every recursive call returns the number of valid routes found beneath that call.
+
+### E. Backtrack and restore the state
+
+```java
+grid[row][column] = original;
+path[row][column] = 0;
+
+return count;
+```
+
+Once all directions have been explored, the function restores the current cell.
+
+This is **backtracking**: undoing the current choice after exploring its consequences so that another route can use that cell.
+
+For example:
+
+1. Visit cell `(0, 0)` and save its original value, `1`.
+2. Change the cell to `-1`.
+3. Explore all possible routes starting from it.
+4. Finish exploring those routes.
+5. Restore `(0, 0)` to `1`.
+6. Return the number of valid routes found.
+
+Without restoration, other branches could incorrectly treat the cell as permanently unavailable.
+
+**Important correction for path printing:** Your current code returns immediately when a valid destination is reached, leaving the destination's step number in `path`. If you want every printed matrix to represent only its own route, copy the matrix before printing or restore the destination cell after printing. Otherwise, a previously printed route's destination step may remain visible in later outputs.
+
+## 5. Visualize the recursion
+
+Suppose the algorithm starts at the top-left cell. It explores a tree of choices:
+
+```text
+Start (0, 0)
+    |
+    ├── Down
+    |     └── Continue DFS
+    |
+    └── Right
+          └── Continue DFS
+```
+
+The actual recursion tree is much larger because each cell can have up to four possible directions. Visited-cell tracking eliminates moves back into cells already used by the current route.
+
+Your code explores Down before Right, then Up, then Left. Consequently, the order of the printed paths depends on this direction order.
+
+## 6. Why are both `grid` and `path` used?
+
+They serve different purposes.
+
+| Matrix | Purpose | Required for counting? |
+|---|---|---|
+| `grid` | Represents the maze and tracks visited cells | Yes |
+| `path` | Displays the order of visited cells | No |
+
+Your current implementation is useful for learning because it separates the maze's cell information from the path visualization, while avoiding a separate visited matrix.
+
+For a count-only solution, you can remove `path` and the path string `p` as well.
+
+## 7. Complexity analysis
+
+Let \(M\) be the number of non-obstacle cells.
+
+- **Time complexity:** \(O(4^M)\) as a loose upper-bound estimate, because each visited cell can lead to up to four recursive choices. The visited-cell restriction makes the actual search smaller than this bound.
+- **Auxiliary space complexity:** \(O(M)\) for the recursion stack, plus \(O(M)\) for the `path` matrix. The grid itself is input storage, although its cells are temporarily modified.
+
+Your updated implementation saves the extra `boolean[][] maze` matrix.
+
+## 8. Important concepts to remember
+
+1. **DFS:** Explore one route deeply before trying another.
+2. **Backtracking:** Restore the current state after exploring a route.
+3. **Visited tracking:** Temporarily replace the current cell with `-1` to prevent revisiting it.
+4. **Saving original state:** Store the cell's original value in `int original` so it can be restored correctly.
+5. **Base cases:** Stop when an obstacle or visited cell is encountered, or when the destination is reached.
+6. **Counting recursion:** Invalid branches return `0`; valid complete routes return `1`; parent calls add their children's results.
+7. **Path visualization:** `path` records the order of cells but does not determine whether the route is valid.
+
+The central idea is: **save the current cell, mark it visited, explore every possible continuation, restore the original value, and count only routes that visit every required cell exactly once.**
