@@ -503,3 +503,258 @@ Remember the key distinction: Your code doesn't search a maze with obstacles. It
 ## Recursion Tree
 
 ![Maze Path Recursion Tree](mazePath.png)
+
+## Recursion Tree for printAllMazePath.java
+```text
+path("", 0, 0) [MARK F: (0,0)]
+│
+├── D: path("D", 1, 0) [MARK F: (1,0)]
+│   │
+│   ├── D: path("DD", 2, 0) [MARK F: (2,0)]
+│   │   │
+│   │   ├── D: out of bounds
+│   │   ├── R: path("DDR", 2, 1) [MARK F: (2,1)]
+│   │   │   │
+│   │   │   ├── D: out of bounds
+│   │   │   ├── R: path("DDRR", 2, 2)
+│   │   │   │   └── PRINT "DDRR"; RETURN
+│   │   │   │
+│   │   │   ├── U: path("DDRU", 1, 1) [MARK F: (1,1)]
+│   │   │   │   │
+│   │   │   │   ├── D: (2,1) is false → RETURN
+│   │   │   │   ├── R: path("DDRUR", 1, 2) [MARK F: (1,2)]
+│   │   │   │   │   │
+│   │   │   │   │   ├── D: path("DDRURD", 2, 2)
+│   │   │   │   │   │   └── PRINT "DDRURD"; RETURN
+│   │   │   │   │   ├── R: out of bounds
+│   │   │   │   │   ├── U: path("DDRURU", 0, 2) [MARK F: (0,2)]
+│   │   │   │   │   │   │
+│   │   │   │   │   │   ├── D: (1,2) is false → RETURN
+│   │   │   │   │   │   ├── R: out of bounds
+│   │   │   │   │   │   ├── U: out of bounds
+│   │   │   │   │   │   └── L: path("DDRURUL", 0, 1) [MARK F: (0,1)]
+│   │   │   │   │   │       ├── D: (1,1) is false → RETURN
+│   │   │   │   │   │       ├── R: (0,2) is false → RETURN
+│   │   │   │   │   │       ├── U: out of bounds
+│   │   │   │   │   │       └── L: (0,0) is false → RETURN
+│   │   │   │   │   │       RESTORE (0,1) = true
+│   │   │   │   │   │       ↩ RETURN to path("DDRURU", 0, 2)
+│   │   │   │   │   │
+│   │   │   │   │   RESTORE (0,2) = true
+│   │   │   │   │   ↩ RETURN to path("DDRUR", 1, 2)
+│   │   │   │   ├── L: (1,1) is false → RETURN
+│   │   │   │   RESTORE (1,2) = true
+│   │   │   │   ↩ RETURN to path("DDRU", 1, 1)
+│   │   │   │
+│   │   │   ├── U: path("DDRUU", 0, 1) [MARK F: (0,1)]
+│   │   │   │   │
+│   │   │   │   ├── D: (1,1) is false → RETURN
+│   │   │   │   ├── R: path("DDRUUR", 0, 2) [MARK F: (0,2)]
+│   │   │   │   │   │
+│   │   │   │   │   ├── D: path("DDRUURD", 1, 2) [MARK F: (1,2)]
+│   │   │   │   │   │   └── D: path("DDRUURDD", 2, 2)
+│   │   │   │   │   │       └── PRINT "DDRUURDD"; RETURN
+│   │   │   │   │   │       RESTORE (1,2) = true
+│   │   │   │   │   │       ↩ RETURN to path("DDRUUR", 0, 2)
+│   │   │   │   │   ├── R: out of bounds
+│   │   │   │   │   ├── U: out of bounds
+│   │   │   │   │   └── L: (0,1) is false → RETURN
+│   │   │   │   │
+│   │   │   │   RESTORE (0,2) = true
+│   │   │   │   ↩ RETURN to path("DDRUU", 0, 1)
+│   │   │   │
+│   │   │   └── L: (2,0) is false → RETURN
+│   │   │   RESTORE (1,1) = true
+│   │   │   ↩ RETURN to path("DDR", 2, 1)
+│   │   │
+│   │   └── L: (2,0) is false → RETURN
+│   │   RESTORE (2,1) = true
+│   │   ↩ RETURN to path("DD", 2, 0)
+│   │
+│   ├── R: path("DR", 1, 1) [MARK F: (1,1)]
+│   │   │
+│   │   ├── D: path("DRD", 2, 1) [MARK F: (2,1)]
+│   │   │   ├── D: out of bounds
+│   │   │   ├── R: path("DRDR", 2, 2)
+│   │   │   │   └── PRINT "DRDR"; RETURN
+│   │   │   ├── U: (1,1) is false → RETURN
+│   │   │   └── L: path("DRDL", 2, 0) [MARK F: (2,0)]
+│   │   │       ├── D: out of bounds
+│   │   │       ├── R: (2,1) is false → RETURN
+│   │   │       ├── U: (1,0) is false → RETURN
+│   │   │       └── L: out of bounds
+│   │   │       RESTORE (2,0) = true
+│   │   │       ↩ RETURN to path("DRD", 2, 1)
+│   │   │   RESTORE (2,1) = true
+│   │   │   ↩ RETURN to path("DR", 1, 1)
+│   │   │
+│   │   ├── R: path("DRR", 1, 2) [MARK F: (1,2)]
+│   │   │   ├── D: path("DRRD", 2, 2)
+│   │   │   │   └── PRINT "DRRD"; RETURN
+│   │   │   ├── R: out of bounds
+│   │   │   ├── U: path("DRRU", 0, 2) [MARK F: (0,2)]
+│   │   │   │   ├── D: (1,2) is false → RETURN
+│   │   │   │   ├── R: out of bounds
+│   │   │   │   ├── U: out of bounds
+│   │   │   │   └── L: path("DRRUL", 0, 1) [MARK F: (0,1)]
+│   │   │   │       ├── D: (1,1) is false → RETURN
+│   │   │   │       ├── R: (0,2) is false → RETURN
+│   │   │   │       ├── U: out of bounds
+│   │   │   │       └── L: (0,0) is false → RETURN
+│   │   │   │       RESTORE (0,1) = true
+│   │   │   │       ↩ RETURN to path("DRRU", 0, 2)
+│   │   │   │   RESTORE (0,2) = true
+│   │   │   └── L: (1,1) is false → RETURN
+│   │   │   RESTORE (1,2) = true
+│   │   │   ↩ RETURN to path("DR", 1, 1)
+│   │   │
+│   │   ├── U: (0,1) is false → RETURN
+│   │   └── L: (1,0) is false → RETURN
+│   │   RESTORE (1,1) = true
+│   │   ↩ RETURN to path("D", 1, 0)
+│   │
+│   ├── U: out of bounds
+│   └── L: out of bounds
+│   RESTORE (1,0) = true
+│   ↩ RETURN to path("", 0, 0)
+│
+└── R: path("R", 0, 1) [MARK F: (0,1)]
+    │
+    ├── D: path("RD", 1, 1) [MARK F: (1,1)]
+    │   ├── D: path("RDD", 2, 1) [MARK F: (2,1)]
+    │   │   ├── D: out of bounds
+    │   │   ├── R: path("RDDR", 2, 2)
+    │   │   │   └── PRINT "RDDR"; RETURN
+    │   │   ├── U: (1,1) is false → RETURN
+    │   │   └── L: path("RDDL", 2, 0) [MARK F: (2,0)]
+    │   │       ├── D: out of bounds
+    │   │       ├── R: (2,1) is false → RETURN
+    │   │       ├── U: path("RDDLU", 1, 0) [MARK F: (1,0)]
+    │   │       │   ├── D: (2,0) is false → RETURN
+    │   │       │   ├── R: (1,1) is false → RETURN
+    │   │       │   ├── U: (0,0) is true → path("RDDLUU", 0, 0)
+    │   │       │   └── L: out of bounds
+    │   │       │   RESTORE (1,0) = true
+    │   │       │   ↩ RETURN to path("RDDL", 2, 0)
+    │   │       └── L: out of bounds
+    │   │       RESTORE (2,0) = true
+    │   │   RESTORE (2,1) = true
+    │     │   ↩ RETURN to path("RD", 1, 1)
+    │   │
+    │   ├── R: path("RDR", 1, 2) [MARK F: (1,2)]
+    │   │   ├── D: path("RDRD", 2, 2)
+    │   │   │   └── PRINT "RDRD"; RETURN
+    │   │   ├── R: out of bounds
+    │   │   ├── U: path("RDRU", 0, 2) [MARK F: (0,2)]
+    │   │   │   ├── D: (1,2) is false → RETURN
+    │   │   │   ├── R: out of bounds
+    │   │   │   ├── U: out of bounds
+    │   │   │   └── L: (0,1) is false → RETURN
+    │   │   │   RESTORE (0,2) = true
+    │   │   │   ↩ RETURN to path("RDR", 1, 2)
+    │   │   └── L: (1,1) is false → RETURN
+    │   │   RESTORE (1,2) = true
+    │   │
+    │   ├── U: (0,1) is false → RETURN
+    │   └── L: (1,0) is false → RETURN
+    │   RESTORE (1,1) = true
+    │
+    ├── R: path("RR", 0, 2) [MARK F: (0,2)]
+    │   ├── D: path("RRD", 1, 2) [MARK F: (1,2)]
+    │   │   ├── D: path("RRDD", 2, 2)
+    │   │   │   └── PRINT "RRDD"; RETURN
+    │   │   ├── R: out of bounds
+    │   │   ├── U: (0,2) is false → RETURN
+    │   │   └── L: path("RRDL", 1, 1) [MARK F: (1,1)]
+    │   │       ├── D: (2,1) is true → path("RRDLD", 2, 1)
+    │   │       │   ├── D: out of bounds
+    │   │       │   ├── R: (2,2) → PRINT "RRDLDR"
+    │   │       │   ├── U: (1,1) is false → RETURN
+    │   │       │   └── L: path("RRDLDL", 2, 0) [MARK F: (2,0)]
+    │   │       │       ├── D: out of bounds
+    │   │       │       ├── R: (2,1) is false → RETURN
+    │   │       │       ├── U: (1,0) is true → path("RRDLDLU", 1, 0)
+    │   │       │       └── L: out of bounds
+    │   │       │       RESTORE (2,0) = true
+    │   │       │   RESTORE (2,1) = true
+    │   │       ├── R: (1,2) is false → RETURN
+    │   │       ├── U: (0,1) is false → RETURN
+    │   │       └── L: path("RRDLL", 1, 0) [MARK F: (1,0)]
+    │   │           ├── D: (2,0) is true → path("RRDLLD", 2, 0)
+    │   │           ├── R: (1,1) is false → RETURN
+    │   │           ├── U: (0,0) is true → path("RRDLLU", 0, 0)
+    │   │           └── L: out of bounds
+    │   │           RESTORE (1,0) = true
+    │   │       RESTORE (1,1) = true
+    │   │   RESTORE (1,2) = true
+    │   └── L: (0,1) is false → RETURN
+    │   RESTORE (0,2) = true
+    │
+    ├── U: out of bounds
+    └── L: (0,0) is false → RETURN
+    RESTORE (0,1) = true
+    ↩ RETURN to path("", 0, 0)
+
+RESTORE (0,0) = true
+↩ END
+---
+[1, 0, 0]
+[2, 0, 0]
+[3, 4, 5]
+DDRR
+
+[1, 0, 0]
+[2, 5, 6]
+[3, 4, 7]
+DDRURD
+
+[1, 6, 7]
+[2, 5, 8]
+[3, 4, 9]
+DDRUURDD
+
+[1, 0, 0]
+[2, 3, 0]
+[0, 4, 5]
+DRDR
+
+[1, 0, 0]
+[2, 3, 4]
+[0, 0, 5]
+DRRD
+
+[1, 4, 5]
+[2, 3, 6]
+[0, 0, 7]
+DRURDD
+
+[1, 2, 0]
+[0, 3, 0]
+[0, 4, 5]
+RDDR
+
+[1, 2, 0]
+[0, 3, 4]
+[0, 0, 5]
+RDRD
+
+[1, 2, 0]
+[4, 3, 0]
+[5, 6, 7]
+RDLDRR
+
+[1, 2, 3]
+[0, 0, 4]
+[0, 0, 5]
+RRDD
+
+[1, 2, 3]
+[0, 5, 4]
+[0, 6, 7]
+RRDLDR
+
+[1, 2, 3]
+[6, 5, 4]
+[7, 8, 9]
+RRDLLDRR
+```
