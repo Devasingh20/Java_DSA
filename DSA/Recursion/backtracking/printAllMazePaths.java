@@ -42,3 +42,4 @@ public class printAllMazePaths {
         path[row][column] = 0;
     }
 }
+
