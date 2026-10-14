@@ -2353,3 +2353,83 @@ X Q X X
 5. `return 1` executes only when `row == board.length`.
 6. A dead-end call returns `0` because its local `count` remains zero.
 7. The root call returns `2`, the total number of valid arrangements for four queens.
+
+
+# N-Queens — Recurrence Relation
+
+A simplified upper-bound recurrence relation model for the N-Queens backtracking algorithm is:
+
+\[
+T(N)=N \times T(N-1)+O(N^2)
+\]
+
+## 1. Why do we have \(N \times T(N-1)\)?
+
+In the N-Queens code, we place one queen in each row:
+
+```java
+for (int col = 0; col < board.length; col++) {
+    if (isSafe(board, row, col)) {
+        board[row][col] = true;
+        count += queens(board, row + 1);
+        board[row][col] = false;
+    }
+}
+```
+
+For a board of size \(N \times N\):
+
+- There are at most \(N\) columns to try in the current row.
+- After placing a queen, the recursive call processes the next row, with one fewer row left to fill.
+
+Therefore, the recurrence includes \(N \times T(N-1)\).
+
+Strictly speaking, not all \(N\) positions are safe, so this is an upper-bound-style model.
+
+## 2. Why is the additional work \(O(N^2)\)?
+
+The `isSafe()` method checks three directions:
+
+1. Vertical upward.
+2. Left diagonal upward.
+3. Right diagonal upward.
+
+Each check can scan up to \(N-1\) cells.
+
+Therefore, checking one position takes \(O(N)\) time:
+
+\[
+O(N)+O(N)+O(N)=O(N)
+\]
+
+The loop tries up to \(N\) columns in one row. If every candidate requires a safety check, the work at that recursive level is:
+
+\[
+N \times O(N)=O(N^2)
+\]
+
+So the simplified recurrence is:
+
+\[
+\boxed{T(N)=N\,T(N-1)+O(N^2)}
+\]
+
+The \(O(N^2)\) term represents the cost of checking candidate positions at one recursive level, using a worst-case upper bound.
+
+## 3. Example: \(N=4\)
+
+- **Row 0:** Try up to 4 columns. Each candidate can require a safety check costing \(O(N)\).
+- **Row 1:** After a safe queen placement in row 0, try up to 4 columns again.
+- **Row 2:** Repeat for the next row, checking vertical and diagonal attacks.
+- **Row 3:** Try the remaining positions and continue until a solution is found or all choices fail.
+
+At each recursive level, the number of rows remaining decreases, but the board dimension stays \(N \times N\).
+
+## 4. Important distinction
+
+The recurrence is a simplified upper-bound model. A more precise analysis accounts for the number of safe positions and the cost of each `isSafe()` call.
+
+- \(N \times T(N-1)\): Recursive exploration of candidate columns.
+- \(O(N^2)\): Worst-case work at a level when checking up to \(N\) columns, each requiring \(O(N)\) time.
+
+**Note:** This is not the exact tight recurrence for N-Queens because many positions are rejected and the number of recursive branches varies. It is a simplified model for understanding the backtracking process.
