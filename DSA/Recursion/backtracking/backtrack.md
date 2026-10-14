@@ -1281,3 +1281,1075 @@ Your updated implementation saves the extra `boolean[][] maze` matrix.
 7. **Path visualization:** `path` records the order of cells but does not determine whether the route is valid.
 
 The central idea is: **save the current cell, mark it visited, explore every possible continuation, restore the original value, and count only routes that visit every required cell exactly once.**
+
+# N-Queens Problem — Recursion and Backtracking in Java
+
+## 1. Problem Definition
+
+The **N-Queens problem** is a classic backtracking problem. We need to place `N` queens on an `N × N` chessboard so that no two queens attack each other.
+
+A queen can attack another queen in three directions:
+
+- **Vertical:** Same column.
+- **Horizontal:** Same row.
+- **Diagonal:** Same diagonal.
+
+### Main Idea
+
+We follow one important rule:
+
+**Place exactly one queen in each row.**
+
+This automatically prevents two queens from sharing the same row. Therefore, we only need to check the column and diagonals before placing a queen.
+
+The algorithm follows these steps:
+
+1. Start from row `0`.
+2. Try every column in the current row.
+3. Check whether the position is safe.
+4. If safe, place the queen.
+5. Recursively solve the next row.
+6. Remove the queen and try another column.
+7. When all rows have been filled, count the solution.
+
+The fundamental backtracking pattern is:
+
+**Choose → Explore → Undo**
+
+---
+
+## 2. Complete Java Code
+
+```java
+public class Nqueens {
+
+    public static void main(String[] args) {
+        int n = 5;
+        boolean[][] board = new boolean[n][n];
+
+        System.out.println(queens(board, 0));
+    }
+
+    static int queens(boolean[][] board, int row) {
+
+        // Base case: all queens have been placed
+        if (row == board.length) {
+            display(board);
+            System.out.println();
+            return 1;
+        }
+
+        int count = 0;
+
+        // Try every column in the current row
+        for (int col = 0; col < board.length; col++) {
+
+            if (isSafe(board, row, col)) {
+
+                // Choose
+                board[row][col] = true;
+
+                // Explore
+                count += queens(board, row + 1);
+
+                // Undo
+                board[row][col] = false;
+            }
+        }
+
+        return count;
+    }
+
+    static boolean isSafe(boolean[][] board, int row, int col) {
+
+        // Check the same column above
+        for (int i = 0; i < row; i++) {
+            if (board[i][col]) {
+                return false;
+            }
+        }
+
+        // Check the upper-left diagonal
+        int maxLeft = Math.min(row, col);
+
+        for (int i = 1; i <= maxLeft; i++) {
+            if (board[row - i][col - i]) {
+                return false;
+            }
+        }
+
+        // Check the upper-right diagonal
+        int maxRight = Math.min(row, board.length - col - 1);
+
+        for (int i = 1; i <= maxRight; i++) {
+            if (board[row - i][col + i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static void display(boolean[][] board) {
+        for (boolean[] arr : board) {
+            for (boolean element : arr) {
+                if (element) {
+                    System.out.print("Q ");
+                } else {
+                    System.out.print("X ");
+                }
+            }
+            System.out.println();
+        }
+    }
+}
+```
+
+---
+
+## 3. Explanation of `main()`
+
+```java
+public static void main(String[] args) {
+    int n = 5;
+    boolean[][] board = new boolean[n][n];
+
+    System.out.println(queens(board, 0));
+}
+```
+
+### `int n = 5;`
+
+We want to place five queens, so the board has five rows and five columns.
+
+### `boolean[][] board = new boolean[n][n];`
+
+This creates a two-dimensional boolean array.
+
+Initially, all elements are `false`.
+
+| Boolean value | Meaning |
+|---|---|
+| `true` | A queen is placed in this cell |
+| `false` | The cell is empty |
+
+Initially, the board looks like this:
+
+```text
+X X X X X
+X X X X X
+X X X X X
+X X X X X
+X X X X X
+```
+
+Here, `X` represents `false`.
+
+### `queens(board, 0)`
+
+We start placing queens from row `0`.
+
+The `row` parameter indicates which row we are currently trying to fill.
+
+The function returns the total number of valid arrangements, which is printed by `System.out.println()`.
+
+---
+
+## 4. Explanation of the `queens()` Method
+
+```java
+static int queens(boolean[][] board, int row) {
+
+    if (row == board.length) {
+        display(board);
+        System.out.println();
+        return 1;
+    }
+
+    int count = 0;
+
+    for (int col = 0; col < board.length; col++) {
+
+        if (isSafe(board, row, col)) {
+
+            board[row][col] = true;
+
+            count += queens(board, row + 1);
+
+            board[row][col] = false;
+        }
+    }
+
+    return count;
+}
+```
+
+### A. Base Case
+
+```java
+if (row == board.length) {
+    display(board);
+    System.out.println();
+    return 1;
+}
+```
+
+For `n = 5`, valid row indices are:
+
+```text
+0, 1, 2, 3, 4
+```
+
+When `row == 5`, all five rows have successfully received a queen.
+
+The recursive call has reached:
+
+```java
+queens(board, 5);
+```
+
+At this point:
+
+1. `display(board)` prints the completed arrangement.
+2. `return 1` indicates that one valid solution has been found.
+
+**Important:** `return 1` does not mean the entire problem has only one solution. It means the current completed arrangement contributes one to the total count.
+
+### B. Initialize `count`
+
+```java
+int count = 0;
+```
+
+This variable stores the number of valid solutions discovered through the current recursive call.
+
+Initially, no solutions have been found by this call, so `count = 0`.
+
+### C. Try Every Column
+
+```java
+for (int col = 0; col < board.length; col++)
+```
+
+For `n = 5`, the loop tries:
+
+```text
+col = 0
+col = 1
+col = 2
+col = 3
+col = 4
+```
+
+For each column, the algorithm checks whether a queen can safely be placed in the current row.
+
+For example, when `row = 0`, the algorithm attempts:
+
+```text
+(0,0), (0,1), (0,2), (0,3), (0,4)
+```
+
+Each position represents a possible choice.
+
+### D. Check Whether the Position Is Safe
+
+```java
+if (isSafe(board, row, col))
+```
+
+This calls the `isSafe()` method to check whether an existing queen can attack the proposed position.
+
+- If it returns `true`, place the queen.
+- If it returns `false`, skip that column and try the next one.
+
+### E. Choose — Place the Queen
+
+```java
+board[row][col] = true;
+```
+
+This marks the selected cell as occupied by a queen.
+
+For example, if `row = 0` and `col = 2`:
+
+```text
+X X Q X X
+X X X X X
+X X X X X
+X X X X X
+X X X X X
+```
+
+We have made one choice, but we do not yet know whether it will lead to a complete solution.
+
+### F. Explore — Recursive Call
+
+```java
+count += queens(board, row + 1);
+```
+
+After placing a queen in the current row, we recursively try to place a queen in the next row.
+
+The recursive calls may look like this:
+
+```text
+queens(board, 0)
+    |
+    └── queens(board, 1)
+            |
+            └── queens(board, 2)
+                    |
+                    └── queens(board, 3)
+                            |
+                            └── queens(board, 4)
+                                    |
+                                    └── queens(board, 5)
+```
+
+This is one possible chain of decisions. Unsafe branches are rejected, and a chain may terminate before reaching the base case.
+
+#### Why do we use `count +=`?
+
+Suppose a recursive call finds three valid solutions and returns `3`.
+
+The current call adds those three solutions to its own count.
+
+Mathematically:
+
+\[
+\text{count} = \text{count} + \text{solutions from child}
+\]
+
+This allows the algorithm to count every valid arrangement instead of stopping after finding the first one.
+
+### G. Undo — Backtracking
+
+```java
+board[row][col] = false;
+```
+
+After the recursive call finishes exploring that choice, we remove the queen from the board.
+
+Suppose we placed a queen at `(0, 2)`. The recursive function explores all arrangements that begin with that choice. Once those possibilities have been explored, we remove that queen before trying `(0, 3)`.
+
+Otherwise, the next attempt would incorrectly retain the previous queen.
+
+The fundamental backtracking pattern is:
+
+```java
+board[row][col] = true;          // Choose
+
+count += queens(board, row + 1);  // Explore
+
+board[row][col] = false;         // Undo
+```
+
+---
+
+## 5. Explanation of the `isSafe()` Method
+
+```java
+static boolean isSafe(boolean[][] board, int row, int col)
+```
+
+This method checks three directions:
+
+1. Vertical column.
+2. Upper-left diagonal.
+3. Upper-right diagonal.
+
+It returns `true` if the position is safe; otherwise, it returns `false`.
+
+### A. Vertical Check
+
+```java
+for (int i = 0; i < row; i++) {
+    if (board[i][col]) {
+        return false;
+    }
+}
+```
+
+This checks whether a queen already exists in the same column above the current position.
+
+Suppose we want to place a queen at `(3, 2)`:
+
+```text
+X X X X X
+X X Q X X
+X X X X X
+X X ? X X
+X X X X X
+```
+
+The `?` represents the proposed position `(3, 2)`.
+
+The loop checks:
+
+```java
+board[0][2]
+board[1][2]
+board[2][2]
+```
+
+If any of these positions contains a queen (`true`), the proposed position is unsafe.
+
+**Why does the loop stop at `i < row`?**
+
+Because queens are placed from top to bottom. Rows below the current row have not been processed yet.
+
+### B. Upper-Left Diagonal Check
+
+```java
+int maxLeft = Math.min(row, col);
+
+for (int i = 1; i <= maxLeft; i++) {
+    if (board[row - i][col - i]) {
+        return false;
+    }
+}
+```
+
+We move diagonally upward and to the left.
+
+Both the row and column decrease by one at each step:
+
+\[
+(r,c)\rightarrow(r-1,c-1)
+\]
+
+For a proposed position `(3, 2)`, the diagonal positions are:
+
+```text
+(2,1)
+(1,0)
+```
+
+The next step would leave the board.
+
+Your code prevents this by calculating:
+
+```java
+int maxLeft = Math.min(row, col);
+```
+
+For `(3, 2)`:
+
+```java
+maxLeft = Math.min(3, 2); // 2
+```
+
+Therefore, the loop checks exactly two cells.
+
+Why use `Math.min()`?
+
+Because the number of steps is limited by whichever boundary we reach first: the top edge or the left edge.
+
+### C. Upper-Right Diagonal Check
+
+```java
+int maxRight = Math.min(row, board.length - col - 1);
+
+for (int i = 1; i <= maxRight; i++) {
+    if (board[row - i][col + i]) {
+        return false;
+    }
+}
+```
+
+Here, we move upward and to the right.
+
+The row decreases while the column increases:
+
+\[
+(r,c)\rightarrow(r-1,c+1)
+\]
+
+For the proposed position `(3, 2)` on a `5 × 5` board, the positions checked are:
+
+```text
+(2,3)
+(1,4)
+```
+
+The expression:
+
+```java
+board.length - col - 1
+```
+
+calculates how many steps remain before reaching the right boundary.
+
+For this example:
+
+```java
+maxRight = Math.min(3, 5 - 2 - 1);
+
+// maxRight = 2
+```
+
+So the loop checks two cells.
+
+If either diagonal contains a queen, the method returns `false`.
+
+### D. Return `true`
+
+```java
+return true;
+```
+
+This statement executes only when all three checks pass.
+
+The proposed position is safe, so the `queens()` method can place a queen there.
+
+### Why Don't We Check Below or in the Current Row?
+
+- **Below:** Those rows have not been processed yet.
+- **Current row:** The algorithm places exactly one queen in each row.
+- **Above:** Previously placed queens may attack the proposed position.
+
+Therefore, checking the column and the two upper diagonals is sufficient.
+
+---
+
+## 6. Explanation of the `display()` Method
+
+```java
+static void display(boolean[][] board) {
+
+    for (boolean[] arr : board) {
+
+        for (boolean element : arr) {
+
+            if (element) {
+                System.out.print("Q ");
+            } else {
+                System.out.print("X ");
+            }
+        }
+
+        System.out.println();
+    }
+}
+```
+
+This method prints the board row by row.
+
+- The outer enhanced `for` loop selects each row.
+- The inner enhanced `for` loop visits every cell in that row.
+- If the cell is `true`, it prints `Q`.
+- Otherwise, it prints `X`.
+- `System.out.println()` moves to the next line after each row.
+
+For example, a valid arrangement might be displayed as:
+
+```text
+X Q X X X
+X X X Q X
+Q X X X X
+X X Q X X
+X X X X Q
+```
+
+This is an illustration of the display format, not a valid solution: the arrangement above contains attacking queens on a diagonal. Your program prints only arrangements that pass its safety checks.
+
+---
+
+## 7. How `count` Works With Backtracking
+
+Suppose a recursive call explores two possible branches:
+
+```text
+                 queens(board, row)
+                         |
+                  Initial count = 0
+                    /         \
+                   /           \
+              Branch A       Branch B
+                  |               |
+            Returns 2        Returns 3
+                   \           /
+                    \         /
+                   Add both results
+                         |
+                   count = 2 + 3
+                         |
+                     count = 5
+```
+
+The numbers illustrate the counting mechanism; they are not the actual branch counts for `N = 5`.
+
+Your code accumulates the return values of recursive calls:
+
+```java
+count += queens(board, row + 1);
+```
+
+Eventually, the initial call returns the total number of valid arrangements.
+
+For `n = 5`, the expected final count is **10 solutions**.
+
+---
+
+## 8. Dry Run of the Algorithm
+
+Initially:
+
+```java
+queens(board, 0);
+```
+
+The board is empty.
+
+### Step 1: Process Row 0
+
+The algorithm tries columns `0` through `4`.
+
+Suppose it places a queen at `(0, 0)`.
+
+```text
+Q X X X X
+X X X X X
+X X X X X
+X X X X X
+X X X X X
+```
+
+Then it calls:
+
+```java
+queens(board, 1);
+```
+
+### Step 2: Process Row 1
+
+The algorithm checks each column.
+
+- Column `0` is unsafe because it shares a column with the first queen.
+- Column `1` is unsafe because it shares a diagonal with the first queen.
+- Columns `2`, `3`, and `4` can be explored.
+
+Suppose it places a queen at `(1, 2)`.
+
+```text
+Q X X X X
+X X Q X X
+X X X X X
+X X X X X
+X X X X X
+```
+
+Then it calls:
+
+```java
+queens(board, 2);
+```
+
+### Step 3: Continue Recursively
+
+The algorithm repeats the same process for each subsequent row.
+
+If a row has no safe column, that branch cannot produce a solution. The recursive calls return, and the previous queen is removed.
+
+### Step 4: Reach the Base Case
+
+When all five rows contain a queen, the call reaches:
+
+```java
+if (row == board.length)
+```
+
+The board is displayed, and `return 1` reports one solution.
+
+### Step 5: Backtrack and Explore Other Choices
+
+The algorithm removes queens as recursive calls return and continues trying other columns.
+
+When every possible branch has been explored, the initial call returns `10`.
+
+---
+
+## 9. Complexity Analysis
+
+Let `N` be the size of the board.
+
+### Time Complexity
+
+The backtracking search is commonly described with an \(O(N!)\) search bound because each row must use a different column and invalid placements are pruned early.
+
+The safety check requires up to \(O(N)\) time for each attempted placement.
+
+The exact running time depends on the number of branches explored.
+
+### Space Complexity
+
+- **Board:** \(O(N^2)\), because the board has `N × N` cells.
+- **Recursion stack:** \(O(N)\), because each recursive level processes one row.
+
+Therefore, the total auxiliary space is:
+
+\[
+\boxed{O(N^2)}
+\]
+
+excluding printed output.
+
+---
+
+## 10. Final Summary
+
+| Code | Purpose |
+|---|---|
+| `queens(board, 0)` | Start from row zero |
+| `row == board.length` | All queens have been placed |
+| `for (int col = 0; ...)` | Try each column |
+| `isSafe(board, row, col)` | Check vertical and diagonal attacks |
+| `board[row][col] = true` | Place a queen |
+| `queens(board, row + 1)` | Explore the next row |
+| `board[row][col] = false` | Undo the placement |
+| `count += ...` | Accumulate the number of solutions |
+| `return count` | Return the total to the caller |
+
+
+# N-Queens (N = 4) — Complete Recursion Tree
+
+This tree follows the Java implementation and shows:
+
+- `isSafe()` returning `true` or `false`
+- Queen placement: `board[row][col] = true`
+- Recursive calls: `queens(board, row + 1)`
+- Backtracking: `board[row][col] = false`
+- `count += ...` and all return values
+
+For this trace, use `int n = 4`.
+
+## 1. Legend
+
+| Statement | Meaning |
+|---|---|
+| `SAFE → true` | `isSafe()` returns `true` |
+| `UNSAFE → false` | `isSafe()` returns `false`; skip the column |
+| `MARK true` | Place a queen |
+| `MARK false` | Remove a queen during backtracking |
+| `return 1` | A complete solution is found |
+| `return count` | Return the total solutions found by this call |
+| `count += x` | Add the child's return value |
+
+## 2. Complete Recursion Tree
+
+```text
+
+queens(board, 0)                         [count = 0]
+│
+├── col = 0
+│   └── isSafe(board, 0, 0) → true
+│       └── board[0][0] = true           [MARK Q at (0,0)]
+│           │
+│           └── queens(board, 1)         [count = 0]
+│               │
+│               ├── col = 0
+│               │   └── isSafe → false  [same column]
+│               │       └── SKIP
+│               │
+│               ├── col = 1
+│               │   └── isSafe → false  [left diagonal]
+│               │       └── SKIP
+│               │
+│               ├── col = 2
+│               │   └── isSafe → true
+│               │       └── board[1][2] = true
+│               │           [MARK Q at (1,2)]
+│               │           │
+│               │           └── queens(board, 2) [count = 0]
+│               │               │
+│               │               ├── col = 0
+│               │               │   └── isSafe → false [diagonal]
+│               │               │       └── SKIP
+│               │               │
+│               │               ├── col = 1
+│               │               │   └── isSafe → false [diagonal]
+│               │               │       └── SKIP
+│               │               │
+│               │               ├── col = 2
+│               │               │   └── isSafe → false [same column]
+│               │               │       └── SKIP
+│               │               │
+│               │               └── col = 3
+│               │                   └── isSafe → true
+│               │                       └── board[2][3] = true
+│               │                           [MARK Q at (2,3)]
+│               │                           │
+│               │                           └── queens(board, 3)
+│               │                               [count = 0]
+│               │                               │
+│               │                               ├── col = 0
+│               │                               │   └── isSafe → false
+│               │                               │       [diagonal]
+│               │                               │       └── SKIP
+│               │                               │
+│               │                               ├── col = 1
+│               │                               │   └── isSafe → false
+│               │                               │       [diagonal]
+│               │                               │       └── SKIP
+│               │                               │
+│               │                               ├── col = 2
+│               │                               │   └── isSafe → false
+│               │                               │       [same column]
+│               │                               │       └── SKIP
+│               │                               │
+│               │                               └── col = 3
+│               │                                   └── isSafe → false
+│               │                                       [same column]
+│               │                                       └── SKIP
+│               │
+│               │                               return count; // 0
+│               │
+│               │                       count += 0; // count = 0
+│               │                       board[2][3] = false
+│               │                       [BACKTRACK]
+│               │
+│               │               return count; // 0
+│               │
+│               │       count += 0; // count = 0
+│               │       board[1][2] = false
+│               │       [BACKTRACK]
+│               │
+│               └── col = 3
+│                   └── isSafe → true
+│                       └── board[1][3] = true
+│                           [MARK Q at (1,3)]
+│                           │
+│                           └── queens(board, 2) [count = 0]
+│                               │
+│                               ├── col = 0
+│                               │   └── isSafe → false [same column]
+│                               │       └── SKIP
+│                               │
+│                               ├── col = 1
+│                               │   └── isSafe → true
+│                               │       └── board[2][1] = true
+│                               │           [MARK Q at (2,1)]
+│                               │           │
+│                               │           └── queens(board, 3)
+│                               │               [count = 0]
+│                               │               │
+│                               │               ├── col = 0
+│                               │               │   └── isSafe → false
+│                               │               │       [diagonal]
+│                               │               │       └── SKIP
+│                               │               │
+│                               │               ├── col = 1
+│                               │               │   └── isSafe → false
+│                               │               │       [same column]
+│                               │               │       └── SKIP
+│                               │               │
+│                               │               ├── col = 2
+│                               │               │   └── isSafe → false
+│                               │               │       [diagonal]
+│                               │               │       └── SKIP
+│                               │               │
+│                               │               └── col = 3
+│                               │                   └── isSafe → false
+│                               │                       [same column]
+│                               │                       └── SKIP
+│                               │
+│                               │               return count; // 0
+│                               │
+│                               │       count += 0; // count = 0
+│                               │       board[2][1] = false
+│                               │       [BACKTRACK]
+│                               │
+│                               ├── col = 2
+│                               │   └── isSafe → false [diagonal]
+│                               │       └── SKIP
+│                               │
+│                               └── col = 3
+│                                   └── isSafe → false [same column]
+│                                       └── SKIP
+│
+│                           return count; // 0
+│
+│                   count += 0; // count = 0
+│                   board[1][3] = false
+│                   [BACKTRACK]
+│
+│           return count; // 0
+│
+│   count += 0; // ROOT count = 0
+│   board[0][0] = false
+│   [BACKTRACK]
+│
+├── col = 1
+│   └── isSafe → true
+│       └── board[0][1] = true        [MARK Q at (0,1)]
+│           │
+│           └── queens(board, 1)      [count = 0]
+│               │
+│               ├── col = 0 → isSafe = false [diagonal]
+│               ├── col = 1 → isSafe = false [same column]
+│               ├── col = 2 → isSafe = true
+│               │   └── board[1][2] = true [MARK Q at (1,2)]
+│               │       └── queens(board, 2)
+│               │           │
+│               │           ├── col = 0 → isSafe = false [diagonal]
+│               │           ├── col = 1 → isSafe = false [same column]
+│               │           ├── col = 2 → isSafe = false [same column]
+│               │           └── col = 3 → isSafe = false [diagonal]
+│               │
+│               │           return count; // 0
+│               │       count += 0
+│               │       board[1][2] = false [BACKTRACK]
+│               │
+│               └── col = 3 → isSafe = true
+│                   └── board[1][3] = true [MARK Q at (1,3)]
+│                       └── queens(board, 2) [count = 0]
+│                           │
+│                           ├── col = 0 → isSafe = true
+│                           │   └── board[2][0] = true [MARK Q at (2,0)]
+│                           │       └── queens(board, 3) [count = 0]
+│                           │           │
+│                           │           ├── col = 0 → isSafe = false [same column]
+│                           │           ├── col = 1 → isSafe = false [diagonal]
+│                           │           ├── col = 2 → isSafe = true
+│                           │           │   └── board[3][2] = true [MARK Q at (3,2)]
+│                           │           │       └── queens(board, 4)
+│                           │           │           ├── row == board.length
+│                           │           │           ├── display(board)
+│                           │           │           └── return 1 [SOLUTION 1]
+│                           │           │
+│                           │           │       count += 1; // count = 1
+│                           │           │       board[3][2] = false [BACKTRACK]
+│                           │           │
+│                           │           └── col = 3 → isSafe = false [same column]
+│                           │
+│                           │           return count; // 1
+│                           │       count += 1; // count = 1
+│                           │       board[2][0] = false [BACKTRACK]
+│                           │
+│                           ├── col = 1 → isSafe = false [diagonal]
+│                           ├── col = 2 → isSafe = false [diagonal]
+│                           └── col = 3 → isSafe = false [same column]
+│
+│                       return count; // 1
+│                   count += 1; // count = 1
+│                   board[1][3] = false [BACKTRACK]
+│
+│           return count; // 1
+│   count += 1; // ROOT count = 1
+│   board[0][1] = false [BACKTRACK]
+│
+├── col = 2
+│   └── isSafe → true
+│       └── board[0][2] = true [MARK Q at (0,2)]
+│           │
+│           └── queens(board, 1) [count = 0]
+│               │
+│               ├── col = 0 → isSafe = true
+│               │   └── board[1][0] = true [MARK Q at (1,0)]
+│               │       └── queens(board, 2) [count = 0]
+│               │           │
+│               │           ├── col = 0 → isSafe = false [same column]
+│               │           ├── col = 1 → isSafe = false [diagonal]
+│               │           ├── col = 2 → isSafe = false [same column]
+│               │           └── col = 3 → isSafe = true
+│               │               └── board[2][3] = true [MARK Q at (2,3)]
+│               │                   └── queens(board, 3)
+│               │                       │
+│               │                       ├── col = 0 → isSafe = false [diagonal]
+│               │                       ├── col = 1 → isSafe = true
+│               │                       │   └── board[3][1] = true [MARK Q at (3,1)]
+│               │                       │       └── queens(board, 4)
+│               │                       │           ├── row == board.length
+│               │                       │           ├── display(board)
+│               │                       │           └── return 1 [SOLUTION 2]
+│               │                       │
+│               │                       │       count += 1; // count = 1
+│               │                       │       board[3][1] = false [BACKTRACK]
+│               │                       │
+│               │                       ├── col = 2 → isSafe = false [diagonal]
+│               │                       └── col = 3 → isSafe = false [same column]
+│               │
+│               │                       return count; // 1
+│               │                   count += 1; // count = 1
+│               │                   board[2][3] = false [BACKTRACK]
+│               │
+│               └── remaining columns → unsafe
+│
+│           return count; // 1
+│       count += 1; // count = 1
+│       board[1][0] = false [BACKTRACK]
+│
+│   return count; // 1
+│   count += 1; // ROOT count = 2
+│   board[0][2] = false [BACKTRACK]
+│
+└── col = 3
+    └── isSafe → true
+        └── board[0][3] = true [MARK Q at (0,3)]
+            │
+            └── queens(board, 1) [count = 0]
+                │
+                ├── col = 0 → isSafe = true
+                │   └── board[1][0] = true [MARK Q at (1,0)]
+                │       └── queens(board, 2)
+                │           │
+                │           ├── col = 0 → isSafe = false [same column]
+                │           ├── col = 1 → isSafe = true
+                │           │   └── board[2][1] = true [MARK Q at (2,1)]
+                │           │       └── queens(board, 3)
+                │           │           │
+                │           │           ├── all columns unsafe
+                │           │           └── return count; // 0
+                │           │
+                │           │       count += 0
+                │           │       board[2][1] = false [BACKTRACK]
+                │           │
+                │           └── remaining columns → unsafe
+                │
+                │       return count; // 0
+                │       board[1][0] = false [BACKTRACK]
+                │
+                ├── col = 1 → isSafe = true
+                │   └── board[1][1] = true [MARK Q at (1,1)]
+                │       └── queens(board, 2)
+                │           └── all columns unsafe
+                │               return count; // 0
+                │       count += 0
+                │       board[1][1] = false [BACKTRACK]
+                │
+                └── remaining columns → unsafe
+
+            return count; // 0
+    count += 0; // ROOT count remains 2
+    board[0][3] = false [BACKTRACK]
+
+return count; // ROOT returns 2
+```
+
+## 3. Final Output
+
+For `n = 4`, the program prints two valid arrangements and then the total:
+
+```text
+X Q X X
+X X X Q
+Q X X X
+X X Q X
+
+X X Q X
+Q X X X
+X X X Q
+X Q X X
+
+2
+```
+
+## 4. Important Points
+
+1. `isSafe()` returning `false` skips a column without making a recursive call.
+2. `board[row][col] = true` executes before the recursive call.
+3. When the child returns, `count += queens(board, row + 1)` adds its result.
+4. `board[row][col] = false` then restores the board for the next choice.
+5. `return 1` executes only when `row == board.length`.
+6. A dead-end call returns `0` because its local `count` remains zero.
+7. The root call returns `2`, the total number of valid arrangements for four queens.
