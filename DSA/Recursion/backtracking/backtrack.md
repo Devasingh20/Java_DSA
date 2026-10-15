@@ -2433,3 +2433,514 @@ The recurrence is a simplified upper-bound model. A more precise analysis accoun
 - \(O(N^2)\): Worst-case work at a level when checking up to \(N\) columns, each requiring \(O(N)\) time.
 
 **Note:** This is not the exact tight recurrence for N-Queens because many positions are rejected and the number of recursive branches varies. It is a simplified model for understanding the backtracking process.
+
+
+# N-Knights Problem in Java — Complete Explanation
+
+Your code solves the N-Knights problem using recursion and backtracking. Let's understand the approach, how each function works, why we use four safety checks, how the recursion explores the board, and how the final count is calculated.
+
+## 1. What is the N-Knights problem?
+
+The goal is to place \(N\) knights on an \(N \times N\) chessboard so that no two knights attack each other.
+
+For your example:
+
+```java
+int n = 4;
+boolean[][] board = new boolean[n][n];
+System.out.println(nights(board, 0, 0, 4));
+```
+
+- Board size: \(4 \times 4\)
+- Knights to place: \(4\)
+- Initially, all cells are `false`, meaning empty.
+- `true` means a knight occupies that cell.
+
+### Initial board
+
+```text
+X X X X
+X X X X
+X X X X
+X X X X
+```
+
+`X` = empty cell. Initially, all 16 cells are empty.
+
+The function explores possible placements and prints every valid arrangement of four knights.
+
+## 2. The main approach: recursion + backtracking
+
+Your algorithm follows five steps:
+
+1. Choose a cell: Start from `(0,0)` and process cells from left to right, top to bottom.
+2. Check safety: Determine whether a knight can be placed at the current cell without attacking an existing knight.
+3. Explore placement: If safe, place the knight and recursively process the next cell with one fewer knight remaining.
+4. Backtrack: After the placement branch returns, remove the knight and restore the board.
+5. Explore skipping: Process the next cell without placing a knight at the current cell.
+
+The two choices are:
+
+- Place: `count += nights(board, row, col + 1, knight - 1);`
+- Skip: `count += nights(board, row, col + 1, knight);`
+
+This ensures that your algorithm considers both possibilities for every cell.
+
+## 3. Understanding the `main()` method
+
+```java
+public static void main(String[] args) {
+    int n = 4;
+    boolean[][] board = new boolean[n][n];
+    System.out.println(nights(board, 0, 0, 4));
+}
+```
+
+Each statement has a specific purpose:
+
+- `int n = 4;` sets the board dimensions to \(4 \times 4\).
+- `new boolean[n][n]` creates the board. All values initially default to `false`.
+- `nights(board, 0, 0, 4)` starts recursion at row 0, column 0, with four knights left to place.
+- `System.out.println(...)` prints the total number of valid arrangements returned by the function.
+
+The `nights()` function returns an integer because you want to count the solutions, not just print them.
+
+## 4. The `nights()` function, line by line
+
+### A. Base case: all knights have been placed
+
+```java
+if (knight == 0) {
+    display(board);
+    System.out.println();
+    return 1;
+}
+```
+
+Here, `knight` means the number of knights still to place.
+
+Suppose the function reaches:
+
+```java
+nights(board, 2, 3, 0);
+```
+
+Four knights have already been placed somewhere on the board. The function:
+
+1. Prints the board.
+2. Prints a blank line.
+3. Returns `1`, because this branch has found one valid arrangement.
+
+Why return `1` instead of `0`?
+
+Because we are counting solutions. A completed valid arrangement contributes one to the total.
+
+### B. Base case: the row is out of bounds
+
+```java
+if (row == board.length) {
+    return 0;
+}
+```
+
+For a \(4 \times 4\) board, valid row indices are `0`, `1`, `2`, and `3`.
+
+If the function reaches `row == 4` while knights are still left to place, every cell has been considered and this branch has failed.
+
+Therefore, it returns `0` solutions.
+
+This check also prevents the algorithm from accessing a row that does not exist.
+
+### C. Move to the next row
+
+```java
+if (col == board.length) {
+    return nights(board, row + 1, 0, knight);
+}
+```
+
+For a board of size 4, columns range from `0` to `3`.
+
+When `col` becomes `4`, the current row is finished. The function moves to the next row and resets the column to zero.
+
+For example:
+
+```text
+nights(board, 0, 4, 2)
+            |
+            v
+nights(board, 1, 0, 2)
+```
+
+Notice that `knight` remains `2`. Moving to another row does not place a knight.
+
+Also, the `return` is important: it returns the number of solutions found by the next-row call instead of discarding that result.
+
+### D. Initialize the counter
+
+```java
+int count = 0;
+```
+
+Each recursive call maintains its own local `count`.
+
+It accumulates the number of solutions found by the placement and skip branches.
+
+### E. Placement branch
+
+```java
+if (isSafe(board, row, col)) {
+    board[row][col] = true;
+
+    count += nights(board, row, col + 1, knight - 1);
+
+    board[row][col] = false;
+}
+```
+
+This branch runs only when the current cell is safe.
+
+The three important actions are:
+
+1. Place: Set the cell to `true`.
+2. Recurse: Move to the next column and reduce the number of remaining knights by one.
+3. Undo: Set the cell back to `false` after the recursive call returns.
+
+The last step is backtracking. Without it, the knight would remain on the board when the algorithm explores other arrangements.
+
+### F. Skip branch
+
+```java
+count += nights(board, row, col + 1, knight);
+```
+
+This explores the possibility of leaving the current cell empty.
+
+Notice that `knight` does not decrease because no knight was placed.
+
+This statement runs whether the current cell was safe or unsafe. If it was unsafe, the placement branch was simply skipped.
+
+### G. Return the total
+
+```java
+return count;
+```
+
+The current call returns the sum of all solutions found in its branches.
+
+Mathematically:
+
+$$
+\begin{aligned}
+\text{count} ={}& \text{placement solutions}\\
+&+ \text{skip solutions}
+\end{aligned}
+$$
+
+For example, if the placement branch finds 5 solutions and the skip branch finds 7, the current call returns \(5+7=12\).
+
+## 5. The `isSafe()` function
+
+```java
+static boolean isSafe(boolean[][] board, int row, int col) {
+    if (isValid(board, row - 2, col + 1)) {
+        if (board[row - 2][col + 1]) {
+            return false;
+        }
+    }
+
+    if (isValid(board, row - 2, col - 1)) {
+        if (board[row - 2][col - 1]) {
+            return false;
+        }
+    }
+
+    if (isValid(board, row - 1, col + 2)) {
+        if (board[row - 1][col + 2]) {
+            return false;
+        }
+    }
+
+    if (isValid(board, row - 1, col - 2)) {
+        if (board[row - 1][col - 2]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+```
+
+A knight attacks in an L-shape: two squares in one direction and one square perpendicular to it.
+
+There are eight possible attacking positions, but your algorithm processes the board in row-major order. Therefore, only four positions can contain previously placed knights:
+
+| Position checked | Reason |
+|---|---|
+| `(row - 2, col + 1)` | Two rows above, one column right |
+| `(row - 2, col - 1)` | Two rows above, one column left |
+| `(row - 1, col + 2)` | One row above, two columns right |
+| `(row - 1, col - 2)` | One row above, two columns left |
+
+For each position:
+
+1. `isValid()` checks that the position lies inside the board.
+2. If valid, `board[...]` checks whether a knight occupies it.
+3. If an attacking knight exists, `isSafe()` returns `false`.
+4. If none of the four positions contains a knight, it returns `true`.
+
+Why four checks? Because all cells in later rows, and cells to the right in the current row, are still unprocessed. They cannot already contain a knight in your algorithm.
+
+## 6. The `isValid()` function
+
+```java
+static boolean isValid(boolean[][] board, int row, int col) {
+    return row >= 0 && row < board.length
+            && col >= 0 && col < board.length;
+}
+```
+
+This checks whether both coordinates are within the board's boundaries.
+
+For a \(4 \times 4\) board:
+
+- `(0,0)` is valid.
+- `(3,3)` is valid.
+- `(-1,2)` is invalid.
+- `(2,4)` is invalid.
+
+The function uses `&&`, so all four comparisons must be true.
+
+This prevents `ArrayIndexOutOfBoundsException` when checking possible knight moves.
+
+## 7. The `display()` function
+
+```java
+static void display(boolean[][] board) {
+    for (boolean[] arr : board) {
+        for (boolean element : arr) {
+            if (element) {
+                System.out.print("K ");
+            } else {
+                System.out.print("X ");
+            }
+        }
+        System.out.println();
+    }
+}
+```
+
+This prints the board row by row:
+
+- `K` represents a knight (`true`).
+- `X` represents an empty cell (`false`).
+
+For example:
+
+```text
+K K X X
+X X X K
+K X X X
+X K X X
+```
+
+The display function is called only when `knight == 0`, meaning all four knights have been placed.
+
+## 8. Complete recursion flow
+
+Let's combine everything into one flowchart.
+
+```text
+nights(board, row, col, knight)
+                |
+                v
+           knight == 0?
+            /        \
+          Yes         No
+           |           |
+        display    row == n?
+        return 1    /     \
+                  Yes      No
+                   |        |
+                return 0  col == n?
+                           /      \
+                         Yes       No
+                          |         |
+                  Move next row   count = 0
+                                   |
+                                   v
+                               isSafe()?
+                               /       \
+                             Yes        No
+                              |          |
+                         Place K         |
+                              |          |
+                         Recurse         |
+                         knight - 1      |
+                              |          |
+                         Add count       |
+                              |          |
+                         Undo K          |
+                              |          |
+                              └────┬─────┘
+                                   |
+                                   v
+                            Skip current cell
+                                   |
+                                   v
+                             Add skip count
+                                   |
+                                   v
+                              return count
+```
+
+## 9. Time and space complexity
+
+Let \(n\) be the board dimension, so the board contains \(n^2\) cells.
+
+**Time complexity:** \(O(2^{n^2})\) as a loose upper bound, because each cell can be included or skipped. Safety checking takes \(O(1)\) time because it checks only four positions. The algorithm also stops early when all knights have been placed.
+
+**Space complexity:** \(O(n^2)\), including the board and the maximum recursion depth, since each recursive call advances through at most \(n^2\) cells.
+
+The output itself can require substantial additional space if every arrangement is printed.
+
+## 10. Important concepts to remember
+
+- `knight` is the number of knights remaining, not the number already placed.
+- `knight == 0` means a solution has been found, so return `1`.
+- `row == board.length` means the board has been exhausted without completing that branch, so return `0`.
+- `count += ...` accumulates solutions from both placement and skip branches.
+- `board[row][col] = false` restores the board after exploring a placement.
+- Four safety checks are sufficient because cells are processed from left to right and top to bottom.
+
+For your \(4 \times 4\) board with four knights, this implementation counts 412 valid arrangements.
+
+The central idea is that recursion explores each choice, while backtracking restores the board so that other choices can be explored independently.
+
+# A small recursion tree for understanding
+Legend
+- P — place a knight.
+- S — skip a cell.
+- U — undo a placement.
+- PRINT — print a valid board.
+- R → parent — return to the immediate caller shown.
+- × — unsafe placement; skip the placement branch.
+
+```text
+
+main()
+└── knight(0,0,4)
+    │
+    ├── P (0,0)
+    │   └── knight(0,1,3)
+    │       │
+    │       ├── P (0,1)
+    │       │   └── knight(0,2,2)
+    │       │       │
+    │       │       ├── P (0,2)
+    │       │       │   └── knight(0,3,1)
+    │       │       │       │
+    │       │       │       ├── P (0,3)
+    │       │       │       │   └── knight(0,4,0)
+    │       │       │       │       ├── PRINT
+    │       │       │       │       └── R → knight(0,3,1)
+    │       │       │       │
+    │       │       │       ├── U (0,3)
+    │       │       │       │
+    │       │       │       └── S → knight(0,4,1)
+    │       │       │           │
+    │       │       │           └── knight(1,0,1)
+    │       │       │               │
+    │       │       │               ├── (1,0) UNSAFE
+    │       │       │               │
+    │       │       │               └── S → knight(1,1,1)
+    │       │       │                   │
+    │       │       │                   ├── P (1,1)
+    │       │       │                   │   └── knight(1,2,0)
+    │       │       │                   │       ├── PRINT
+    │       │       │                   │       └── R → knight(1,1,1)
+    │       │       │                   │
+    │       │       │                   ├── U (1,1)
+    │       │       │                   │
+    │       │       │                   └── S → knight(1,2,1)
+    │       │       │                       │
+    │       │       │                       ├── (1,2) UNSAFE
+    │       │       │                       │
+    │       │       │                       └── S → knight(1,3,1)
+    │       │       │                           │
+    │       │       │                           ├── (1,3) UNSAFE
+    │       │       │                           │
+    │       │       │                           └── S → knight(1,4,1)
+    │       │       │                               │
+    │       │       │                               └── knight(2,0,1)
+    │       │       │                                   │
+    │       │       │                                   ├── (2,0) UNSAFE
+    │       │       │                                   │
+    │       │       │                                   └── S → knight(2,1,1)
+    │       │       │                                       │
+    │       │       │                                       ├── (2,1) UNSAFE
+    │       │       │                                       │
+    │       │       │                                       └── S → knight(2,2,1)
+    │       │       │                                           │
+    │       │       │                                           ├── (2,2) UNSAFE
+    │       │       │                                           │
+    │       │       │                                           └── S → knight(2,3,1)
+    │       │       │                                               │
+    │       │       │                                               ├── (2,3) UNSAFE
+    │       │       │                                               │
+    │       │       │                                               └── S → knight(2,4,1)
+    │       │       │                                                   │
+    │       │       │                                                   └── knight(3,0,1)
+    │       │       │                                                       │
+    │       │       │                                                       ├── P (3,0)
+    │       │       │                                                       │   └── knight(3,1,0)
+    │       │       │                                                       │       ├── PRINT
+    │       │       │                                                       │       └── R → knight(3,0,1)
+    │       │       │                                                       │
+    │       │       │                                                       ├── U (3,0)
+    │       │       │                                                       │
+    │       │       │                                                       └── S → knight(3,1,1)
+    │       │       │                                                           │
+    │       │       │                                                           ├── P (3,1)
+    │       │       │                                                           │   └── knight(3,2,0)
+    │       │       │                                                           │       ├── PRINT
+    │       │       │                                                           │       └── R → knight(3,1,1)
+    │       │       │                                                           │
+    │       │       │                                                           ├── U (3,1)
+    │       │       │                                                           │
+    │       │       │                                                           └── S → knight(3,2,1)
+    │       │       │                                                               │
+    │       │       │                                                               ├── P (3,2)
+    │       │       │                                                               │   └── knight(3,3,0)
+    │       │       │                                                               │       ├── PRINT
+    │       │       │                                                               │       └── R → knight(3,2,1)
+    │       │       │                                                               │
+    │       │       │                                                               ├── U (3,2)
+    │       │       │                                                               │
+    │       │       │                                                               └── S → knight(3,3,1)
+    │       │       │                                                                   │
+    │       │       │                                                                   ├── P (3,3)
+    │       │       │                                                                   │   └── knight(3,4,0)
+    │       │       │                                                                   │       ├── PRINT
+    │       │       │                                                                   │       └── R → knight(3,3,1)
+    │       │       │                                                                   │
+    │       │       │                                                                   ├── U (3,3)
+    │       │       │                                                                   │
+    │       │       │                                                                   └── S → knight(3,4,1)
+    │       │       │                                                                       ├── END OF LAST ROW
+    │       │       │                                                                       └── R → knight(3,3,1)
+    │       │       │
+    │       │       │   [All these returns unwind through their callers]
+    │       │       │
+    │       │       ├── U (0,2)
+    │       │       └── S → knight(0,3,2)
+    │       │           └── Explore its complete subtree
+    │       │
+    │       ├── U (0,1)
+    │       └── S → knight(0,2,3)
+    │           └── Explore its complete subtree
+    │
+    ├── U (0,0)
+    └── S → knight(0,1,4)
+        └── Explore its complete subtree
+```
