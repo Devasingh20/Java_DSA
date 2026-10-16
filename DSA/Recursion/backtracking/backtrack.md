@@ -2944,3 +2944,723 @@ main()
     └── S → knight(0,1,4)
         └── Explore its complete subtree
 ```
+
+
+# Sudoku Solver — Recursion and Backtracking in Java
+
+## 1. Problem Statement
+
+Sudoku is a number-placement puzzle in which we must fill a `9 × 9` grid with digits from `1` to `9`.
+
+A valid Sudoku solution must satisfy three rules:
+
+1. Every row must contain digits `1` to `9` without repetition.
+2. Every column must contain digits `1` to `9` without repetition.
+3. Every `3 × 3` subgrid must contain digits `1` to `9` without repetition.
+
+In our Java implementation, `0` represents an empty cell.
+
+The objective is to fill all empty cells while following these rules.
+
+---
+
+## 2. Approach: Recursion and Backtracking
+
+We solve Sudoku using **recursion and backtracking**.
+
+The main idea is to find an empty cell, try every possible number from `1` to `9`, and check whether the number can be placed safely.
+
+If a number is valid, we place it and recursively solve the remaining Sudoku.
+
+If that choice eventually leads to a dead end, we remove the number and try another possibility.
+
+### The basic pattern
+
+```text
+1. Find an empty cell.
+2. Try numbers from 1 to 9.
+3. Check whether the number is safe.
+4. If safe:
+      Place the number.
+      Recursively solve the remaining board.
+5. If recursion fails:
+      Reset the cell to 0.
+6. If all numbers fail:
+      Return false.
+7. If no empty cells remain:
+      Return true.
+```
+
+This follows the standard backtracking pattern:
+
+**Choose → Explore → Undo**
+
+---
+
+## 3. Why Do We Use Recursion?
+
+We use recursion because solving one empty cell creates a smaller subproblem: solving the remaining empty cells.
+
+For example, suppose the first empty cell is at `(0, 2)`.
+
+```java
+board[0][2] = 1;
+```
+
+After placing `1`, we call:
+
+```java
+solve(board);
+```
+
+The recursive call finds the next empty cell and tries to solve the rest of the puzzle.
+
+This process continues until either:
+
+- Every empty cell is filled successfully, or
+- A cell has no valid number available.
+
+If a branch fails, the algorithm returns to an earlier cell and tries a different number.
+
+### Why pass the same board?
+
+```java
+solve(board);
+```
+
+We pass the same board instead of creating a new one because each recursive call must see the numbers placed by previous calls.
+
+Java passes the array reference by value, so all recursive calls refer to the same underlying board.
+
+---
+
+## 4. Understanding the `main()` Method
+
+```java
+public static void main(String[] args) {
+    int[][] board = {
+        {5, 3, 0, 0, 7, 0, 0, 0, 0},
+        {6, 0, 0, 1, 9, 5, 0, 0, 0},
+        {0, 9, 8, 0, 0, 0, 0, 6, 0},
+        {8, 0, 0, 0, 6, 0, 0, 0, 3},
+        {4, 0, 0, 8, 0, 3, 0, 0, 1},
+        {7, 0, 0, 0, 2, 0, 0, 0, 6},
+        {0, 6, 0, 0, 0, 0, 2, 8, 0},
+        {0, 0, 0, 4, 1, 9, 0, 0, 5},
+        {0, 0, 0, 0, 8, 0, 0, 7, 9}
+    };
+
+    if (solve(board)) {
+        display(board);
+    } else {
+        System.out.println("not solved");
+    }
+}
+```
+
+### Why use `int[][] board`?
+
+A Sudoku board is a two-dimensional grid, so we use a two-dimensional integer array.
+
+- `board[row][col]` accesses a cell.
+- `row` represents the row index.
+- `col` represents the column index.
+- `0` represents an empty cell.
+- Numbers `1` to `9` represent filled cells.
+
+### Why use `if (solve(board))`?
+
+The `solve()` method returns a boolean.
+
+- `true` means a complete solution was found.
+- `false` means the puzzle could not be solved from the current choices.
+
+When `solve()` returns `true`, `display(board)` prints the solved board.
+
+---
+
+## 5. Understanding the `solve()` Method
+
+```java
+static boolean solve(int[][] board) {
+    int n = board.length;
+    int row = -1;
+    int col = -1;
+    boolean emptyLeft = true;
+```
+
+### Why use these variables?
+
+| Variable | Purpose |
+|---|---|
+| `n` | Stores the board size, which is `9`. |
+| `row` | Stores the row index of the next empty cell. |
+| `col` | Stores the column index of the next empty cell. |
+| `emptyLeft` | Indicates whether an empty cell was found. |
+
+We initialize `row` and `col` to `-1` because we have not found an empty cell yet.
+
+We initialize `emptyLeft` to `true`. If we find an empty cell, we change it to `false`.
+
+### Why find an empty cell first?
+
+```java
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+        if (board[i][j] == 0) {
+            row = i;
+            col = j;
+            emptyLeft = false;
+            break;
+        }
+    }
+
+    if (emptyLeft == false) {
+        break;
+    }
+}
+```
+
+We scan the board from left to right and top to bottom.
+
+The first cell containing `0` is selected.
+
+For example:
+
+```text
+5 3 0 0 7 0 0 0 0
+6 0 0 1 9 5 0 0 0
+```
+
+The first empty cell is at `(0, 2)`.
+
+Once the cell is found, we break out of both loops.
+
+**Why break both loops?**
+
+We need to fill only one empty cell per recursive call. After filling it, the next recursive call will search for the next empty cell.
+
+### Why use `if (emptyLeft == true)`?
+
+```java
+if (emptyLeft == true) {
+    return true;
+}
+```
+
+This is the base case of the recursion.
+
+If no empty cell was found, the board is completely filled. Therefore, we return `true`.
+
+Without a base case, recursion would not know when to stop successfully.
+
+A shorter equivalent condition is:
+
+```java
+if (emptyLeft) {
+    return true;
+}
+```
+
+---
+
+## 6. Trying Numbers and Backtracking
+
+```java
+for (int num = 1; num <= 9; num++) {
+    if (isSafe(board, row, col, num)) {
+        board[row][col] = num;
+
+        if (solve(board)) {
+            return true;
+        } else {
+            board[row][col] = 0;
+        }
+    }
+}
+return false;
+```
+
+This is the most important part of the algorithm.
+
+### Step 1: Try every number
+
+```java
+for (int num = 1; num <= 9; num++)
+```
+
+We try every possible digit because we do not initially know which number belongs in the empty cell.
+
+### Step 2: Check whether the number is valid
+
+```java
+if (isSafe(board, row, col, num))
+```
+
+We check whether the candidate violates any Sudoku rule.
+
+If it is unsafe, we skip it.
+
+If it is safe, we proceed to the next step.
+
+### Step 3: Choose the number
+
+```java
+board[row][col] = num;
+```
+
+We place the candidate number in the selected cell.
+
+This is the **choose** step.
+
+### Step 4: Explore the remaining board
+
+```java
+if (solve(board)) {
+    return true;
+}
+```
+
+We call `solve(board)` again to fill the remaining empty cells.
+
+The recursive call returns:
+
+- `true` if it finds a complete solution.
+- `false` if it reaches a dead end.
+
+If it returns `true`, we immediately return `true` from the current call. There is no need to undo the successful placement.
+
+### Step 5: Undo the choice
+
+```java
+else {
+    board[row][col] = 0;
+}
+```
+
+If the recursive call returns `false`, the number we placed did not lead to a solution.
+
+We reset the cell to `0`, restoring it to its empty state.
+
+This is the **backtracking** step.
+
+The loop then tries the next candidate number.
+
+### Step 6: Return false
+
+```java
+return false;
+```
+
+This line executes if all candidate numbers have been tried and none leads to a solution.
+
+It tells the previous recursive call that its current choice must be reconsidered.
+
+---
+
+## 7. Understanding the `isSafe()` Method
+
+```java
+static boolean isSafe(int[][] board, int row, int col, int num)
+```
+
+This method determines whether a number can be placed in a particular cell without violating the Sudoku rules.
+
+It checks three conditions:
+
+1. The row.
+2. The column.
+3. The `3 × 3` subgrid.
+
+If any condition fails, it returns `false`. If all checks pass, it returns `true`.
+
+### A. Check the row
+
+```java
+for (int i = 0; i < board.length; i++) {
+    if (board[row][i] == num) {
+        return false;
+    }
+}
+```
+
+We examine every cell in the selected row.
+
+If the candidate number already exists in that row, it cannot be placed there.
+
+For example, if the row contains:
+
+```text
+5 3 0 0 7 0 0 0 0
+```
+
+Trying `5` is invalid because `5` already appears in the row.
+
+### B. Check the column
+
+```java
+for (int[] nums : board) {
+    if (nums[col] == num) {
+        return false;
+    }
+}
+```
+
+This enhanced `for` loop visits every row of the board.
+
+For each row, `nums[col]` accesses the cell in the selected column.
+
+If the candidate number already exists in that column, we return `false`.
+
+An equivalent implementation is:
+
+```java
+for (int i = 0; i < board.length; i++) {
+    if (board[i][col] == num) {
+        return false;
+    }
+}
+```
+
+Both approaches check the same column.
+
+### C. Check the `3 × 3` subgrid
+
+```java
+int sqrt = (int) Math.sqrt(board.length);
+int rowStart = row - row % sqrt;
+int colStart = col - col % sqrt;
+```
+
+For a `9 × 9` Sudoku:
+
+```java
+sqrt = 3;
+```
+
+We calculate the top-left coordinates of the `3 × 3` box containing the selected cell.
+
+#### Why use these formulas?
+
+```java
+rowStart = row - row % 3;
+colStart = col - col % 3;
+```
+
+These formulas round the row and column indices down to the nearest multiple of `3`.
+
+For example, if the selected cell is `(4, 7)`:
+
+```text
+rowStart = 4 - 4 % 3
+         = 4 - 1
+         = 3
+
+colStart = 7 - 7 % 3
+         = 7 - 1
+         = 6
+```
+
+Therefore, the relevant subgrid begins at `(3, 6)`.
+
+It covers rows `3` to `5` and columns `6` to `8`.
+
+### D. Traverse the subgrid
+
+```java
+for (int r = rowStart; r < rowStart + sqrt; r++) {
+    for (int c = colStart; c < colStart + sqrt; c++) {
+        if (board[r][c] == num) {
+            return false;
+        }
+    }
+}
+```
+
+The nested loops examine all nine cells in the relevant subgrid.
+
+If the candidate number already exists in that box, the placement is invalid.
+
+### E. Return true
+
+```java
+return true;
+```
+
+This executes only if the number is absent from the selected row, column, and subgrid.
+
+Therefore, the number is safe to place.
+
+---
+
+## 8. Understanding the `display()` Method
+
+```java
+static void display(int[][] board) {
+    for (int[] arr : board) {
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+    }
+}
+```
+
+This method prints the board after the solver finishes.
+
+- The outer loop visits each row.
+- The inner loop prints each number in that row.
+- `System.out.println()` moves the output to the next line after each row.
+
+The method does not solve the puzzle; it only displays the result.
+
+---
+
+## 9. Recursion and Backtracking Example
+
+Suppose the solver selects an empty cell at `(0, 2)`.
+
+The algorithm tries numbers from `1` to `9`.
+
+```text
+solve(board)
+    |
+    └── Find empty cell (0, 2)
+        |
+        ├── Try 1
+        |   └── isSafe → true
+        |       └── Place 1
+        |           └── solve(board)
+        |               └── Solve remaining cells
+        |                   └── If a dead end occurs:
+        |                       return false
+        |       └── Undo 1
+        |
+        ├── Try 2
+        |   └── Check safety
+        |
+        ├── Try 3
+        |   └── Check safety
+        |
+        └── Continue until a valid solution is found
+```
+
+The important point is that a number can be locally valid but still lead to a dead end later.
+
+That is why checking `isSafe()` alone is not enough. We also need recursion to determine whether the choice allows the rest of the puzzle to be solved.
+
+---
+
+## 10. Why Does the Recursive Call Return a Boolean?
+
+Our `solve()` method has the return type:
+
+```java
+static boolean solve(int[][] board)
+```
+
+A boolean return value communicates whether the current branch has found a complete solution.
+
+| Return value | Meaning |
+|---|---|
+| `true` | The board is solved successfully. |
+| `false` | The current choices cannot solve the board. |
+
+When a recursive call returns `false`, the previous call undoes its placement and tries another number.
+
+When a recursive call returns `true`, every active call returns `true` without undoing its successful placement.
+
+This allows the solution to propagate back to `main()`.
+
+---
+
+## 11. Time and Space Complexity
+
+Let `N` be the board size and `E` be the number of initially empty cells.
+
+### Time complexity
+
+For a standard `9 × 9` Sudoku, each empty cell can have up to nine candidate numbers.
+
+A simplified worst-case search bound is:
+
+\[
+O(9^E \cdot N^2)
+\]
+
+Here:
+
+- `9^E` represents the possible combinations of candidate choices.
+- `N²` accounts for finding an empty cell and checking row, column, and subgrid constraints.
+
+For a fixed `9 × 9` board, this is often expressed as an exponential-time backtracking algorithm. The actual running time depends heavily on the puzzle and how quickly contradictions are found.
+
+### Auxiliary space complexity
+
+\[
+O(E)
+\]
+
+The recursive call stack can grow with the number of empty cells. Since the board itself is modified in place, the algorithm does not create a separate board for every call.
+
+If we include the board storage, the total space is:
+
+\[
+O(N^2 + E)
+\]
+
+For a standard Sudoku, `N = 9`.
+
+---
+
+## 12. Important Concepts to Remember
+
+1. **Recursion:** Solve the remaining empty cells by calling `solve(board)` again.
+2. **Base case:** If no empty cells remain, return `true`.
+3. **Constraint checking:** Use `isSafe()` to validate the row, column, and subgrid.
+4. **Backtracking:** Reset the chosen cell to `0` if a recursive branch fails.
+5. **Boolean return:** Use `true` to propagate success and `false` to trigger backtracking.
+6. **In-place modification:** All recursive calls operate on the same board.
+7. **Depth-first search:** The algorithm explores one sequence of choices fully before trying another.
+8. **Row-first traversal:** The method always selects the first empty cell found while scanning from top to bottom and left to right.
+
+### Final takeaway
+
+The Sudoku Solver is a classic backtracking problem. We try a valid number, recursively solve the remaining puzzle, and undo the choice if it leads to a dead end.
+
+The core logic is:
+
+```java
+if (isSafe(board, row, col, num)) {
+    board[row][col] = num;
+
+    if (solve(board)) {
+        return true;
+    }
+
+    board[row][col] = 0;
+}
+```
+
+This same **choose → explore → undo** pattern is also used in N-Queens, N-Knights, maze-path problems, permutations, and many other backtracking problems.
+
+# Here is the Sudoku recursion tree
+
+## This is Part 1, showing the actual choices, recursive calls, backtracking, and returns.
+```text
+solve(board)                              [CALL 1]
+│
+├── row = 0, col = 2
+│   │
+│   ├── number = 1
+│   │   └── isSafe → true
+│   │       └── board[0][2] = 1          [PLACE 1]
+│   │           │
+│   │           └── solve(board)          [CALL 2]
+│   │               │
+│   │               └── row = 0, col = 3
+│   │                   │
+│   │                   ├── number = 1
+│   │                   │   └── isSafe → false
+│   │                   │       └── SKIP
+│   │                   │
+│   │                   ├── number = 2
+│   │                   │   └── isSafe → true
+│   │                   │       └── board[0][3] = 2  [PLACE 2]
+│   │                   │           │
+│   │                   │           └── solve(board)  [CALL 3]
+│   │                   │               │
+│   │                   │               └── row = 0, col = 5
+│   │                   │                   │
+│   │                   │                   ├── number = 1 → isSafe false
+│   │                   │                   │   └── SKIP
+│   │                   │                   ├── number = 2 → isSafe false
+│   │                   │                   │   └── SKIP
+│   │                   │                   ├── number = 3 → isSafe false
+│   │                   │                   │   └── SKIP
+│   │                   │                   │
+│   │                   │                   ├── number = 4
+│   │                   │                   │   └── isSafe → true
+│   │                   │                   │       └── board[0][5] = 4  [PLACE 4]
+│   │                   │                   │           │
+│   │                   │                   │           └── solve(board) [CALL 4]
+│   │                   │                   │               │
+│   │                   │                   │               └── row = 0, col = 6
+│   │                   │                   │                   │
+│   │                   │                   │                   ├── number = 1 → false
+│   │                   │                   │                   ├── number = 2 → false
+│   │                   │                   │                   ├── number = 3 → false
+│   │                   │                   │                   ├── number = 4 → false
+│   │                   │                   │                   ├── number = 5 → false
+│   │                   │                   │                   ├── number = 6 → false
+│   │                   │                   │                   ├── number = 7 → false
+│   │                   │                   │                   │
+│   │                   │                   │                   ├── number = 8
+│   │                   │                   │                   │   └── isSafe → true
+│   │                   │                   │                   │       └── PLACE 8
+│   │                   │                   │                   │           │
+│   │                   │                   │                   │           └── solve(board) [CALL 5]
+│   │                   │                   │                   │               │
+│   │                   │                   │                   │               └── row = 0, col = 7
+│   │                   │                   │                   │                   │
+│   │                   │                   │                   │                   ├── 1 → false
+│   │                   │                   │                   │                   ├── 2 → false
+│   │                   │                   │                   │                   ├── 3 → false
+│   │                   │                   │                   │                   ├── 4 → false
+│   │                   │                   │                   │                   ├── 5 → false
+│   │                   │                   │                   │                   ├── 6 → false
+│   │                   │                   │                   │                   ├── 7 → false
+│   │                   │                   │                   │                   ├── 8 → false
+│   │                   │                   │                   │                   │
+│   │                   │                   │                   │                   └── number = 9
+│   │                   │                   │                   │                       └── isSafe → true
+│   │                   │                   │                   │                           └── PLACE 9
+│   │                   │                   │                   │                               │
+│   │                   │                   │                   │                               └── solve(board) [CALL 6]
+│   │                   │                   │                   │                                   │
+│   │                   │                   │                   │                                   └── row = 0, col = 8
+│   │                   │                   │                   │                                       │
+│   │                   │                   │                   │                                       ├── number = 1 → false
+│   │                   │                   │                   │                                       ├── number = 2 → false
+│   │                   │                   │                   │                                       ├── number = 3 → false
+│   │                   │                   │                   │                                       ├── number = 4 → false
+│   │                   │                   │                   │                                       ├── number = 5 → false
+│   │                   │                   │                   │                                       ├── number = 6 → false
+│   │                   │                   │                   │                                       ├── number = 7 → false
+│   │                   │                   │                   │                                       ├── number = 8 → false
+│   │                   │                   │                   │                                       └── number = 9 → false
+│   │                   │                   │                   │                                           │
+│   │                   │                   │                   │                                           └── return false
+│   │                   │                   │                   │
+│   │                   │                   │                   └── UNDO 9 at (0,7)
+│   │                   │                   │                       └── No more candidates
+│   │                   │                   │                           └── return false
+│   │                   │                   │
+│   │                   │                   └── UNDO 8 at (0,6)
+│   │                   │
+│   │                   ├── number = 9
+│   │                   │   └── isSafe → true
+│   │                   │       └── PLACE 9 at (0,6)
+│   │                   │           └── solve(board) [CALL 7]
+│   │                   │               └── row = 0, col = 7
+│   │                   │                   └── No candidate is safe
+│   │                   │                       └── return false
+│   │                   │
+│   │                   └── UNDO 9 at (0,6)
+│   │                       └── No more candidates
+│   │                           └── return false
+│   │
+│   │                   └── UNDO 4 at (0,5)
+│   │
+│   │                   ├── number = 5
+│   │                   │   └── isSafe → false
+│   │                   │       └── SKIP
+│   │                   │
+│   │                   └── number = 6
+│   │                       └── isSafe → true
+│   │                           └── PLACE 6 at (0,5)
+│   │                               └── solve(board) [CALL 8]
+│   │                                   └── row = 0, col = 6
+│   │                                       └── Continue exploring candidates...
+```
+***Important: This tree is depth-first: each recursive call must finish before its parent tries the next number. The return false at (0,8) causes the program to undo 9 at (0,7), then return to the earlier cell and try another choice.***
