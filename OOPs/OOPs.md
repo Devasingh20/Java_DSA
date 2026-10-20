@@ -1058,3 +1058,534 @@ The reader is closed automatically when the `try` block finishes, including when
 - [Oracle Java API — ](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#finalize\(\))[`Object.finalize()`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#finalize\(\))
 
 
+# 1. Why does `System.out.println(Deva)` print `Student@7344699f`?
+
+`println()` uses `String.valueOf()`, which calls the object's `toString()` method. The `toString()` method already exists in Java's `Object` class. You do not have to write it yourself.
+
+Let's understand step by step.
+
+## 1. Why does `System.out.println(Deva)` print `Student@7344699f`?
+
+Suppose you have this code:
+
+```java
+class Student {
+    String name = "Deva Singh";
+    int marks = 90;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Student Deva = new Student();
+
+        System.out.println(Deva);
+    }
+}
+```
+
+Output (example):
+
+```text
+Student@7344699f
+```
+
+The exact hexadecimal part can differ between objects and runs.
+
+## 2. What happens internally?
+
+Conceptually, the process is:
+
+```java
+System.out.println(Deva);
+```
+
+1. Passes the object reference to `println()`.
+2. `String.valueOf(Deva)` converts the object reference into a string representation.
+3. `Deva.toString()` is called.
+4. The resulting string is printed.
+
+```text
+Student@7344699f
+```
+
+This is a conceptual explanation of the call chain, not the exact source-code implementation of every `println()` overload.
+
+## 3. But we never created a `toString()` method. How does it work?
+
+Every Java class implicitly inherits from the `Object` class if it does not extend another class.
+
+For example:
+
+```java
+class Student {
+    String name;
+    int marks;
+}
+```
+
+Conceptually, this is equivalent to:
+
+```java
+class Student extends Object {
+    String name;
+    int marks;
+}
+```
+
+The `Object` class already provides a `toString()` method.
+
+Its default behavior produces a string based on:
+
+```text
+ClassName@hexadecimalHashCode
+```
+
+Therefore:
+
+- `Student` → the class name.
+- `@` → a separator in the default representation.
+- `7344699f` → a hexadecimal representation derived from the object's hash code.
+
+**Important:** This hexadecimal value is not necessarily the object's memory address.
+
+## 4. What if we create our own `toString()` method?
+
+You can override the inherited method to display meaningful information.
+
+```java
+class Student {
+    String name = "Deva Singh";
+    int marks = 90;
+
+    @Override
+    public String toString() {
+        return "Name: " + name + ", Marks: " + marks;
+    }
+}
+```
+
+Now:
+
+```java
+Student Deva = new Student();
+System.out.println(Deva);
+```
+
+Output:
+
+```text
+Name: Deva Singh, Marks: 90
+```
+
+Java now calls your overridden `toString()` method instead of using the default implementation inherited from `Object`.
+
+## 5. Remember the difference
+
+| Concept | Explanation |
+|---|---|
+| `println(Deva)` | Prints the object's string representation. |
+| `String.valueOf(Deva)` | Converts the object reference into a string representation. |
+| `Object.toString()` | Provides the default implementation inherited by `Student`. |
+| Overridden `toString()` | Lets you define what information the object displays. |
+
+Your understanding was almost correct. The only correction is that you do not need to create `toString()` yourself because Java provides it through the `Object` class. You override it only when you want more meaningful output.
+
+# 2. What is a package in Java?
+
+In Java, a package is a way to group related classes, interfaces, and other types together. It helps organize code, avoid naming conflicts, and control access to classes and members.
+
+Think of a package as a folder that organizes related Java classes.
+
+## 1. How to use a class from another package
+
+Suppose your project contains these files:
+
+```text
+Project/
+├── student/
+│   └── Student.java
+└── app/
+    └── Main.java
+```
+
+### `Student.java`
+
+```java
+package student;
+
+public class Student {
+    public void display() {
+        System.out.println("Hello from Student");
+    }
+}
+```
+
+### `Main.java`
+
+```java
+package app;
+
+import student.Student;
+
+public class Main {
+    public static void main(String[] args) {
+        Student s1 = new Student();
+        s1.display();
+    }
+}
+```
+
+Output:
+
+```text
+Hello from Student
+```
+
+Here, `import student.Student;` allows the code to refer to the `Student` class by its simple name.
+
+You can also use its fully qualified name without an import:
+
+```java
+student.Student s1 = new student.Student();
+```
+
+## 2. Types of packages in Java
+
+There are two broad categories you'll commonly encounter.
+
+| Type | Meaning | Examples |
+|---|---|---|
+| Built-in packages | Packages supplied by the Java platform | `java.util`, `java.io`, `java.lang` |
+| User-defined packages | Packages created by developers | `student`, `app`, `oops` |
+
+For example:
+
+```java
+import java.util.Scanner;
+```
+
+Here, `Scanner` belongs to the `java.util` package. It can be used to take input from the keyboard.
+
+Another example:
+
+```java
+import java.io.File;
+```
+
+Here, `File` belongs to the `java.io` package and represents file and directory paths.
+
+**Note:** `java.lang` is automatically imported into ordinary Java source files, so you don't need to write `import java.lang.String;` to use `String`.
+
+## 3. Important rules to remember
+
+1. A package helps organize related classes and interfaces.
+2. The package declaration specifies the package to which a class belongs.
+3. The `import` statement lets you refer to types from other packages by their simple names.
+4. Packages help avoid naming conflicts. For example, two packages can contain classes named `Student`.
+5. Packages also participate in Java's access-control rules. For example, a class or member with no access modifier (package-private access) is generally accessible only within its own package.
+
+## 4. Package vs. class vs. object
+
+| Concept | Meaning | Example |
+|---|---|---|
+| Package | Groups related types | `student` |
+| Class | Defines fields and methods | `Student` |
+| Object | An instance of a class | `new Student()` |
+
+The relationship is:
+
+```text
+Package
+   └── Class
+         └── Objects created from that class
+```
+
+A package contains classes, and a class can be used to create objects.
+
+
+# Static Keyword in Java
+
+## 1. Definition of `static`
+
+In Java, the `static` keyword is used to declare a member that belongs to the class rather than to individual objects. Therefore, static variables and methods can be accessed using the class name without creating an object of that class.
+
+### Example
+
+```java
+class Student {
+    static void display() {
+        System.out.println("Hello");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Student.display(); // No object required
+    }
+}
+```
+
+### Remember
+
+Static members belong to the class and are shared at the class level, whereas non-static members belong to individual objects.
+
+The `main()` method is the entry point of a traditional Java application, and it must be static so the JVM can call it without creating an object of the class. Without a valid entry-point method, the program cannot run normally using the standard Java launcher.
+
+**Remember one more point:** Inside a static method, you cannot directly use anything that is non-static. If you need to access a non-static member, you must use an object reference.
+
+For example:
+
+```java
+class Student {
+    int age = 20;
+    static int population = 0;
+
+    static void display() {
+        System.out.println(population); // Valid
+
+        // System.out.println(age); // Compilation error
+    }
+}
+```
+
+The `age` variable belongs to an object, whereas `population` belongs to the class.
+
+## 2. Can a class be static in Java?
+
+**NOTE:** A top-level class in Java cannot be declared `static` because `static` applies to members of a class, not to a top-level class. However, a class declared inside another class can be static or non-static.
+
+- **Static nested class:** It does not require an object of the outer class to be created. It can directly access only the static members of the outer class.
+- **Non-static inner class:** It requires an instance of the outer class to be created first and can access both static and instance members of that outer class.
+
+## 3. Example: Static variable `population`
+
+### `Humans.java`
+
+```java
+package staticExample;
+
+public class Humans {
+    int age;
+    String name;
+    int salary;
+    boolean married;
+
+    static int population;
+
+    public Humans(int age, String name, int salary, boolean married) {
+        this.age = age;
+        this.name = name;
+        this.salary = salary;
+        this.married = married;
+
+        Humans.population += 1;
+    }
+}
+```
+
+### `Main.java`
+
+```java
+package staticExample;
+
+public class Main {
+    public static void main(String[] args) {
+        Humans deva = new Humans(20, "Deva", 20000, false);
+        Humans singh = new Humans(18, "Singh", 15000, false);
+
+        System.out.println(deva.name);
+        System.out.println(singh.name);
+        System.out.println(singh.age);
+        System.out.println(singh.salary);
+        System.out.println(singh.married);
+
+        System.out.println(Humans.population);
+        System.out.println(Humans.population);
+    }
+}
+```
+
+## 4. When you use `static`
+
+Consider the declaration:
+
+```java
+static int population;
+```
+
+Your constructor contains:
+
+```java
+Humans.population += 1;
+```
+
+When you create objects:
+
+```java
+Humans deva = new Humans(20, "Deva", 20000, false);
+Humans singh = new Humans(18, "Singh", 15000, false);
+```
+
+The value changes as follows.
+
+### Initially
+
+```text
+population = 0
+```
+
+### Create `deva`
+
+```text
+population = 1
+```
+
+### Create `singh`
+
+```text
+population = 2
+```
+
+### Shared value
+
+```text
+population = 2
+```
+
+Java loads the `Humans` class, and the static variable `population` is initialized to `0`. When the `deva` object is created using the constructor, Java allocates memory for the object, initializes its instance variables to their default values, and then executes the constructor. The constructor assigns `"Deva"` to the `name` variable and increments the shared static variable `population` by 1, making it `1`.
+
+Similarly, when the `singh` object is created, the constructor assigns `"Singh"` to its own `name` variable and increments the same shared `population` variable from `1` to `2`.
+
+Since `population` is static, it belongs to the `Humans` class and is shared by all its objects. Therefore, when we print `Humans.population`, the output is `2`.
+
+## 5. Step-by-step execution
+
+### Step 1: Java loads the `Humans` class
+
+- The static variable `population` is initialized to `0`.
+- It belongs to the class, not to individual objects.
+
+```text
+Humans.population = 0
+```
+
+### Step 2: Java executes `new Humans("Deva")`
+
+- Memory for the new object is allocated, and its instance field `name` initially has the default value `null`.
+- The constructor executes.
+- `this.name = name` assigns `"Deva"` to that object's `name`.
+- `Humans.population++` increments the shared static variable from `0` to `1`.
+
+**Deva object**
+
+```text
+name = "Deva"
+
+Shared population: 1
+```
+
+### Step 3: Java executes `new Humans("Singh")`
+
+- A second object is created, with its own instance field `name`, initially `null`.
+- The constructor executes again.
+- `this.name = name` assigns `"Singh"` to the second object's `name`.
+- `Humans.population++` increments the same shared variable from `1` to `2`.
+
+**Singh object**
+
+```text
+name = "Singh"
+
+Shared population: 2
+```
+
+### Step 4: Java prints the result
+
+```text
+2
+```
+
+## 6. Your main question: Before or after object creation?
+
+The constructor executes during the object-creation process, after the object's memory is allocated and its fields receive their initial default values, but before the `new` expression finishes and returns the object reference.
+
+So the order is:
+
+1. Allocate memory for the object.
+2. Initialize its instance fields to default values.
+3. Execute the constructor (after the relevant superclass initialization).
+4. Return the object reference and assign it to `deva` or `singh`.
+
+Because `population` is static, there is only one shared variable for the entire `Humans` class.
+
+Therefore:
+
+```java
+System.out.println(Humans.population);
+System.out.println(Humans.population);
+```
+
+Output:
+
+```text
+2
+2
+```
+
+Both statements print the same shared value.
+
+## 7. When you remove `static`
+
+Suppose you change your declaration to:
+
+```java
+int population;
+```
+
+Now every object has its own separate `population` variable.
+
+Initially, Java gives each object's `int` field the default value `0`.
+
+When the constructor executes, you must also change this line:
+
+```java
+this.population += 1;
+```
+
+Otherwise, `Humans.population` will produce a compilation error because `population` is no longer static.
+
+Now the process becomes:
+
+- Creating `deva`: `deva.population` changes from `0` to `1`.
+- Creating `singh`: `singh.population` changes from `0` to `1`.
+
+### Output
+
+```java
+System.out.println(deva.population);
+System.out.println(singh.population);
+```
+
+Output:
+
+```text
+1
+1
+```
+
+Each object has its own counter, so both values are `1`.
+
+## 8. Compare both cases
+
+| Feature | `static int population` | `int population` |
+|---|---|---|
+| Belongs to | Class | Each object |
+| Number of variables | One shared variable | One per object |
+| After creating two objects and incrementing each once | `2` | `1` for each object |
+| Access using | `Humans.population` | `deva.population`, `singh.population` |
+
+### Remember
+
+In your program, `population` represents the total number of `Humans` objects created. Therefore, `static` is the appropriate choice.
+
+One small correction: if you want to count all objects created, your current constructor-based counter works for ordinary object creation, but it will not automatically account for every possible object-creation mechanism or decrement when objects become unreachable.
