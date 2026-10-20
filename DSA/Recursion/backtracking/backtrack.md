@@ -3664,3 +3664,376 @@ solve(board)                              [CALL 1]
 │   │                                       └── Continue exploring candidates...
 ```
 ***Important: This tree is depth-first: each recursive call must finish before its parent tries the next number. The return false at (0,8) causes the program to undo 9 at (0,7), then return to the earlier cell and try another choice.***
+
+
+# LeetCode 79: Word Search — Approach, Recursion, and Backtracking
+
+## 1. Understand the Problem
+
+The goal is to determine whether a given word can be formed by moving through adjacent cells in a character matrix.
+
+You can move **up, down, left, or right**, but you cannot use the same cell more than once in a single path.
+
+### Example
+
+```java
+char[][] board = {
+    {'A', 'B', 'C', 'E'},
+    {'S', 'F', 'C', 'S'},
+    {'A', 'D', 'E', 'E'}
+};
+
+String word = "ABCCED";
+```
+
+The word exists in the board because we can follow this path:
+
+`A → B → C → C → E → D`
+
+The output is:
+
+```text
+true
+```
+
+## 2. Main Approach
+
+We solve the problem using three concepts.
+
+### A. DFS (Depth-First Search)
+
+Start from a cell containing the first character of the word. Then explore one direction at a time, attempting to match the next character.
+
+For `"ABCCED"`:
+
+- Find `A`.
+- Search its neighbors for `B`.
+- From `B`, search for `C`.
+- Continue until the entire word is matched or the current path fails.
+
+### B. Backtracking
+
+If we reach a cell but cannot find the next required character, we return to the previous cell and try another direction.
+
+The process is:
+
+1. Choose a cell.
+2. Mark it as visited.
+3. Explore possible directions.
+4. If a path succeeds, return `true`.
+5. If all paths fail, restore the cell and return `false`.
+
+### C. Prevent Revisiting Cells
+
+```java
+char original = board[row][col];
+board[row][col] = '#';
+```
+
+The `'#'` character acts as a temporary visited marker.
+
+After exploration, restore the original character:
+
+```java
+board[row][col] = original;
+```
+
+Restoration is essential because another path may need to use that cell.
+
+## 3. Complete Code
+
+```java
+public class LC79_wordSearch {
+
+    public static void main(String[] args) {
+        char[][] board = {
+            {'A', 'B', 'C', 'E'},
+            {'S', 'F', 'C', 'S'},
+            {'A', 'D', 'E', 'E'}
+        };
+
+        String word = "ABCCED";
+
+        System.out.println(exists(board, word));
+    }
+
+    static boolean exists(char[][] board, String word) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+
+                if (board[i][j] == word.charAt(0)) {
+                    if (allPath(board, i, j, word, 0)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    static boolean allPath(
+            char[][] board, int row, int col,
+            String word, int index) {
+
+        // All characters have been matched
+        if (index == word.length()) {
+            return true;
+        }
+
+        // Check boundaries
+        if (row < 0 || row >= board.length ||
+                col < 0 || col >= board[0].length) {
+            return false;
+        }
+
+        // Reject visited cells or incorrect characters
+        if (board[row][col] == '#' ||
+                board[row][col] != word.charAt(index)) {
+            return false;
+        }
+
+        // Save the original character
+        char original = board[row][col];
+
+        // Mark this cell as visited
+        board[row][col] = '#';
+
+        // Explore all four directions
+        boolean found =
+                allPath(board, row + 1, col, word, index + 1) ||
+                allPath(board, row, col + 1, word, index + 1) ||
+                allPath(board, row - 1, col, word, index + 1) ||
+                allPath(board, row, col - 1, word, index + 1);
+
+        // Restore the cell
+        board[row][col] = original;
+
+        return found;
+    }
+}
+```
+
+## 4. Explanation of Each Method
+
+### Method 1: `exists()`
+
+Purpose: Find every possible starting cell for the word.
+
+```java
+static boolean exists(char[][] board, String word) {
+    for (int i = 0; i < board.length; i++) {
+        for (int j = 0; j < board[0].length; j++) {
+            if (board[i][j] == word.charAt(0)) {
+                if (allPath(board, i, j, word, 0)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+```
+
+The nested loops visit each cell in the board.
+
+```java
+if (board[i][j] == word.charAt(0))
+```
+
+This checks whether the current cell matches the first character of the word.
+
+For `"ABCCED"`, the first character is `A`. The method calls:
+
+```java
+allPath(board, i, j, word, 0);
+```
+
+The last argument, `0`, means that we are trying to match the character at index `0`.
+
+If any starting cell produces a complete path, `exists()` returns `true`. If all starting positions fail, it returns `false`.
+
+### Method 2: `allPath()`
+
+This method performs the recursive searching.
+
+| Parameter | Meaning |
+|---|---|
+| `board` | The character matrix |
+| `row` | Current row |
+| `col` | Current column |
+| `word` | The word we want to find |
+| `index` | Index of the character we currently need to match |
+
+For example:
+
+```java
+allPath(board, 0, 2, "ABCCED", 2);
+```
+
+This means checking whether the character at `(0, 2)` matches `word.charAt(2)`, which is `C`.
+
+## 5. Understanding the Base Cases
+
+### Base Case 1: The Word Has Been Matched
+
+```java
+if (index == word.length()) {
+    return true;
+}
+```
+
+If `word.length()` is `6`, then `index == 6` means all six characters have already been matched.
+
+Java string indices run from `0` to `5` for a six-character word. We never access `word.charAt(6)` because we return immediately.
+
+### Base Case 2: Out-of-Bounds Position
+
+```java
+if (row < 0 || row >= board.length ||
+        col < 0 || col >= board[0].length) {
+    return false;
+}
+```
+
+A cell is invalid if:
+
+- `row < 0`: above the board.
+- `row >= board.length`: below the board.
+- `col < 0`: left of the board.
+- `col >= board[0].length`: right of the board.
+
+An invalid position cannot match the word, so the method returns `false`.
+
+### Base Case 3: Incorrect or Already-Visited Cell
+
+```java
+if (board[row][col] == '#' ||
+        board[row][col] != word.charAt(index)) {
+    return false;
+}
+```
+
+This rejects two cases:
+
+1. The cell is already visited in the current path.
+2. The cell's character does not match the character we need.
+
+**Important:** The boundary check must come before accessing `board[row][col]`; otherwise, an invalid position can cause an `ArrayIndexOutOfBoundsException`.
+
+## 6. Why Do We Mark and Restore the Cell?
+
+```java
+char original = board[row][col];
+board[row][col] = '#';
+```
+
+We temporarily mark the current cell as visited so that recursive calls cannot reuse it in the same path.
+
+```java
+boolean found =
+        allPath(board, row + 1, col, word, index + 1) ||
+        allPath(board, row, col + 1, word, index + 1) ||
+        allPath(board, row - 1, col, word, index + 1) ||
+        allPath(board, row, col - 1, word, index + 1);
+```
+
+Each recursive call tries to match the next character, so we pass `index + 1`.
+
+After exploration:
+
+```java
+board[row][col] = original;
+return found;
+```
+
+We restore the original character even if no path succeeds. Leaving `'#'` behind would incorrectly prevent other paths from using that cell.
+
+## 7. Why Use `||` Between Recursive Calls?
+
+The operator `||` means logical OR.
+
+```java
+boolean found =
+        downCall ||
+        rightCall ||
+        upCall ||
+        leftCall;
+```
+
+Java evaluates these expressions from left to right using short-circuit evaluation.
+
+- If down returns `true`, the other three calls are skipped.
+- If down returns `false`, Java tries right.
+- If right also returns `false`, it tries up.
+- If up fails too, it tries left.
+- If all directions fail, `found` becomes `false`.
+
+This is appropriate because Word Search only asks whether at least one valid path exists. It does not ask you to count or print every possible path.
+
+## 8. Recursion Trace for `"ABCCED"`
+
+The successful route is:
+
+1. `A` at `(0, 0)` — `index = 0`.
+2. `B` at `(0, 1)` — `index = 1`, move right.
+3. `C` at `(0, 2)` — `index = 2`, move right.
+4. `C` at `(1, 2)` — `index = 3`, move down.
+5. `E` at `(2, 2)` — `index = 4`, move down.
+6. `D` at `(2, 1)` — `index = 5`, move left.
+7. Success — the next recursive call receives `index = 6`.
+
+Since `6 == word.length()`, the method returns `true`.
+
+The `true` result propagates back through the recursive calls until it reaches `exists()`, which returns `true`.
+
+## 9. Time and Space Complexity
+
+Let:
+
+- \(R\) = number of rows.
+- \(C\) = number of columns.
+- \(L\) = length of the word.
+
+### Time Complexity
+$$
+
+O(RC \times 4 \times 3^{L-1})
+
+$$
+Simplified:
+
+$$
+\boxed{O(RC \times 3^L)}
+$$
+
+**Explanation:**
+
+- There are at most $$(R \times C)$$ starting cells.
+- From each starting cell, there are at most four initial directions.
+- After the first move, the previous cell is marked visited, so there are at most three new directions to explore at each step.
+
+A looser upper bound is $$(O(RC \times 4^L))$$.
+
+### Space Complexity
+
+$$
+\boxed{O(L)}
+$$
+
+The recursive call stack can reach a depth of at most \(L\), where \(L\) is the length of the word. The code modifies the board in place, so it does not create a separate visited matrix.
+
+The recursive call stack can reach a depth of at most \(L\). The code modifies the board in place, so it does not create a separate visited matrix.
+
+## 10. Important Interview Points
+
+- **Algorithm:** DFS + Backtracking.
+- **Starting positions:** Every cell matching the first character.
+- **Movement:** Up, down, left, right only.
+- **Visited tracking:** Temporarily replace a cell with `'#'`.
+- **Backtracking:** Restore the original character before returning.
+- **Short-circuiting:** `||` stops searching after the first successful direction.
+- **Result:** Return `true` if any path matches the complete word; otherwise return `false`.
+
+**Key distinction:** In a maze problem that counts all paths, you generally explore every valid branch. In Word Search, you only need one successful path, so `||` allows the search to stop as soon as it finds one.
