@@ -1160,3 +1160,230 @@ This is equivalent for positive pile sizes and avoids the addition in `arr[i] + 
 4. If `steps <= h`: Speed is feasible; try a smaller speed.
 5. If `steps > h`: Speed is too slow; try a larger speed.
 6. Goal: Find the minimum feasible speed using binary search.
+
+
+# Koko Eating Bananas — Understanding the Monotonic Property
+
+Let's understand this using a simple example. The key is to see how eating speed affects the total hours required.
+
+## 1. Suppose the piles are
+
+```java
+int[] piles = {3, 6, 7, 11};
+int h = 8;
+```
+
+Koko has 8 hours to eat all the bananas.
+
+Let's try different speeds.
+
+| Speed (`k`) | Total hours required | Can finish within 8 hours? |
+|---:|---:|---|
+| 1 | 27 | ❌ No |
+| 2 | 15 | ❌ No |
+| 3 | 10 | ❌ No |
+| 4 | 8 | ✅ Yes |
+| 5 | 8 | ✅ Yes |
+| 6 | 6 | ✅ Yes |
+| 7 | 5 | ✅ Yes |
+| 8 | 5 | ✅ Yes |
+| 11 | 4 | ✅ Yes |
+
+Notice the pattern:
+
+```text
+Speed:       1   2   3   4   5   6   7   8 ... 11
+             |   |   |   |   |   |   |   |
+Result:      ❌  ❌  ❌  ✅  ✅  ✅  ✅  ✅ ... ✅
+```
+
+All the speeds before `4` are too slow. Speed `4` and all speeds after it are sufficient.
+
+## 2. What does “monotonic property” mean?
+
+It means the results follow a consistent pattern rather than switching back and forth.
+
+In this problem, the pattern is:
+
+```text
+Too slow → Too slow → Too slow → Fast enough → Fast enough → ...
+```
+
+### Rule 1: If a speed is too slow, smaller speeds are also too slow.
+
+Suppose speed `3` requires 10 hours, but Koko has only 8 hours.
+
+```text
+Speed 3 → 10 hours ❌
+```
+
+If Koko reduces her speed to `2`, she eats more slowly, so she cannot finish in fewer hours.
+
+Therefore, speed `2` and speed `1` must also fail.
+
+### Rule 2: If a speed is fast enough, larger speeds are also fast enough.
+
+Suppose speed `4` requires exactly 8 hours.
+
+```text
+Speed 4 → 8 hours ✅
+```
+
+If Koko increases her speed to `5`, she will not need more time than before.
+
+Therefore, speed `5`, `6`, `7`, and so on will also be sufficient.
+
+## 3. Why does this allow binary search?
+
+We need the smallest speed that works.
+
+From the example, the answer is `4`.
+
+Instead of checking speeds `1, 2, 3, 4` one by one, binary search checks the middle speed first.
+
+### Step 1: Initially
+
+```java
+start = 1;
+end = 11;
+
+mid = 1 + (11 - 1) / 2;
+mid = 6;
+```
+
+At speed `6`, Koko finishes in 6 hours.
+
+```text
+6 hours <= 8 hours ✅
+```
+
+So speed `6` works. But perhaps a smaller speed works too!
+
+We can discard `6` and all speeds above it, and search the left half:
+
+```text
+Possible speeds: 1  2  3  4  5
+```
+
+### Step 2: Search the left half
+
+```java
+start = 1;
+end = 5;
+mid = 3;
+```
+
+Speed `3` requires 10 hours, so it fails.
+
+```text
+10 hours > 8 hours ❌
+```
+
+Therefore, speeds `1`, `2`, and `3` all fail. We can discard them and search the right half:
+
+```text
+Possible speeds: 4  5
+```
+
+### Step 3: Find the minimum feasible speed
+
+```java
+start = 4;
+end = 5;
+mid = 4;
+```
+
+Speed `4` requires exactly 8 hours, so it works. We save `4` as the answer and search for anything smaller that might also work.
+
+```java
+ans = mid;
+end = mid - 1;
+```
+
+Now `end = 3`, while `start = 4`. Since `start > end`, the loop stops.
+
+There is no smaller candidate left, so the answer is `4`.
+
+## 4. Remember this simple idea
+
+### If the middle speed works
+
+Save it, then search smaller speeds.
+
+```java
+ans = mid;
+end = mid - 1;
+```
+
+### If the middle speed fails
+
+Discard it and all smaller speeds, then search larger speeds.
+
+```java
+start = mid + 1;
+```
+
+**The main point:** Binary search works because once a speed fails, every smaller speed fails too; and once a speed succeeds, every larger speed succeeds too. That lets us discard half the possible answers at every step.
+
+# Koko Eating Bananas — Interview Answer and Maximum Useful Speed
+
+## 1. Interview Answer: Why Do We Use Binary Search?
+
+If someone asks, **"Why do we use Binary Search in Koko Eating Bananas?"**, you can answer like this in an interview.
+
+### Interview answer
+
+We use **Binary Search on the Answer** because we need to find the minimum eating speed `k` that allows Koko to eat all the bananas within `h` hours.
+
+The possible speeds range from `1` to `max(piles)`. These speeds have a monotonic property:
+
+- If a speed is too slow, all smaller speeds will also be too slow.
+- If a speed is sufficient, all larger speeds will also be sufficient.
+
+Therefore, we can use binary search to eliminate half of the possible speeds in each iteration and find the minimum valid speed efficiently.
+
+- **Brute-force time complexity:** \(O(n \times M)\)
+- **Binary search time complexity:** \(O(n \log M)\)
+
+Here, \(n\) is the number of piles and \(M\) is the maximum pile size.
+
+### Short answer to remember
+
+> We use binary search because the answer is a minimum feasible eating speed, and feasibility is monotonic. This allows us to search for the minimum valid speed in \(O(n\log M)\) time instead of checking every possible speed in \(O(nM)\) time.
+
+---
+
+## 2. Can We Say the Maximum Speed Equals the Largest Pile Size?
+
+**Yes, exactly!** You can say:
+
+> The maximum possible useful eating speed is equal to the size of the pile containing the most bananas, i.e., `max(piles)`.
+
+For example:
+
+```java
+int[] piles = {3, 6, 7, 11};
+```
+
+The largest pile contains `11` bananas, so:
+
+```java
+int end = 11; // max(piles)
+```
+
+At a speed of `11` bananas per hour, Koko can finish each pile in at most one hour.
+
+### Why not choose a higher speed?
+
+If Koko eats at speed `12` or `100`, she still spends at least one hour on each non-empty pile. A speed higher than `max(piles)` cannot reduce the time required further, so it is unnecessary when searching for the minimum feasible speed.
+
+Therefore, our binary search range is:
+
+```java
+int start = 1;
+int end = max;
+```
+
+### Interview tip
+
+Say **"maximum useful speed"** rather than simply **"maximum speed,"** because technically Koko could eat at a higher speed, but there is no benefit in doing so.
