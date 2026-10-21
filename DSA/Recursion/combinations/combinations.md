@@ -1797,3 +1797,446 @@ combinationSum([2,3,6,7], 7)
     loop finished
     
     ↩️ RETURN
+```
+
+ # Balanced K-factor Decomposition Leet Code 3669
+
+The approach, why each condition is needed, how recursion works, and exactly when `break`, `return`, and backtracking execute.
+
+Your method `minDifference(n, k)` finds exactly `k` positive integer factors whose product is `n`, such that the difference between the largest and smallest factors is minimized.
+
+For example, suppose:
+
+```java
+n = 44;
+k = 3;
+```
+
+We need three factors whose product is `44`.
+
+Some possible combinations are:
+
+| Factors | Product | Difference (largest − smallest) |
+|---|---|---|
+| `[1, 1, 44]` | 44 | 44 − 1 = 43 |
+| `[1, 2, 22]` | 44 | 22 − 1 = 21 |
+| `[1, 4, 11]` | 44 | 11 − 1 = 10 |
+| `[2, 2, 11]` | 44 | 11 − 2 = 9 |
+
+The answer is `[2, 2, 11]`, because its difference, `9`, is the smallest.
+
+## 1. The Overall Approach
+
+Your code follows four main steps.
+
+### Step 1: Generate all divisors of `n`
+
+For `n = 44`, generate `[1, 2, 4, 11, 22, 44]`.
+
+### Step 2: Use recursion to choose factors
+
+Build combinations such as `[1, 1, 44]`, `[1, 2, 22]` and `[2, 2, 11]`.
+
+### Step 3: Check valid combinations
+
+Accept a combination only if it contains exactly `k` factors and their product equals `n`.
+
+### Step 4: Keep the minimum difference
+
+Update `result` whenever a better combination is found. Prune branches that cannot improve it.
+
+## 2. Step One: Generate the Divisors
+
+```java
+List<Integer> list = new ArrayList<>();
+
+for (int i = 1; i <= n / i; i++) {
+    if (n % i == 0) {
+        list.add(i);
+
+        if (i != n / i) {
+            list.add(n / i);
+        }
+    }
+}
+
+Collections.sort(list);
+```
+
+### Why do we use `i <= n / i`?
+
+Divisors come in pairs. For example, for `44`:
+
+- `1 × 44 = 44`
+- `2 × 22 = 44`
+- `4 × 11 = 44`
+
+We only need to search up to the square root of `n` to find both members of each pair.
+
+`i <= n / i` is used instead of `i * i <= n` to avoid possible integer overflow when multiplying large integers.
+
+### Why `n % i == 0`?
+
+The `%` operator gives the remainder.
+
+```java
+44 % 2 == 0   // true: 2 is a divisor
+44 % 3 == 2   // false: 3 is not a divisor
+```
+
+If the remainder is zero, `i` divides `n` exactly.
+
+### Why `if (i != n / i)`?
+
+This prevents adding the same divisor twice when `n` is a perfect square.
+
+For example, with `n = 36`, when `i = 6`, both `i` and `n / i` equal `6`. We add `6` only once.
+
+After sorting, the divisor list for `44` is:
+
+```java
+[1, 2, 4, 11, 22, 44]
+```
+
+## 3. Step Two: Understand the Variables
+
+```java
+List<Integer> result = new ArrayList<>();
+List<Integer> current = new ArrayList<>();
+int[] minDiff = {Integer.MAX_VALUE};
+```
+
+| Variable | Purpose |
+|---|---|
+| `list` | All divisors of the original `n`, sorted |
+| `result` | The best valid combination found so far |
+| `current` | The combination being explored right now |
+| `start` | The earliest divisor index the loop may choose |
+| `n` | The remaining product that still needs to be factored |
+| `k` | The required number of factors |
+| `minDiff[0]` | The smallest difference found so far |
+
+Notice that the parameter named `n` inside the recursive method changes its meaning: it represents the remaining product, not necessarily the original `n`.
+
+For example, the original `n = 44` might become `22`, then `11`, then `1` along a recursive path.
+
+### Why is `minDiff` an array?
+
+Java passes arguments by value. If you passed a primitive `int`, changing its local value inside a recursive call would not update the caller's copy.
+
+With `int[] minDiff`, recursive calls share access to the same array object. Updating `minDiff[0]` makes the new best difference visible to other calls.
+
+Initially:
+
+```java
+minDiff[0] = Integer.MAX_VALUE;
+```
+
+This means no valid combination has been found yet.
+
+## 4. Step Three: Understand the Base Condition
+
+This is the most important part of the recursion.
+
+```java
+if (current.size() == k) {
+    if (n == 1) {
+        int diff = current.get(k - 1) - current.get(0);
+
+        if (diff < minDiff[0]) {
+            minDiff[0] = diff;
+            result.clear();
+            result.addAll(current);
+        }
+    }
+    return;
+}
+```
+
+Let's break it into three conditions/actions.
+
+### A. `if (current.size() == k)`
+
+This asks: Have we already selected the required number of factors?
+
+Suppose:
+
+```java
+k = 3;
+current = [2, 2, 11];
+```
+
+The size is `3`, so we cannot add another factor. We must check whether this combination is valid.
+
+If `current = [2, 2]`, its size is only `2`, so recursion continues searching.
+
+### B. `if (n == 1)`
+
+This asks: Did the selected factors divide the original product completely?
+
+Remember, each recursive call divides the remaining `n` by the selected factor.
+
+For the combination `[2, 2, 11]`:
+
+```text
+44 / 2
+   |
+   v
+  22 / 2
+     |
+     v
+    11 / 11
+       |
+       v
+       1
+```
+
+When `current.size() == k` and `n == 1`, both requirements are satisfied.
+
+But suppose we reach:
+
+```java
+current = [2, 2, 2];
+n = 5;
+```
+
+The size is `3`, but `n` is not `1`. The factors do not multiply to the original `44`, so this combination must be rejected.
+
+Why check both conditions?
+
+- `current.size() == k` ensures we have exactly `k` factors.
+- `n == 1` ensures their product equals the original `n`.
+
+### C. Why do we use `return`?
+
+```java
+return;
+```
+
+Once we have selected `k` factors, that particular recursive call has nothing more to do. It exits the method, whether or not `n == 1`.
+
+It returns control to the previous recursive call. It does not stop the entire program or all recursion.
+
+## 5. How Do We Calculate and Update the Minimum Difference?
+
+```java
+int diff = current.get(k - 1) - current.get(0);
+```
+
+Your factors are selected in nondecreasing order because you use a sorted list and start the next search at index `i`.
+
+Therefore:
+
+- `current.get(0)` is the smallest factor.
+- `current.get(k - 1)` is the largest factor when the size is `k`.
+
+For `[2, 2, 11]`:
+
+```java
+diff = 11 - 2; // 9
+```
+
+Now:
+
+```java
+if (diff < minDiff[0]) {
+    minDiff[0] = diff;
+    result.clear();
+    result.addAll(current);
+}
+```
+
+Suppose the previous minimum was `10` and the new difference is `9`.
+
+1. `9 < 10` is true.
+2. `minDiff[0]` becomes `9`.
+3. `result.clear()` removes the previous answer.
+4. `result.addAll(current)` copies the current factors into `result`.
+
+Why `addAll()`? Because `result` is a `List<Integer>` and `current` is also a list. You want to copy all factors, not add the entire list as one element.
+
+If a later combination has difference `8`, the result is replaced again. If its difference is `12`, the result stays unchanged.
+
+## 6. Step Four: Understand the `for` Loop and Its Conditions
+
+Here is the central part of your algorithm:
+
+```java
+for (int i = start; i < list.size(); i++) {
+    int factor = list.get(i);
+
+    if (!current.isEmpty()
+            && factor - current.get(0) >= minDiff[0]) {
+        break;
+    }
+
+    if (n % factor == 0) {
+        current.add(factor);
+
+        combinationSum(
+            list, result, current,
+            i, n / factor, k, minDiff
+        );
+
+        current.remove(current.size() - 1);
+    }
+}
+```
+
+There are three important ideas here.
+
+### Condition 1: The `for` loop
+
+```java
+for (int i = start; i < list.size(); i++)
+```
+
+This tries each eligible divisor, beginning at index `start`.
+
+For the list:
+
+```java
+list = [1, 2, 4, 11, 22, 44];
+```
+
+If `start = 1`, the loop starts at index `1`, which gives factor `2`.
+
+### Condition 2: The pruning condition
+
+```java
+if (!current.isEmpty()
+        && factor - current.get(0) >= minDiff[0]) {
+    break;
+}
+```
+
+This avoids exploring branches that cannot improve the best difference.
+
+Consider:
+
+```java
+current = [2, 2];
+minDiff[0] = 9;
+```
+
+Now the loop reaches `factor = 11`.
+
+- `!current.isEmpty()` is `true`.
+- `factor - current.get(0)` is `11 - 2 = 9`.
+- `9 >= 9` is `true`.
+
+Both parts of the `&&` condition are true, so `break` executes.
+
+Where does control go? It exits this `for` loop. After the loop finishes, the current recursive method reaches its closing brace and returns to its caller.
+
+Why is it safe to stop? Because the list is sorted. Every subsequent factor is at least `11`, so its difference from `2` cannot be smaller than `9`. No strictly better result is possible from this point in the loop.
+
+The `!current.isEmpty()` check prevents accessing `current.get(0)` when the list has no factors yet.
+
+### Condition 3: The divisibility condition
+
+```java
+if (n % factor == 0)
+```
+
+This asks whether the selected factor divides the remaining product exactly.
+
+For example, if the remaining `n = 22`:
+
+```java
+22 % 2 == 0   // true
+22 % 4 == 2   // false
+22 % 11 == 0  // true
+```
+
+Only factors with remainder `0` can be selected.
+
+If the condition is false, the code skips the block and the loop tries the next factor.
+
+## 7. The Three Lines That Perform Backtracking
+
+```java
+current.add(factor);
+
+combinationSum(
+    list, result, current,
+    i, n / factor, k, minDiff
+);
+
+current.remove(current.size() - 1);
+```
+
+This follows the standard **choose → explore → undo** pattern.
+
+### 1. Choose
+
+`current.add(factor)` adds the factor to the current combination.
+
+### 2. Explore
+
+The recursive call tries to complete the combination using the remaining product `n / factor`.
+
+### 3. Undo
+
+`current.remove(current.size() - 1)` removes the chosen factor after that recursive branch finishes, allowing the loop to try another factor.
+
+For example, suppose `current = [2, 2]`.
+
+The code adds `11`, producing `[2, 2, 11]`. The recursive call checks that combination. Once it returns, `remove()` restores `current` to `[2, 2]`.
+
+Important: The `remove()` line executes after the recursive call returns normally. If a deeper call executes `break`, that `break` exits only its own loop; the parent call still resumes after its recursive call and performs its own `remove()`.
+
+## 8. Why Do We Pass `i`, Not `i + 1`?
+
+```java
+combinationSum(list, result, current, i, n / factor, k, minDiff);
+```
+
+Passing `i` allows the same factor to be selected again.
+
+For example, `[2, 2, 11]` requires choosing `2` twice.
+
+If you passed `i + 1`, the next recursive call would start after the current divisor, preventing the same divisor from being selected again.
+
+Because factors must be in sorted order, starting from `i` also avoids generating the same combination in different orders. For example, it generates `[2, 2, 11]`, not separate permutations such as `[11, 2, 2]`.
+
+## 9. Put Everything Together
+
+Here is the conceptual trace for the successful branch that finds `[2, 2, 11]`:
+
+**Call 1:** `current = []`, remaining `n = 44`
+
+Choose factor `2`.
+
+**Call 2:** `current = [2]`, remaining `n = 22`
+
+Choose factor `2` again.
+
+**Call 3:** `current = [2, 2]`, remaining `n = 11`
+
+Choose factor `11`.
+
+**Call 4:** `current = [2, 2, 11]`, remaining `n = 1`
+
+Size is `3` and remaining `n` is `1` — valid answer!
+
+Calculate `diff = 11 - 2 = 9`, then update `result` and `minDiff`.
+
+Return to Call 3; remove `11`; try other factors. The pruning condition eventually stops the loop when no better difference is possible.
+
+This is one branch of the recursion, not the complete recursion tree. Other branches may find worse combinations before or after it.
+
+## 10. The Conditions to Remember
+
+| Code | Meaning |
+|---|---|
+| `current.size() == k` | We have selected the required number of factors. |
+| `n == 1` | Their product equals the original number. |
+| `diff < minDiff[0]` | This is a strictly better answer. |
+| `!current.isEmpty()` | There is a first factor to compare against. |
+| `factor - current.get(0) >= minDiff[0]` | This branch cannot produce a strictly better difference, so stop the loop. |
+| `n % factor == 0` | The factor divides the remaining product exactly. |
+| `start = i` in the recursive call | Reuse the same factor while keeping combinations sorted. |
+| `current.remove(current.size() - 1)` | Undo the choice after exploring that branch. |
+
+One final detail: the `>=` pruning condition skips combinations that could tie the best difference, because you only need one best answer. If you want to collect all optimal combinations, the code needs a different tie-handling strategy.
