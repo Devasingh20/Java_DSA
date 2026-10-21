@@ -10,6 +10,8 @@ The important observation is that we are **not searching for an element inside a
 
 Instead, we are searching for the **minimum possible answer** — the eating speed.
 
+
+
 This is called:
 
 > [!IMPORTANT]
@@ -752,3 +754,409 @@ Is totalHours <= h?
 > **Too slow → Too slow → ... → Valid → Valid → ...**
 >
 > Once you identify this pattern, Binary Search on Answer becomes possible.
+
+# Koko Eating Bananas — LeetCode 875
+
+The most important idea is:
+
+> Instead of trying every possible eating speed one by one, use binary search to find the smallest speed that allows Koko to finish within the given time.
+
+## 1. What is the question?
+
+Koko has several piles of bananas. The array `arr` represents the number of bananas in each pile, and `h` is the number of hours available.
+
+Koko chooses an eating speed `k` bananas per hour.
+
+- Each hour, Koko chooses one pile and eats up to `k` bananas from it.
+- If the pile has fewer than `k` bananas remaining, she eats the whole pile and does not eat another pile during that hour.
+- Find the minimum integer speed `k` that allows her to finish all piles within `h` hours.
+
+### Example
+
+```java
+int[] arr = {3, 6, 7, 11};
+int h = 8;
+```
+
+The answer is:
+
+```text
+4
+```
+
+At speed `4`, the time needed is:
+
+| Pile | Calculation | Hours |
+|---:|---|---:|
+| 3 | `ceil(3 / 4)` | 1 |
+| 6 | `ceil(6 / 4)` | 2 |
+| 7 | `ceil(7 / 4)` | 2 |
+| 11 | `ceil(11 / 4)` | 3 |
+| **Total** | | **8** |
+
+Speed `4` is sufficient, and no smaller speed can finish all the piles within 8 hours.
+
+## 2. Why use Binary Search?
+
+Suppose we try different speeds.
+
+- At speed `1`, Koko eats very slowly.
+- At speed `4`, she may finish within the available time.
+- At speed `8`, she finishes faster.
+- At speed `11`, she can finish every pile in at most one hour per pile.
+
+Notice this important property:
+
+- If a speed is too slow, every smaller speed will also be too slow.
+- If a speed is fast enough, every larger speed will also be fast enough.
+
+This monotonic property allows us to use binary search.
+
+The search space:
+
+```text
+Speed too slow
+       ↓
+Find the smallest feasible speed
+       ↓
+Faster speeds are also feasible
+```
+
+Instead of checking all speeds from `1` to `max`, binary search repeatedly halves the search range.
+
+## 3. Why can't the answer be greater than `max(piles)`?
+
+This is one of the most important concepts in the problem.
+
+Your code finds the maximum pile size:
+
+```java
+int max = arr[0];
+
+for (int i = 0; i < arr.length; i++) {
+    if (arr[i] > max) {
+        max = arr[i];
+    }
+}
+```
+
+For example:
+
+```text
+arr = [3, 6, 7, 11]
+
+max = 11
+```
+
+Therefore, the binary search range is:
+
+```java
+int start = 1;
+int end = max;
+```
+
+So the search range is:
+
+```text
+[1, 11]
+```
+
+### Why is `max` sufficient as the upper bound?
+
+Suppose Koko eats at a speed of `11` bananas per hour.
+
+```text
+Pile 1: 3 bananas  → 1 hour
+Pile 2: 6 bananas  → 1 hour
+Pile 3: 7 bananas  → 1 hour
+Pile 4: 11 bananas → 1 hour
+```
+
+Every pile takes at most one hour because no pile contains more than 11 bananas.
+
+Thus, Koko can finish all four piles in 4 hours. If the available time is at least the number of piles, speed `11` is sufficient.
+
+Why not speed `12` or `100`?
+
+Because eating faster than the largest pile cannot reduce the time needed for any pile below one hour. Koko cannot use the saved time to eat another pile during the same hour.
+
+Therefore, any speed greater than `max` is unnecessary. The minimum feasible speed must be in this range:
+
+$$
+{1 \le k \le \max(\text{piles})}
+$$
+
+**Note:** This upper bound assumes the problem's guarantee that `h >= arr.length`. If `h` were smaller than the number of nonempty piles, no speed could finish the task under these rules.
+
+## 4. How do we calculate the hours needed?
+
+Your code uses:
+
+```java
+steps += (arr[i] + mid - 1) / mid;
+```
+
+This calculates the number of hours required for one pile at speed `mid`.
+
+The mathematical formula is:
+
+$$
+\text{hours for a pile}
+=
+\left\lceil
+\frac{\text{pile size}}{\text{speed}}
+\right\rceil
+$$
+
+We use the ceiling because even a partially filled final hour counts as a complete hour.
+
+### Example
+
+Suppose:
+
+```text
+Pile size = 10
+Speed     = 4
+```
+
+Koko eats:
+
+```text
+Hour 1 → 4 bananas
+Hour 2 → 4 bananas
+Hour 3 → 2 bananas
+```
+
+Total:
+
+```text
+ceil(10 / 4) = 3 hours
+```
+
+In Java, integer division truncates the decimal part. The expression
+
+```java
+(arr[i] + mid - 1) / mid
+```
+
+implements ceiling division for positive integers.
+
+For example:
+
+```text
+(10 + 4 - 1) / 4
+= 13 / 4
+= 3
+```
+
+Then we add the hours for every pile:
+
+```java
+long steps = 0;
+
+for (int i = 0; i < arr.length; i++) {
+    steps += (arr[i] + mid - 1) / mid;
+}
+```
+
+Here, `steps` represents the total hours required at the current speed.
+
+Using `long` helps prevent overflow when adding up the hours for large inputs.
+
+## 5. Complete binary search logic
+
+Let's understand your main loop.
+
+```java
+int start = 1;
+int end = max;
+int ans = max;
+
+while (start <= end) {
+    int mid = start + (end - start) / 2;
+
+    long steps = 0;
+
+    for (int i = 0; i < arr.length; i++) {
+        steps += (arr[i] + mid - 1) / mid;
+    }
+
+    if (steps <= h) {
+        ans = mid;
+        end = mid - 1;
+    } else {
+        start = mid + 1;
+    }
+}
+```
+
+### Case 1: `steps <= h`
+
+```java
+if (steps <= h) {
+    ans = mid;
+    end = mid - 1;
+}
+```
+
+The current speed is sufficient.
+
+But the question asks for the minimum sufficient speed, so we search for a smaller speed.
+
+```text
+Current speed is feasible
+          ↓
+Save it in ans
+          ↓
+Search the left half
+          ↓
+end = mid - 1
+```
+
+### Case 2: `steps > h`
+
+```java
+else {
+    start = mid + 1;
+}
+```
+
+The current speed is too slow.
+
+We must increase the speed.
+
+```text
+Current speed is too slow
+          ↓
+Discard current speed and smaller speeds
+          ↓
+Search the right half
+          ↓
+start = mid + 1
+```
+
+This is binary search on the answer, because we're searching for the minimum valid speed rather than searching for an element in the input array.
+
+## 6. Dry run using your exact input
+
+Your input is:
+
+```java
+int[] arr = {
+    805306368,
+    805306368,
+    805306368
+};
+
+int h = 1000000000;
+```
+
+The maximum pile size is:
+
+```text
+max = 805306368
+```
+
+The answer is `3`.
+
+Why? At speed `3`, each pile requires:
+
+$$
+\left\lceil\frac{805306368}{3}\right\rceil
+= 268435456
+$$
+
+Total hours:
+
+```text
+268435456 × 3 = 805306368
+```
+
+Since:
+
+```text
+805306368 <= 1000000000
+```
+
+speed `3` is feasible.
+
+At speed `2`:
+
+```text
+ceil(805306368 / 2) = 402653184 hours per pile
+```
+
+Total:
+
+```text
+402653184 × 3 = 1207959552 hours
+```
+
+Since:
+
+```text
+1207959552 > 1000000000
+```
+
+speed `2` is too slow.
+
+Therefore:
+
+```text
+Minimum feasible speed = 3
+```
+
+## 7. Why initialize `ans = max`?
+
+```java
+int ans = max;
+```
+
+This initializes the answer to a known feasible speed, provided `h >= arr.length`.
+
+Since speed `max` finishes each pile in one hour or less, it gives us a valid upper-bound answer.
+
+Whenever we find a smaller feasible speed, we update `ans`:
+
+```java
+ans = mid;
+```
+
+Then we keep searching for an even smaller feasible speed.
+
+At the end:
+
+```java
+return ans;
+```
+
+returns the minimum feasible speed found.
+
+## 8. Time and space complexity
+
+Let:
+
+- \(n\) = number of piles.
+- \(M\) = maximum pile size.
+
+| Complexity | Value | Reason |
+|---|---|---|
+| Time | \(O(n\log M)\) | Each binary-search iteration checks all `n` piles, and there are \(O(\log M)\) iterations. |
+| Auxiliary space | \(O(1)\) | Only a fixed number of variables are used. |
+
+One small improvement: for a more overflow-safe ceiling division, you can write:
+
+```java
+steps += (arr[i] - 1) / mid + 1;
+```
+
+This is equivalent for positive pile sizes and avoids the addition in `arr[i] + mid - 1`.
+
+## Final notes to remember
+
+1. Search space: `1` to `max(piles)`.
+2. Why `max(piles)`? At that speed, every pile takes at most one hour.
+3. Hours calculation: Sum the ceiling of each pile size divided by the speed.
+4. If `steps <= h`: Speed is feasible; try a smaller speed.
+5. If `steps > h`: Speed is too slow; try a larger speed.
+6. Goal: Find the minimum feasible speed using binary search.
