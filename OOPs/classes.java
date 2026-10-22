@@ -43,6 +43,7 @@ class Student {
 
     void changeName(String newName) {
         name = newName;
+        System.out.println(name);
     }
 
     Student() {
