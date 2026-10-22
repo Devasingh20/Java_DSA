@@ -1589,3 +1589,1913 @@ Each object has its own counter, so both values are `1`.
 In your program, `population` represents the total number of `Humans` objects created. Therefore, `static` is the appropriate choice.
 
 One small correction: if you want to count all objects created, your current constructor-based counter works for ordinary object creation, but it will not automatically account for every possible object-creation mechanism or decrement when objects become unreachable.
+
+# Inheritance in Java — Complete Notes
+
+## 1. Definition of Inheritance
+
+Inheritance is an OOP concept in Java in which one class acquires the accessible fields and methods of another class, allowing code reusability and the creation of relationships between classes.
+
+- **Parent class / Superclass / Base class:** The class whose members are inherited.
+- **Child class / Subclass / Derived class:** The class that inherits from another class.
+- **`extends` keyword:** Used by a class to inherit from another class.
+
+### Example
+
+```java
+class Box {
+    double length;
+    double width;
+    double height;
+
+    void display() {
+        System.out.println(length);
+        System.out.println(width);
+        System.out.println(height);
+    }
+}
+
+class BoxWeight extends Box {
+    double weight;
+}
+```
+
+Here:
+
+- `Box` is the parent class.
+- `BoxWeight` is the child class.
+- `BoxWeight extends Box` means `BoxWeight` inherits the accessible members of `Box`.
+- `BoxWeight` has its own `weight` field as well as the inherited `length`, `width`, and `height` fields.
+
+We can create an object like this:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        BoxWeight box = new BoxWeight();
+
+        box.length = 10;
+        box.width = 20;
+        box.height = 30;
+        box.weight = 40;
+
+        box.display();
+
+        System.out.println("Weight: " + box.weight);
+    }
+}
+```
+
+Output:
+
+```text
+10.0
+20.0
+30.0
+Weight: 40.0
+```
+
+The child object can use the inherited `display()` method and accessible fields without defining them again.
+
+## 2. Why do we use inheritance?
+
+1. **Code reusability:** Reuse existing methods and fields instead of rewriting them.
+2. **Extensibility:** Add new features to an existing class through a subclass.
+3. **Method overriding:** Allow a subclass to provide a specialized implementation of an inherited instance method.
+4. **Polymorphism:** Use a parent-class reference to refer to a child-class object.
+5. **Logical relationships:** Represent an is-a relationship, such as `Dog is an Animal`.
+
+Inheritance should represent a genuine is-a relationship. It should not be used merely to avoid writing a few lines of code.
+
+## 3. Types of inheritance in Java
+
+Java has several inheritance patterns. The main ones are single, multilevel, hierarchical, multiple, and hybrid inheritance.
+
+### 1. Single inheritance
+
+One child inherits from one parent.
+
+```java
+class A {}
+class B extends A {}
+```
+
+### 2. Multilevel inheritance
+
+A class inherits from a child class, creating a chain.
+
+```java
+class A {}
+class B extends A {}
+class C extends B {}
+```
+
+### 3. Hierarchical inheritance
+
+Multiple child classes inherit from the same parent.
+
+```java
+class A {}
+class B extends A {}
+class C extends A {}
+```
+
+### 4. Multiple inheritance
+
+One child inherits from multiple parents.
+
+```java
+// Not allowed for Java classes:
+// class C extends A, B {}
+```
+
+Java does not support multiple inheritance of classes, but it supports implementing multiple interfaces.
+
+### 5. Hybrid inheritance
+
+A combination of two or more inheritance patterns. Java can achieve many hybrid designs using classes and interfaces, but not arbitrary multiple inheritance of classes.
+
+## 4. Important rule: Constructors are not inherited
+
+This is one of the most important concepts in Java inheritance.
+
+Consider:
+
+```java
+class Box {
+    double length;
+    double width;
+
+    Box(double length, double width) {
+        this.length = length;
+        this.width = width;
+    }
+}
+
+class BoxWeight extends Box {
+    double weight;
+
+    BoxWeight(double length, double width, double weight) {
+        super(length, width);
+        this.weight = weight;
+    }
+}
+```
+
+Usage:
+
+```java
+BoxWeight box = new BoxWeight(10, 20, 30);
+
+System.out.println(box.length);
+System.out.println(box.width);
+System.out.println(box.weight);
+```
+
+Output:
+
+```text
+10.0
+20.0
+30.0
+```
+
+### What happens?
+
+1. `new BoxWeight(10, 20, 30)` invokes the `BoxWeight` constructor.
+2. `super(length, width)` invokes the parent class constructor `Box(double, double)`.
+3. The parent constructor initializes `length` and `width`.
+4. The child constructor initializes `weight`.
+
+Remember:
+
+- Constructors are not inherited.
+- A child constructor can call a parent constructor using `super()`.
+- If you do not explicitly call a parent constructor, Java inserts an implicit `super()` only when the parent has an accessible no-argument constructor.
+- `this()` calls another constructor in the same class.
+- `super()` must be the first statement in a constructor under the traditional Java syntax rules; Java 25 and later allow certain restricted statements before it.
+
+## 5. The `super` keyword
+
+The `super` keyword refers to the superclass part of the current object. It is commonly used for three purposes.
+
+### A. Call the parent constructor
+
+```java
+class A {
+    A(int x) {
+        System.out.println("Parent: " + x);
+    }
+}
+
+class B extends A {
+    B() {
+        super(10);
+        System.out.println("Child constructor");
+    }
+}
+```
+
+Output:
+
+```text
+Parent: 10
+Child constructor
+```
+
+### B. Access a parent field hidden by a child field
+
+```java
+class A {
+    int x = 10;
+}
+
+class B extends A {
+    int x = 20;
+
+    void display() {
+        System.out.println(x);
+        System.out.println(super.x);
+    }
+}
+```
+
+Output:
+
+```text
+20
+10
+```
+
+Here, `x` refers to the child field, while `super.x` refers to the parent field.
+
+### C. Call a parent method
+
+```java
+class A {
+    void display() {
+        System.out.println("Parent method");
+    }
+}
+
+class B extends A {
+    @Override
+    void display() {
+        super.display();
+        System.out.println("Child method");
+    }
+}
+```
+
+Output:
+
+```text
+Parent method
+Child method
+```
+
+# 1 Multilevel Inheritance in Java
+
+### Definition
+
+Multilevel inheritance is a type of inheritance in which a class (called a derived class) inherits from another class, and that derived class becomes the parent of a third class, and the third class inherits from that derived class, forming a chain of inheritance.
+
+In simple words, one class inherits from a parent class, and another class inherits from that child class.
+
+### Example in Java
+
+```text
+Animal
+  |
+  | Parent class
+  v
+Dog
+  |
+  | Child of Animal
+  v
+Puppy
+  |
+  | Child of Dog
+```
+
+Here, `Dog` inherits from `Animal`, and `Puppy` inherits from `Dog`. Therefore, `Puppy` can access the inherited methods of both `Dog` and `Animal`, provided their access modifiers allow it.
+
+### Full Java program
+
+```java
+class Animal {
+    void eat() {
+        System.out.println("Animal is eating");
+    }
+}
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("Dog is barking");
+    }
+}
+
+class Puppy extends Dog {
+    void weep() {
+        System.out.println("Puppy is weeping");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Puppy p = new Puppy();
+
+        p.eat();   // Inherited from Animal
+        p.bark();  // Inherited from Dog
+        p.weep();  // Defined in Puppy
+    }
+}
+```
+
+### Output
+
+```text
+Animal is eating
+Dog is barking
+Puppy is weeping
+```
+
+### How does it work?
+
+1. `Animal` defines the `eat()` method.
+2. `Dog extends Animal`, so `Dog` inherits `eat()` and defines its own `bark()` method.
+3. `Puppy extends Dog`, so `Puppy` inherits both `bark()` and `eat()`, and defines its own `weep()` method.
+4. We create only one object, `new Puppy()`, and use it to call all three methods.
+
+### Important points
+
+- Multilevel inheritance forms an inheritance chain: `A → B → C`.
+- Java supports multilevel inheritance through classes.
+- The child class can reuse accessible members from its parent and ancestors.
+- It promotes code reusability and reduces code duplication.
+
+**Remember:** In `class C extends B` and `class B extends A`, class `C` can inherit accessible members from both `B` and `A`.
+
+# 2. Multiple Inheritance in Java
+
+## Definition
+
+Multiple inheritance is a type of inheritance in which one child class inherits properties and methods from two or more parent classes.
+
+In Java, multiple inheritance is not supported through classes, meaning a class cannot extend two or more classes. However, Java supports multiple inheritance through interfaces.
+
+## Example
+
+```text
+Camera
+  |
+  | Interface
+  |
+MusicPlayer
+  |
+  | Interface
+  |
+SmartPhone
+  |
+  | Implements both
+```
+
+Here, `SmartPhone` implements both `Camera` and `MusicPlayer` interfaces.
+
+### Full Java Program
+
+```java
+interface Camera {
+    void takePhoto();
+}
+
+interface MusicPlayer {
+    void playMusic();
+}
+
+class SmartPhone implements Camera, MusicPlayer {
+
+    public void takePhoto() {
+        System.out.println("Taking a photo");
+    }
+
+    public void playMusic() {
+        System.out.println("Playing music");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        SmartPhone phone = new SmartPhone();
+
+        phone.takePhoto();
+        phone.playMusic();
+    }
+}
+```
+
+### Output
+
+```text
+Taking a photo
+Playing music
+```
+
+### Explanation
+
+- `Camera` declares the `takePhoto()` method.
+- `MusicPlayer` declares the `playMusic()` method.
+- `SmartPhone` implements both interfaces and provides implementations for both methods.
+
+**Remember:** `extends` is used to inherit from a class, while `implements` is used to implement interfaces.
+
+---
+
+# 3. Hierarchical Inheritance in Java
+
+## Definition
+
+Hierarchical inheritance is a type of inheritance in which two or more child classes inherit from the same parent class.
+
+## Example
+
+```text
+        Animal
+      Parent class
+        /   \
+       /     \
+     Dog      Cat
+  Child class Child class
+```
+
+Here, both `Dog` and `Cat` inherit from the same parent class, `Animal`.
+
+### Full Java Program
+
+```java
+class Animal {
+    void eat() {
+        System.out.println("Animal is eating");
+    }
+}
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("Dog is barking");
+    }
+}
+
+class Cat extends Animal {
+    void meow() {
+        System.out.println("Cat is meowing");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Dog d = new Dog();
+        d.eat();
+        d.bark();
+
+        Cat c = new Cat();
+        c.eat();
+        c.meow();
+    }
+}
+```
+
+### Output
+
+```text
+Animal is eating
+Dog is barking
+Animal is eating
+Cat is meowing
+```
+
+### Explanation
+
+- `Animal` defines the common `eat()` method.
+- `Dog` inherits `eat()` and defines `bark()`.
+- `Cat` inherits `eat()` and defines `meow()`.
+- Both child classes reuse the same parent-class method.
+
+## Difference Between Multiple and Hierarchical Inheritance
+
+| Feature | Multiple Inheritance | Hierarchical Inheritance |
+|---|---|---|
+| Meaning | One child has multiple parents | Multiple children share one parent |
+| Structure | `A + B → C` | `A → B, C` |
+| Through Java classes | Not supported | Supported |
+| Through interfaces | Supported | Not required |
+| Main benefit | Combines multiple capabilities | Reuses common functionality |
+
+### Quick Way to Remember
+
+- **Multiple:** Many parents, one child.
+- **Hierarchical:** One parent, many children.
+- **Multilevel:** A chain of inheritance, such as `A → B → C`.
+
+# 4. Hybrid Inheritance in Java
+
+## Definition
+
+Hybrid inheritance is a combination of two or more types of inheritance, such as multilevel, hierarchical, and multiple inheritance, within a single program.
+
+In Java, hybrid inheritance is not directly supported through classes alone because Java does not allow a class to extend multiple classes. However, it can be achieved by combining class inheritance with interfaces.
+
+## Example of Hybrid Inheritance
+
+Consider the following structure, which combines hierarchical and multiple inheritance.
+
+```text
+             Animal
+           Parent class
+            /      \
+           /        \
+         Dog         Cat
+      Child class  Child class
+           |
+           | Implements
+           |
+           Pet
+        Interface
+```
+
+Here, `Dog` inherits from `Animal` and implements the `Pet` interface. This combines class inheritance with interface implementation.
+
+## Full Java Program
+
+```java
+class Animal {
+    void eat() {
+        System.out.println("Animal is eating");
+    }
+}
+
+interface Pet {
+    void play();
+}
+
+class Dog extends Animal implements Pet {
+
+    void bark() {
+        System.out.println("Dog is barking");
+    }
+
+    public void play() {
+        System.out.println("Dog is playing");
+    }
+}
+
+class Cat extends Animal {
+
+    void meow() {
+        System.out.println("Cat is meowing");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Dog d = new Dog();
+
+        d.eat();
+        d.bark();
+        d.play();
+
+        Cat c = new Cat();
+
+        c.eat();
+        c.meow();
+    }
+}
+```
+
+### Output
+
+```text
+Animal is eating
+Dog is barking
+Dog is playing
+Animal is eating
+Cat is meowing
+```
+
+## Explanation
+
+1. **Hierarchical inheritance:** Both `Dog` and `Cat` inherit from `Animal`.
+2. **Interface implementation:** `Dog` implements `Pet` and provides the `play()` method.
+3. **Hybrid inheritance:** The program combines class inheritance and interface implementation to create a hybrid structure.
+
+## Advantages of Hybrid Inheritance
+
+- Promotes code reusability.
+- Allows different inheritance patterns to be combined.
+- Interfaces allow a class to implement multiple capabilities.
+- Helps design flexible and extensible programs.
+
+**Important for exams:** Java does not support hybrid inheritance using classes alone, but hybrid structures can be implemented using classes and interfaces.
+
+
+# Polymorphism in Java
+
+## 1. Definition of Polymorphism
+
+Polymorphism is an OOP concept in which one entity can take multiple forms. In Java, polymorphism allows the same method name or reference type to work with different objects and exhibit different behaviors depending on the context.
+
+### Meaning of the Word
+
+The word polymorphism comes from two Greek words:
+
+- Poly = many
+- Morph = forms
+
+Therefore, polymorphism means "many forms."
+
+For example, the same `sound()` method produces different sounds for different animals:
+
+- Dog → Bark
+- Cat → Meow
+- Cow → Moo
+
+The method name is the same, but the behavior differs.
+
+## 2. Example of Polymorphism Using Inheritance
+
+```java
+class Animal {
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Bark");
+    }
+}
+
+class Cat extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Meow");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal a1 = new Dog();
+        Animal a2 = new Cat();
+
+        a1.sound();
+        a2.sound();
+    }
+}
+```
+
+### Output
+
+```text
+Bark
+Meow
+```
+
+### How Does It Work?
+
+Consider this statement:
+
+```java
+Animal a1 = new Dog();
+```
+
+- `Animal` is the reference type.
+- `a1` is the reference variable.
+- `new Dog()` creates the actual `Dog` object.
+- `Dog` overrides the `sound()` method inherited from `Animal`.
+
+When Java executes:
+
+```java
+a1.sound();
+```
+
+It calls `Dog`'s `sound()` method because the actual object is a `Dog`.
+
+Similarly:
+
+```java
+Animal a2 = new Cat();
+a2.sound();
+```
+
+Java calls `Cat`'s `sound()` method because the actual object is a `Cat`.
+
+This is called **runtime polymorphism**, also known as **dynamic method dispatch**.
+
+## 3. Types of Polymorphism in Java
+
+Java commonly supports two types of polymorphism.
+
+### 1. Compile-Time Polymorphism (Static Polymorphism)
+
+The method to use is selected by the compiler based on the method signature and the arguments.
+
+**Achieved through:** Method overloading.
+
+**Example:** `add(int, int)` and `add(double, double)`.
+
+### 2. Runtime Polymorphism (Dynamic Polymorphism)
+
+The overridden instance method implementation is selected at runtime based on the actual object's class.
+
+**Achieved through:** Method overriding and inheritance.
+
+**Example:** `Animal a = new Dog(); a.sound();`.
+
+## 4. Compile-Time Polymorphism: Method Overloading
+
+**Definition:** Method overloading occurs when a class has multiple methods with the same name but different parameter lists.
+
+The methods may differ in the number, types, or order of their parameters.
+
+### Example
+
+```java
+class Calculator {
+
+    int add(int a, int b) {
+        return a + b;
+    }
+
+    int add(int a, int b, int c) {
+        return a + b + c;
+    }
+
+    double add(double a, double b) {
+        return a + b;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Calculator c = new Calculator();
+
+        System.out.println(c.add(10, 20));
+        System.out.println(c.add(10, 20, 30));
+        System.out.println(c.add(2.5, 3.5));
+    }
+}
+```
+
+### Output
+
+```text
+30
+60
+6.0
+```
+
+### How Does It Work?
+
+- `add(10, 20)` selects the two-`int` version.
+- `add(10, 20, 30)` selects the three-`int` version.
+- `add(2.5, 3.5)` selects the two-`double` version.
+
+The compiler selects the applicable overload based on the argument types and method overload-resolution rules.
+
+**Important:** Changing only the return type does not create a valid overload.
+
+```java
+int display(int x) {
+    return x;
+}
+
+// Invalid overload if this is the only difference:
+double display(int x) {
+    return x;
+}
+```
+
+## 5. Runtime Polymorphism: Method Overriding
+
+**Definition:** Method overriding occurs when a subclass provides its own implementation of an inherited instance method with a compatible signature.
+
+The implementation that runs is determined by the actual object's class at runtime.
+
+### Example
+
+```java
+class Animal {
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}
+
+class Cat extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Cat meows");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal animal;
+
+        animal = new Dog();
+        animal.sound();
+
+        animal = new Cat();
+        animal.sound();
+    }
+}
+```
+
+### Output
+
+```text
+Dog barks
+Cat meows
+```
+
+### Why Is This Runtime Polymorphism?
+
+The same reference variable, `animal`, refers to different objects at different times.
+
+```java
+animal = new Dog();
+animal.sound();
+```
+
+The actual object is a `Dog`, so `Dog.sound()` executes.
+
+```java
+animal = new Cat();
+animal.sound();
+```
+
+The actual object is a `Cat`, so `Cat.sound()` executes.
+
+The compiler checks that `sound()` is available through the `Animal` reference type. At runtime, Java dispatches the call to the appropriate overridden implementation.
+
+At runtime, Java executes the method that the compiler selected during compile time. The compiler has already determined which overloaded `add()` method each call refers to.
+
+Let's understand step by step.
+
+## 1. Your Code
+
+```java
+class Calculator {
+
+    int add(int a, int b) {
+        return a + b;
+    }
+
+    int add(int a, int b, int c) {
+        return a + b + c;
+    }
+
+    double add(double a, double b) {
+        return a + b;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Calculator c = new Calculator();
+
+        System.out.println(c.add(10, 20));
+        System.out.println(c.add(10, 20, 30));
+        System.out.println(c.add(2.5, 3.5));
+    }
+}
+```
+
+## 2. What Happens at Compile Time?
+
+The compiler examines the arguments in each method call and selects the appropriate overloaded method.
+
+| Method call | Method selected by compiler |
+|---|---|
+| `c.add(10, 20)` | `add(int a, int b)` |
+| `c.add(10, 20, 30)` | `add(int a, int b, int c)` |
+| `c.add(2.5, 3.5)` | `add(double a, double b)` |
+
+The compiler also checks that the calls are valid and that their return values can be used as written.
+
+## 3. What Happens at Runtime?
+
+At runtime, the JVM executes the already-selected method for each call.
+
+### First Call
+
+```java
+c.add(10, 20);
+```
+
+The JVM executes `add(int a, int b)`.
+
+Calculation: `10 + 20 = 30`
+
+Returns `30`.
+
+### Second Call
+
+```java
+c.add(10, 20, 30);
+```
+
+The JVM executes `add(int a, int b, int c)`.
+
+Calculation: `10 + 20 + 30 = 60`
+
+Returns `60`.
+
+### Third Call
+
+```java
+c.add(2.5, 3.5);
+```
+
+The JVM executes `add(double a, double b)`.
+
+Calculation: `2.5 + 3.5 = 6.0`
+
+Returns `6.0`.
+
+### Output
+
+```text
+30
+60
+6.0
+```
+
+## 4. The Key Difference
+
+- **Compile time:** The compiler determines which overloaded method should be called.
+- **Runtime:** The JVM executes that selected method and produces the result.
+
+Unlike runtime polymorphism through method overriding, method overloading does not choose between implementations based on the actual object's type at runtime. Overload selection is based on compile-time types and Java's overload-resolution rules.
+
+**At compile time:** Java checks the reference type to determine which fields and methods can be accessed.
+
+**At runtime:** When an overridden instance method is called, Java checks the actual object's class and executes the appropriate overridden implementation. If the method is not overridden, the inherited implementation executes.
+
+### Example
+
+```java
+class Animal {
+    int age = 5;
+
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+
+class Dog extends Animal {
+    int age = 10;
+
+    @Override
+    void sound() {
+        System.out.println("Dog barks");
+    }
+
+    void eat() {
+        System.out.println("Dog is eating");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal a = new Dog();
+
+        System.out.println(a.age);
+        a.sound();
+
+        // a.eat(); // Compile-time error
+    }
+}
+```
+
+### Output
+
+```text
+5
+Dog barks
+```
+
+### Why Does This Happen?
+
+- `a.age` prints `5` because field access depends on the reference type (`Animal`).
+- `a.sound()` prints `Dog barks` because overridden instance method execution depends on the actual object type (`Dog`).
+- `a.eat()` causes a compile-time error because `eat()` is not declared in `Animal`.
+
+### Remember This Rule
+
+| At compile time | At runtime |
+|---|---|
+| Reference type determines accessible members. | Actual object type determines which overridden instance method executes. |
+| Checks whether the method call is valid. | Executes the selected method implementation. |
+| Field access depends on reference type. | Fields are not dynamically overridden. |
+
+One important detail: Java does not simply check whether a method is overridden every time it runs. Runtime method dispatch selects the appropriate implementation for an overridable instance-method call. Static methods and fields do not use this kind of runtime polymorphism.
+
+
+# Upcasting and Downcasting in Java
+
+## Upcasting
+
+**Definition:** When a child-class object is assigned to a parent-class reference, it is called upcasting.
+
+## 1. Why Do We Use Upcasting?
+
+Upcasting allows us to refer to different child-class objects using a common parent-class reference. This is useful for writing flexible, reusable code.
+
+```java
+class Box {
+    void display() {
+        System.out.println("I am a Box");
+    }
+}
+
+class BoxWeight extends Box {
+    double weight = 40;
+
+    @Override
+    void display() {
+        System.out.println("I am a BoxWeight");
+    }
+}
+```
+
+### Example
+
+```java
+Box box = new BoxWeight();
+
+box.display();
+```
+
+### Output
+
+```text
+I am a BoxWeight
+```
+
+Here, `Box box = new BoxWeight();` is upcasting.
+
+### Why Is It Useful?
+
+Imagine you have multiple subclasses:
+
+```java
+Box box1 = new BoxWeight();
+Box box2 = new Box();
+```
+
+You can write methods that accept the common `Box` type rather than creating separate methods for every subclass.
+
+```java
+static void printBox(Box box) {
+    box.display();
+}
+```
+
+Now you can call:
+
+```java
+printBox(new Box());
+printBox(new BoxWeight());
+```
+
+This is one of the main benefits of upcasting: polymorphism and code reusability.
+
+## 2. Why Do We Use Downcasting?
+
+Downcasting in Java means converting a reference of a parent class into a reference of a child class. It allows you to access child-specific members when the actual object is an instance of that child class.
+
+Downcasting allows us to convert a parent-class reference into a child-class reference when the actual object is of that child type. It is useful when you need to access child-specific fields or methods.
+
+```java
+class Box {
+}
+
+class BoxWeight extends Box {
+    double weight = 40;
+
+    void displayWeight() {
+        System.out.println(weight);
+    }
+}
+```
+
+### Example
+
+```java
+Box box = new BoxWeight(); // Upcasting
+
+// System.out.println(box.weight); // Compile-time error
+
+BoxWeight bw = (BoxWeight) box; // Downcasting
+
+System.out.println(bw.weight);
+bw.displayWeight();
+```
+
+### Output
+
+```text
+40.0
+40.0
+```
+
+### Why Is Downcasting Needed?
+
+The reference type `Box` does not declare `weight` or `displayWeight()`. Downcasting lets you access those child-specific members because the actual object is a `BoxWeight`.
+
+Remember, downcasting does not create a new object.
+
+## 3. Upcasting vs. Downcasting
+
+| Feature      | Upcasting                                 | Downcasting                         |
+| ------------ | ----------------------------------------- | ----------------------------------- |
+| Conversion   | Child reference to parent reference       | Parent reference to child reference |
+| Syntax       | Usually implicit                          | Explicit cast required              |
+| Main purpose | Polymorphism and generalization           | Access child-specific members       |
+| Safety       | Safe for a valid inheritance relationship | Can fail at runtime                 |
+| Example      | `Box b = new BoxWeight();`                | `BoxWeight bw = (BoxWeight) b;`     |
+
+## 4. Important: Downcasting Can Fail
+
+```java
+Box box = new Box();
+
+BoxWeight bw = (BoxWeight) box;
+```
+
+This throws a `ClassCastException` at runtime because the actual object is a `Box`, not a `BoxWeight`.
+
+You can check first:
+
+```java
+if (box instanceof BoxWeight) {
+    BoxWeight bw = (BoxWeight) box;
+    System.out.println(bw.weight);
+}
+```
+
+## Remember These Two Definitions
+
+- **Upcasting:** Used to treat a child object as its parent type, enabling polymorphism and reusable code.
+- **Downcasting:** Used to treat a parent reference as a specific child type to access child-specific members, provided the actual object is compatible.
+
+**Interview tip:** Upcasting is common in polymorphism. Downcasting is less common and should be used carefully because it can cause runtime errors.
+
+---
+
+# Full Java Examples: Without and With Upcasting
+
+Here are the full Java codes for both cases: without using a common parent-type method and with upcasting and polymorphism.
+
+## Case 1: Without a Common Parent-Type Method
+
+We create a separate method for each class, even though all three methods perform the same task.
+
+```java
+class Box {
+    void display() {
+        System.out.println("I am a Box");
+    }
+}
+
+class BoxWeight extends Box {
+    @Override
+    void display() {
+        System.out.println("I am a BoxWeight");
+    }
+}
+
+class GiftBox extends Box {
+    @Override
+    void display() {
+        System.out.println("I am a GiftBox");
+    }
+}
+
+public class Main {
+
+    static void printBox(Box box) {
+        box.display();
+    }
+
+    static void printBoxWeight(BoxWeight box) {
+        box.display();
+    }
+
+    static void printGiftBox(GiftBox box) {
+        box.display();
+    }
+
+    public static void main(String[] args) {
+        Box box = new Box();
+        BoxWeight boxWeight = new BoxWeight();
+        GiftBox giftBox = new GiftBox();
+
+        printBox(box);
+        printBoxWeight(boxWeight);
+        printGiftBox(giftBox);
+    }
+}
+```
+
+### Output
+
+```text
+I am a Box
+I am a BoxWeight
+I am a GiftBox
+```
+
+**Problem:** We need three separate methods to perform essentially the same operation.
+
+## Case 2: Using Upcasting and Polymorphism
+
+Now we use a single method that accepts the parent class `Box`. It can handle objects of `Box`, `BoxWeight`, and `GiftBox`.
+
+```java
+class Box {
+    void display() {
+        System.out.println("I am a Box");
+    }
+}
+
+class BoxWeight extends Box {
+    @Override
+    void display() {
+        System.out.println("I am a BoxWeight");
+    }
+}
+
+class GiftBox extends Box {
+    @Override
+    void display() {
+        System.out.println("I am a GiftBox");
+    }
+}
+
+public class Main {
+
+    static void printBox(Box box) {
+        box.display();
+    }
+
+    public static void main(String[] args) {
+        Box box = new Box();
+        BoxWeight boxWeight = new BoxWeight();
+        GiftBox giftBox = new GiftBox();
+
+        printBox(box);
+        printBox(boxWeight);
+        printBox(giftBox);
+    }
+}
+```
+
+### Output
+
+```text
+I am a Box
+I am a BoxWeight
+I am a GiftBox
+```
+
+## What Is Happening in Case 2?
+
+Consider this call:
+
+```java
+printBox(boxWeight);
+```
+
+The method expects a `Box` reference:
+
+```java
+static void printBox(Box box) {
+    box.display();
+}
+```
+
+But we pass a `BoxWeight` object. This works because `BoxWeight extends Box`, so Java automatically upcasts the reference when passing the argument.
+
+Inside the method:
+
+- **Reference type:** `Box`
+- **Actual object type:** `BoxWeight`
+- **Method executed:** `BoxWeight`'s overridden `display()` method
+
+The same method works for all three classes because Java selects the overridden instance method according to the actual object's type at runtime.
+
+## Comparison
+
+| Case 1                                         | Case 2                            |
+| ---------------------------------------------- | --------------------------------- |
+| Three separate methods                         | One common method                 |
+| Repeated code                                  | Less repeated code                |
+| Each method accepts a specific class           | Method accepts the parent class   |
+| Does not demonstrate this form of polymorphism | Demonstrates runtime polymorphism |
+
+**Conclusion:** Upcasting allows us to pass child-class objects to a method that accepts the parent class. Combined with method overriding, this enables runtime polymorphism and makes code more reusable.
+
+---
+
+# Why Do We Use `@Override`?
+
+`@Override` tells the compiler that you intend to override an inherited method. If you accidentally write the wrong method signature, the compiler can catch the mistake.
+
+### Example
+
+```java
+class Box {
+    void display() {
+        System.out.println("I am a Box");
+    }
+}
+
+class BoxWeight extends Box {
+    @Override
+    void displays() { // Compilation error
+        System.out.println("I am a BoxWeight");
+    }
+}
+```
+
+Because `displays()` does not override `display()`, the compiler reports an error due to `@Override`.
+
+Without the annotation, `displays()` would simply be a separate method, and `BoxWeight` would inherit the original `display()` method.
+
+## 3. Remember the Difference
+
+| Concept                             | Required?                                              |
+| ----------------------------------- | ------------------------------------------------------ |
+| Overriding a method                 | No annotation required                                 |
+| Writing `@Override`                 | Optional, but recommended                              |
+| Using `@Override` to catch mistakes | Yes, it helps the compiler detect incorrect overriding |
+
+**Conclusion:** In your code, you can remove `@Override` and the program will still work. However, using it is a good practice because it helps catch errors during compilation.
+
+# Method Overloading vs. Method Overriding in Java
+
+## 1. Can Method Overloading Occur Without Inheritance?
+
+Yes! You can say that method overloading can occur without inheritance.
+
+Method overloading can happen within a single class.
+
+### Example
+
+```java
+class Calculator {
+    void add(int a, int b) {
+        System.out.println(a + b);
+    }
+
+    void add(int a, int b, int c) {
+        System.out.println(a + b + c);
+    }
+}
+```
+
+Both methods belong to the same class, `Calculator`. No inheritance is required.
+
+```java
+Calculator c = new Calculator();
+
+c.add(10, 20);     // Output: 30
+c.add(10, 20, 30); // Output: 60
+```
+
+### Remember
+
+- **Overloading:** Can occur without inheritance; it uses different parameter lists.
+- **Overriding:** Requires an inheritance or interface implementation relationship to redefine an inherited instance method.
+
+**Exam-ready statement:** Method overloading is a form of compile-time polymorphism that can be achieved within a single class without inheritance.
+
+## 2. Can Method Overloading Occur With Inheritance?
+
+Yes! Method overloading can occur both with inheritance and without inheritance.
+
+### 1. Without Inheritance
+
+Both overloaded methods are in the same class.
+
+```java
+class Calculator {
+    void add(int a, int b) {
+        System.out.println(a + b);
+    }
+
+    void add(int a, int b, int c) {
+        System.out.println(a + b + c);
+    }
+}
+```
+
+### 2. With Inheritance
+
+A child class can declare an overloaded method with a different parameter list from an inherited method.
+
+```java
+class Parent {
+    void display(int a) {
+        System.out.println("Parent: " + a);
+    }
+}
+
+class Child extends Parent {
+    void display(String name) {
+        System.out.println("Child: " + name);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Child obj = new Child();
+
+        obj.display(10);       // Inherited method
+        obj.display("Deva");   // Child's overloaded method
+    }
+}
+```
+
+### Output
+
+```text
+Parent: 10
+Child: Deva
+```
+
+Here, `Child` inherits `display(int)` and declares `display(String)`. Both are available through the `Child` reference and have different parameter lists.
+
+### Remember
+
+- **Overloading:** Can occur with or without inheritance.
+- **Overriding:** Requires a subclass or interface implementation to provide a new implementation of an inherited instance method.
+
+## 3. What Is the Difference Between Overloading and Overriding?
+
+In Java, method overloading and method overriding are two different ways to achieve polymorphism.
+
+**Note:** "Riding" is called overriding in Java.
+
+### 1. Method Overloading vs. Method Overriding
+
+| Feature | Method Overloading | Method Overriding |
+|---|---|---|
+| Meaning | Same method name, different parameter lists | Child class provides a new implementation of an inherited instance method |
+| Inheritance | Not required | Required through inheritance or interface implementation |
+| Parameters | Must have different parameter lists | Must have the same parameter types |
+| Return type | Can differ if parameter lists differ | Must have a compatible return type |
+| Polymorphism | Compile-time | Runtime |
+| `@Override` | Not applicable | Optional but recommended |
+
+### 2. Example of Overloading
+
+Both methods are in the same class, but their parameters differ.
+
+```java
+class Calculator {
+    void add(int a, int b) {
+        System.out.println(a + b);
+    }
+
+    void add(int a, int b, int c) {
+        System.out.println(a + b + c);
+    }
+}
+```
+
+Usage:
+
+```java
+Calculator c = new Calculator();
+
+c.add(10, 20);     // 30
+c.add(10, 20, 30); // 60
+```
+
+Java selects the appropriate method at compile time based on the arguments and overload-resolution rules.
+
+### 3. Example of Overriding
+
+The child class provides its own implementation of the parent's method.
+
+```java
+class Shapes {
+    void area() {
+        System.out.println("Inside shapes");
+    }
+}
+
+class Circle extends Shapes {
+    @Override
+    void area() {
+        System.out.println("Inside circle");
+    }
+}
+```
+
+Usage:
+
+```java
+Shapes shape = new Circle();
+shape.area();
+```
+
+### Output
+
+```text
+Inside circle
+```
+
+Java selects `Circle`'s implementation at runtime because the actual object is a `Circle`.
+
+### 4. Can Overloading Happen With Inheritance?
+
+Yes! A child class can overload an inherited method by declaring another method with a different parameter list.
+
+```java
+class Parent {
+    void display(int a) {
+        System.out.println(a);
+    }
+}
+
+class Child extends Parent {
+    void display(String name) {
+        System.out.println(name);
+    }
+}
+```
+
+Here, `display(int)` is inherited, while `display(String)` is an overloaded method.
+
+### Remember This Simple Rule
+
+- **Overloading:** Same name, different parameters — which method matches the call?
+- **Overriding:** Same inherited instance-method signature — which class's implementation should execute?
+
+## 4. Does Overloading Require Parameters?
+
+Not exactly. Method overloading requires different parameter lists, but those parameters do not have to be non-empty in every method.
+
+Let's understand with examples.
+
+### Case 1: Two Methods With No Parameters
+
+```java
+class Demo {
+    void show() {
+        System.out.println("Hello");
+    }
+
+    void show() {
+        System.out.println("Welcome");
+    }
+}
+```
+
+❌ **Compilation error:** You cannot overload methods by declaring two methods with identical parameter lists. Both have zero parameters.
+
+### Case 2: One Method Without Parameters and Another With Parameters
+
+```java
+class Demo {
+    void show() {
+        System.out.println("Hello");
+    }
+
+    void show(int a) {
+        System.out.println(a);
+    }
+}
+```
+
+✅ This is method overloading because the parameter lists differ: one has no parameters, and the other has one `int` parameter.
+
+```java
+Demo d = new Demo();
+
+d.show();      // Hello
+d.show(10);    // 10
+```
+
+### Remember
+
+- `show()` and `show(int a)` → Overloading
+- `show()` and `show()` in the same class → Not overloading; compilation error
+
+The number, types, or order of parameters must differ for a valid overload. Changing only the return type is insufficient.
+
+## 5. Is Overriding Possible With Parameters?
+
+Yes! Method overriding is absolutely possible with parameters. In fact, the parent and child methods normally must have the same parameter list to override each other.
+
+### Example: Overriding With Parameters
+
+```java
+class Parent {
+    void display(int a) {
+        System.out.println("Parent: " + a);
+    }
+}
+
+class Child extends Parent {
+    @Override
+    void display(int a) {
+        System.out.println("Child: " + a);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Parent obj = new Child();
+        obj.display(10);
+    }
+}
+```
+
+### Output
+
+```text
+Child: 10
+```
+
+### Why Is This Overriding?
+
+- Both methods have the same name: `display`.
+- Both have the same parameter list: `int a`.
+- `Child` inherits from `Parent` and provides its own implementation.
+- At runtime, Java executes `Child`'s overridden method because the actual object is a `Child`.
+
+### What If the Parameter Lists Differ?
+
+```java
+class Parent {
+    void display(int a) {
+        System.out.println("Parent");
+    }
+}
+
+class Child extends Parent {
+    void display(String name) {
+        System.out.println("Child");
+    }
+}
+```
+
+This is overloading, not overriding, because the parameter lists differ.
+
+### Remember This Rule
+
+| Parent Method | Child Method | Result |
+|---|---|---|
+| `display()` | `display()` | Overriding |
+| `display(int a)` | `display(int a)` | Overriding |
+| `display(int a)` | `display(String s)` | Overloading |
+| `display(int a)` | `display(int a, int b)` | Overloading |
+
+**Important:** These examples assume the methods are eligible for overriding (for example, they are not `private`, `static`, or `final`).
+
+
+# Is Every Class in Java a Subclass of the `Object` Class?
+
+In Java, every class implicitly extends the `Object` class if it does not explicitly extend another class. The `Object` class belongs to the `java.lang` package.
+
+However, there is one important detail: if a class extends another class, it inherits from `Object` indirectly through its parent class.
+
+## 1. Example: Without Explicitly Extending `Object`
+
+```java
+class Animal {
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+```
+
+Java treats this class as if it were written like this:
+
+```java
+class Animal extends Object {
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+```
+
+These two declarations have the same inheritance relationship.
+
+## 2. Example: Through Inheritance
+
+```java
+class Animal {
+}
+
+class Dog extends Animal {
+}
+```
+
+The inheritance hierarchy is:
+
+```text
+Object
+  |
+  v
+Animal
+  |
+  v
+Dog
+```
+
+`Dog` extends `Animal`, and `Animal` extends `Object` implicitly. Therefore, `Dog` indirectly inherits accessible methods from `Object`.
+
+## 3. What Methods Does `Object` Provide?
+
+Some important methods include:
+
+| Method | Purpose |
+|---|---|
+| `toString()` | Returns a string representation of an object |
+| `equals(Object obj)` | Checks logical equality when appropriately implemented |
+| `hashCode()` | Returns a hash code |
+| `getClass()` | Returns the object's runtime class |
+| `wait()` | Used in thread coordination |
+| `notify()` | Wakes one waiting thread |
+| `notifyAll()` | Wakes waiting threads |
+
+### Example
+
+```java
+class Student {
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Student s = new Student();
+
+        System.out.println(s.toString());
+        System.out.println(s.getClass());
+    }
+}
+```
+
+This works even though `Student` does not define either method itself.
+
+## Remember for Exams
+
+- A class with no explicit superclass implicitly extends `Object`.
+- A class that extends another class inherits from `Object` indirectly.
+- `Object` is the root of Java's class inheritance hierarchy.
+- `Object` itself does not extend any class.
+
+
+Dynamic method resolution, late binding, and early binding describe how Java determines which method implementation should be executed. These concepts are closely related to polymorphism.
+
+Let's understand each one with simple examples.
+
+## 1. Dynamic Method Resolution
+
+**Definition:** Dynamic method resolution is the process by which the JVM determines at runtime which overridden instance-method implementation to execute, based on the actual object's class.
+
+### Example
+
+```java
+class Animal {
+    void sound() {
+        System.out.println("Animal sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal a = new Dog();
+        a.sound();
+    }
+}
+```
+
+### Output
+
+```text
+Dog barks
+```
+
+### How Does It Work?
+
+1. `Animal a` declares a reference of type `Animal`.
+2. `new Dog()` creates an object of class `Dog`.
+3. At compile time, Java checks that `sound()` can be called through the `Animal` reference.
+4. At runtime, the JVM's method-dispatch mechanism selects `Dog.sound()` because the actual object is a `Dog`.
+
+This is dynamic method resolution and is associated with runtime polymorphism.
+
+## 2. Late Binding (Dynamic Binding)
+
+**Definition:** Late binding means determining the implementation of a method call at runtime rather than fixing it solely from the reference type at compile time.
+
+In the previous example:
+
+```java
+Animal a = new Dog();
+a.sound();
+```
+
+The call to `sound()` uses late binding because the implementation is selected according to the actual object's class at runtime.
+
+If the object were a `Cat` instead, and `Cat` overrode `sound()`, the `Cat` implementation would execute.
+
+```java
+Animal a = new Cat();
+a.sound(); // Executes Cat.sound(), if overridden
+```
+
+Late binding is used for overridden instance methods.
+
+## 3. Early Binding (Static Binding)
+
+**Definition:** Early binding means that the method or member to be used is determined at compile time, based on the available compile-time information.
+
+For example, method overloading uses compile-time overload resolution.
+
+```java
+class Calculator {
+    void add(int a, int b) {
+        System.out.println("Integer addition");
+    }
+
+    void add(double a, double b) {
+        System.out.println("Double addition");
+    }
+}
+```
+
+### Usage
+
+```java
+Calculator c = new Calculator();
+
+c.add(10, 20);       // Integer addition
+c.add(2.5, 3.5);     // Double addition
+```
+
+The compiler selects the appropriate overload based on the arguments and Java's overload-resolution rules.
+
+Other examples of compile-time selection include field access and static method selection.
+
+## 4. Comparison Table
+
+| Feature | Early Binding | Late Binding |
+|---|---|---|
+| When selection occurs | Compile time | Runtime |
+| Common example | Method overloading | Method overriding |
+| Depends on actual object's class? | Not for overload selection | Yes, for overridden instance methods |
+| Associated polymorphism | Compile-time polymorphism | Runtime polymorphism |
+| Common name | Static binding | Dynamic binding |
+
+## 5. Understand With One Comparison
+
+```java
+Animal a = new Dog();
+a.sound();
+```
+
+- **Compile time:** Java checks whether `sound()` is accessible through the `Animal` reference.
+- **Runtime:** Dynamic method dispatch selects `Dog.sound()`.
+- **Late binding:** Describes the runtime selection of the implementation.
+
+One important detail: Java doesn't use late binding for every method. Static methods are hidden rather than overridden, and fields are accessed based on the reference's compile-time type.
+
+### Exam-Ready Definitions
+
+- **Dynamic method resolution:** The JVM selects the appropriate overridden instance-method implementation at runtime based on the actual object's class.
+- **Late binding:** The implementation of an overridden instance-method call is determined at runtime.
+- **Early binding:** The method or member selection is determined at compile time, as with overloaded-method resolution.
+
+**Remember:** Early binding is associated with compile-time selection; late binding is associated with runtime method dispatch.
