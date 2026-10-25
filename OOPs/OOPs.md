@@ -4472,3 +4472,692 @@ When a `protected` member is accessed from a different package, access is allowe
 ``` text
 implicitly means something happens automatically or without stating it directly, whereas explicitly means stating or writing it directly.
 ```
+
+# Interface in Java
+
+## 1. What is an interface in Java?
+
+An interface in Java is a blueprint of a class that defines a contract that implementing classes must follow.
+
+It specifies what a class must do, rather than requiring every class to implement the behavior in the same way.
+
+An interface can contain:
+
+- Abstract methods (methods without a body).
+- `default` methods (methods with a body).
+- `static` methods (methods with a body).
+- Constants, which are implicitly `public static final`.
+- Private methods (with a body, since Java 9).
+
+**Definition for interviews:**
+
+An interface in Java is a reference type that defines a contract for classes to implement. It supports abstraction and allows a class to implement multiple interfaces.
+
+## 2. Example of an interface
+
+Suppose we have two classes: `Car` and `Bike`. Both can start, but their starting mechanisms may be different.
+
+```java
+interface Vehicle {
+    void start();
+}
+```
+
+Here, `Vehicle` is an interface, and `start()` is an abstract method by default because it has no body.
+
+Now, let's implement this interface.
+
+```java
+class Car implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Car starts with a key");
+    }
+}
+
+class Bike implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Bike starts with a button");
+    }
+}
+```
+
+Let's execute the code:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        Vehicle car = new Car();
+        car.start();
+
+        Vehicle bike = new Bike();
+        bike.start();
+    }
+}
+```
+
+**Output:**
+
+```text
+Car starts with a key
+Bike starts with a button
+```
+
+### How does it work?
+
+**Vehicle (Interface)**
+
+`start();`
+
+Implemented using `implements`
+
+**Car**
+
+`start()`
+
+Starts with a key
+
+**Bike**
+
+`start()`
+
+Starts with a button
+
+The interface defines the contract, while each implementing class provides its own implementation of the method.
+
+Notice that we use `implements` instead of `extends` when a class implements an interface.
+
+## 3. How is an interface different from a class?
+
+| Feature | Class | Interface |
+|---|---|---|
+| Declaration | `class Car` | `interface Vehicle` |
+| Purpose | Defines objects and their behavior/state | Defines a contract |
+| Object creation | Can instantiate a concrete class | Cannot instantiate an interface directly |
+| Constructors | Can have constructors | Cannot have constructors |
+| Instance variables | Can have instance variables | Cannot have ordinary instance variables; fields are constants |
+| Methods | Can have concrete and abstract methods (if abstract) | Can have abstract, default, static and private methods, subject to Java rules |
+| Inheritance | A class can extend only one class | A class can implement multiple interfaces |
+| Keyword used by a class | `extends` | `implements` |
+| Multiple inheritance | Cannot extend multiple classes | Can implement multiple interfaces |
+
+## 4. Important differences with code
+
+### A. A class can have instance variables, but an interface cannot
+
+**Class:**
+
+```java
+class Car {
+    int speed = 100;
+}
+```
+
+**Interface:**
+
+```java
+interface Vehicle {
+    int MAX_SPEED = 120;
+}
+```
+
+In an interface, `MAX_SPEED` is implicitly:
+
+```java
+public static final int MAX_SPEED = 120;
+```
+
+Therefore, you cannot change its value after initialization.
+
+### B. A class can have a constructor, but an interface cannot
+
+```java
+class Car {
+    Car() {
+        System.out.println("Car created");
+    }
+}
+```
+
+This is valid because a class constructor initializes an object.
+
+However, this is invalid:
+
+```java
+interface Vehicle {
+    Vehicle() { } // Compilation error
+}
+```
+
+An interface cannot be instantiated directly, so it has no constructor.
+
+### C. A class can implement multiple interfaces
+
+Java does not allow this:
+
+```java
+class C extends A, B { } // Compilation error
+```
+
+But Java allows this:
+
+```java
+interface Camera {
+    void takePhoto();
+}
+
+interface MusicPlayer {
+    void playMusic();
+}
+
+class Smartphone implements Camera, MusicPlayer {
+
+    public void takePhoto() {
+        System.out.println("Taking photo");
+    }
+
+    public void playMusic() {
+        System.out.println("Playing music");
+    }
+}
+```
+
+Here, `Smartphone` implements both interfaces.
+
+This is one of the main reasons interfaces are useful: they allow a class to follow multiple contracts without extending multiple classes.
+
+## 5. Can an interface have a method body?
+
+Yes! This is an important interview question.
+
+An interface can have different types of methods.
+
+```java
+interface Vehicle {
+
+    // Abstract method
+    void start();
+
+    // Default method
+    default void stop() {
+        System.out.println("Vehicle stopped");
+    }
+
+    // Static method
+    static void info() {
+        System.out.println("Vehicles provide transportation");
+    }
+
+    // Private method (Java 9+)
+    private void helper() {
+        System.out.println("Helper method");
+    }
+}
+```
+
+Remember:
+
+- **Abstract method:** Has no method body.
+- **Default method:** Has a body and can be inherited by implementing classes.
+- **Static method:** Belongs to the interface and is called using the interface name, such as `Vehicle.info()`.
+- **Private method:** Helps reuse code inside the interface's own default or static methods.
+
+An abstract method declared in an interface is implicitly `public abstract`. Therefore, when implementing it, you must use `public` visibility.
+
+## 6. Interface vs abstract class
+
+Since you're learning abstraction in Java, this difference is especially important.
+
+| Abstract class | Interface |
+|---|---|
+| Declared using `abstract class` | Declared using `interface` |
+| Can have instance variables | Fields are implicitly `public static final` |
+| Can have constructors | Cannot have constructors |
+| Can have abstract and concrete methods | Can have abstract, default, static and private methods |
+| A class can extend only one class | A class can implement multiple interfaces |
+| Useful for sharing common state and implementation | Useful for defining a common contract across different classes |
+
+**Example to understand the difference:**
+
+- An abstract class `Animal` might contain shared properties such as `name` and `age`, along with common behavior.
+- An interface `Flyable` might define a `fly()` contract for a bird, airplane, or drone, even though these are fundamentally different types of things.
+
+A class can also extend an abstract class and implement interfaces simultaneously.
+
+## 7. Quick interview revision
+
+**Q1. What is an interface in Java?**
+
+An interface is a reference type that defines a contract for implementing classes. It supports abstraction and allows a class to implement multiple interfaces.
+
+**Q2. Which keyword is used to implement an interface?**
+
+`implements`.
+
+**Q3. Can we create an object of an interface?**
+
+No, we cannot instantiate an interface directly. However, an interface reference can point to an object of an implementing class.
+
+```java
+Vehicle v = new Car();
+```
+
+**Q4. Can an interface extend another interface?**
+
+Yes. An interface can extend one or multiple interfaces using `extends`.
+
+**Q5. Can a class implement multiple interfaces?**
+
+Yes.
+
+**Q6. Why do we use interfaces?**
+
+- To achieve abstraction.
+- To define common contracts.
+- To support multiple inheritance of type.
+- To reduce coupling between components.
+
+**Q7. What is the difference between `extends` and `implements`?**
+
+- `extends` is used when a class inherits from another class or an interface inherits from another interface.
+- `implements` is used when a class implements an interface.
+
+# Interface in Java
+
+## 1. What is an interface in Java?
+
+An interface in Java is a blueprint of a class that defines a contract that implementing classes must follow.
+
+It specifies what a class must do, rather than requiring every class to implement the behavior in the same way.
+
+An interface can contain:
+
+- Abstract methods (methods without a body).
+- `default` methods (methods with a body).
+- `static` methods (methods with a body).
+- Constants, which are implicitly `public static final`.
+- Private methods (with a body, since Java 9).
+
+**Definition for interviews:**
+
+An interface in Java is a reference type that defines a contract for classes to implement. It supports abstraction and allows a class to implement multiple interfaces.
+
+## 2. Example of an interface
+
+Suppose we have two classes: `Car` and `Bike`. Both can start, but their starting mechanisms may be different.
+
+```java
+interface Vehicle {
+    void start();
+}
+```
+
+Here, `Vehicle` is an interface, and `start()` is an abstract method by default because it has no body.
+
+Now, let's implement this interface.
+
+```java
+class Car implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Car starts with a key");
+    }
+}
+
+class Bike implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Bike starts with a button");
+    }
+}
+```
+
+Let's execute the code:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        Vehicle car = new Car();
+        car.start();
+
+        Vehicle bike = new Bike();
+        bike.start();
+    }
+}
+```
+
+**Output:**
+
+```text
+Car starts with a key
+Bike starts with a button
+```
+
+### How does it work?
+
+**Vehicle (Interface)**
+
+`start();`
+
+Implemented using `implements`
+
+**Car**
+
+`start()`
+
+Starts with a key
+
+**Bike**
+
+`start()`
+
+Starts with a button
+
+The interface defines the contract, while each implementing class provides its own implementation of the method.
+
+Notice that we use `implements` instead of `extends` when a class implements an interface.
+
+## 3. How is an interface different from a class?
+
+| Feature | Class | Interface |
+|---|---|---|
+| Declaration | `class Car` | `interface Vehicle` |
+| Purpose | Defines objects and their behavior/state | Defines a contract |
+| Object creation | Can instantiate a concrete class | Cannot instantiate an interface directly |
+| Constructors | Can have constructors | Cannot have constructors |
+| Instance variables | Can have instance variables | Cannot have ordinary instance variables; fields are constants |
+| Methods | Can have concrete and abstract methods (if abstract) | Can have abstract, default, static and private methods, subject to Java rules |
+| Inheritance | A class can extend only one class | A class can implement multiple interfaces |
+| Keyword used by a class | `extends` | `implements` |
+| Multiple inheritance | Cannot extend multiple classes | Can implement multiple interfaces |
+
+## 4. Important differences with code
+
+### A. A class can have instance variables, but an interface cannot
+
+**Class:**
+
+```java
+class Car {
+    int speed = 100;
+}
+```
+
+**Interface:**
+
+```java
+interface Vehicle {
+    int MAX_SPEED = 120;
+}
+```
+
+In an interface, `MAX_SPEED` is implicitly:
+
+```java
+public static final int MAX_SPEED = 120;
+```
+
+Therefore, you cannot change its value after initialization.
+
+### B. A class can have a constructor, but an interface cannot
+
+```java
+class Car {
+    Car() {
+        System.out.println("Car created");
+    }
+}
+```
+
+This is valid because a class constructor initializes an object.
+
+However, this is invalid:
+
+```java
+interface Vehicle {
+    Vehicle() { } // Compilation error
+}
+```
+
+An interface cannot be instantiated directly, so it has no constructor.
+
+### C. A class can implement multiple interfaces
+
+Java does not allow this:
+
+```java
+class C extends A, B { } // Compilation error
+```
+
+But Java allows this:
+
+```java
+interface Camera {
+    void takePhoto();
+}
+
+interface MusicPlayer {
+    void playMusic();
+}
+
+class Smartphone implements Camera, MusicPlayer {
+
+    public void takePhoto() {
+        System.out.println("Taking photo");
+    }
+
+    public void playMusic() {
+        System.out.println("Playing music");
+    }
+}
+```
+
+Here, `Smartphone` implements both interfaces.
+
+This is one of the main reasons interfaces are useful: they allow a class to follow multiple contracts without extending multiple classes.
+
+## 5. Can an interface have a method body?
+
+Yes! This is an important interview question.
+
+An interface can have different types of methods.
+
+```java
+interface Vehicle {
+
+    // Abstract method
+    void start();
+
+    // Default method
+    default void stop() {
+        System.out.println("Vehicle stopped");
+    }
+
+    // Static method
+    static void info() {
+        System.out.println("Vehicles provide transportation");
+    }
+
+    // Private method (Java 9+)
+    private void helper() {
+        System.out.println("Helper method");
+    }
+}
+```
+
+Remember:
+
+- **Abstract method:** Has no method body.
+- **Default method:** Has a body and can be inherited by implementing classes.
+- **Static method:** Belongs to the interface and is called using the interface name, such as `Vehicle.info()`.
+- **Private method:** Helps reuse code inside the interface's own default or static methods.
+
+An abstract method declared in an interface is implicitly `public abstract`. Therefore, when implementing it, you must use `public` visibility.
+
+## 6. Interface vs abstract class
+
+Since you're learning abstraction in Java, this difference is especially important.
+
+| Abstract class | Interface |
+|---|---|
+| Declared using `abstract class` | Declared using `interface` |
+| Can have instance variables | Fields are implicitly `public static final` |
+| Can have constructors | Cannot have constructors |
+| Can have abstract and concrete methods | Can have abstract, default, static and private methods |
+| A class can extend only one class | A class can implement multiple interfaces |
+| Useful for sharing common state and implementation | Useful for defining a common contract across different classes |
+
+**Example to understand the difference:**
+
+- An abstract class `Animal` might contain shared properties such as `name` and `age`, along with common behavior.
+- An interface `Flyable` might define a `fly()` contract for a bird, airplane, or drone, even though these are fundamentally different types of things.
+
+A class can also extend an abstract class and implement interfaces simultaneously.
+
+## 7. Quick interview revision
+
+**Q1. What is an interface in Java?**
+
+An interface is a reference type that defines a contract for implementing classes. It supports abstraction and allows a class to implement multiple interfaces.
+
+**Q2. Which keyword is used to implement an interface?**
+
+`implements`.
+
+**Q3. Can we create an object of an interface?**
+
+No, we cannot instantiate an interface directly. However, an interface reference can point to an object of an implementing class.
+
+```java
+Vehicle v = new Car();
+```
+
+**Q4. Can an interface extend another interface?**
+
+Yes. An interface can extend one or multiple interfaces using `extends`.
+
+**Q5. Can a class implement multiple interfaces?**
+
+Yes.
+
+**Q6. Why do we use interfaces?**
+
+- To achieve abstraction.
+- To define common contracts.
+- To support multiple inheritance of type.
+- To reduce coupling between components.
+
+**Q7. What is the difference between `extends` and `implements`?**
+
+- `extends` is used when a class inherits from another class or an interface inherits from another interface.
+- `implements` is used when a class implements an interface.
+
+# What Does It Mean?
+
+It means that an **abstract class can implement an interface without providing implementations for all its methods.** A concrete child class can implement the remaining methods later.
+
+Let's understand step by step.
+
+## 1. Step 1: Create an Interface
+
+```java
+interface Vehicle {
+    void start();
+    void stop();
+}
+```
+
+The `Vehicle` interface declares two abstract methods: `start()` and `stop()`.
+
+Any concrete class implementing this interface must provide implementations for both methods.
+
+## 2. Step 2: Create an Abstract Class
+
+```java
+abstract class Car implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Car starts");
+    }
+
+    // We have not implemented stop()
+}
+```
+
+**Why is this valid?**
+
+- `Car` implements the `Vehicle` interface.
+- `Car` provides the implementation of `start()`.
+- `Car` does not implement `stop()`.
+
+Because `Car` is declared `abstract`, Java allows it to leave `stop()` unimplemented.
+
+## 3. Step 3: Create a Concrete Child Class
+
+```java
+class SportsCar extends Car {
+
+    @Override
+    public void stop() {
+        System.out.println("Sports car stops");
+    }
+}
+```
+
+Now, `SportsCar` implements the remaining `stop()` method.
+
+Because `SportsCar` is a concrete class, it must implement all inherited abstract methods.
+
+## 4. Step 4: Create an Object
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        SportsCar car = new SportsCar();
+
+        car.start();
+        car.stop();
+    }
+}
+```
+
+**Output:**
+
+```text
+Car starts
+Sports car stops
+```
+
+## Understand the Flow
+
+**Vehicle (Interface)**
+
+Declares `start()` and `stop()`.
+
+↓
+
+**Car (Abstract class)**
+
+Implements `start()` but leaves `stop()` unimplemented.
+
+↓
+
+**SportsCar (Concrete class)**
+
+Implements the remaining `stop()` method.
+
+## The Main Difference
+
+- **Abstract class:** May leave some abstract methods unimplemented.
+- **Concrete class:** Must implement all inherited abstract methods unless they have already been implemented by a parent class.
+
+**Interview answer:** An abstract class can implement an interface without implementing all its methods because an abstract class is allowed to contain incomplete behavior. A concrete subclass must provide any remaining implementations before its objects can be created.
