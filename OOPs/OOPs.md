@@ -2546,6 +2546,10 @@ Returns `6.0`.
 
 Unlike runtime polymorphism through method overriding, method overloading does not choose between implementations based on the actual object's type at runtime. Overload selection is based on compile-time types and Java's overload-resolution rules.
 
+```text
+ Animal a = new Dog(); in this : what things you have to access depends on Animal a and which one of those versiosn is depends on new Dog().
+ ```
+
 **At compile time:** Java checks the reference type to determine which fields and methods can be accessed.
 
 **At runtime:** When an overridden instance method is called, Java checks the actual object's class and executes the appropriate overridden implementation. If the method is not overridden, the inherited implementation executes.
@@ -3499,3 +3503,972 @@ One important detail: Java doesn't use late binding for every method. Static met
 - **Early binding:** The method or member selection is determined at compile time, as with overloaded-method resolution.
 
 **Remember:** Early binding is associated with compile-time selection; late binding is associated with runtime method dispatch.
+
+
+# Encapsulation and Abstraction in Java
+
+Encapsulation and abstraction are two important pillars of Object-Oriented Programming (OOP) in Java. They both help manage complexity, but they solve different problems.
+
+## 1. Encapsulation in Java
+
+**Definition:** Encapsulation is the process of wrapping data (variables) and the methods that operate on that data into a single unit (class), while restricting direct access to the data using access modifiers.
+
+In simple words, encapsulation means protecting data by controlling how it is accessed and modified.
+
+### Example
+
+```java
+class BankAccount {
+    private double balance; // Data is hidden
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount();
+
+        account.deposit(1000);
+        System.out.println(account.getBalance());
+
+        // account.balance = -500; // Compile-time error
+    }
+}
+```
+
+### Output
+
+```text
+1000.0
+```
+
+### How Does Encapsulation Work?
+
+- `private double balance` prevents direct access to `balance` from outside the `BankAccount` class.
+- `deposit()` controls how money is added.
+- `getBalance()` provides controlled access to the balance.
+- The class can reject invalid values, such as a negative deposit.
+
+### Why Do We Use Encapsulation?
+
+- Data protection and controlled access.
+- Validation of data before modification.
+- Easier maintenance because internal implementation can change without changing the public interface.
+
+## 2. Abstraction in Java
+
+**Definition:** Abstraction is the process of hiding implementation details and exposing only the essential features or functionality to the user.
+In simple words, abstraction means showing what an object does without requiring the user to know how it does it.
+Java commonly achieves abstraction through abstract classes and interfaces.
+Remember this rule
+- A class containing an abstract method must be abstract.
+- An abstract class can contain both abstract and concrete methods.
+- A concrete subclass must implement all inherited abstract methods.
+
+## 1. What Is a Concrete Method?
+
+A **concrete method** is a method that has a body containing its implementation.
+
+**Example:**
+
+```java
+class Car {
+
+    void start() {
+        System.out.println("Car starts");
+    }
+}
+```
+
+Here, `start()` is a concrete method because it has a method body `{ }` containing the code to execute.
+
+Compare it with an abstract method:
+
+```java
+abstract class Vehicle {
+
+    abstract void start();  // Abstract method
+
+    void stop() {           // Concrete method
+        System.out.println("Vehicle stops");
+    }
+}
+```
+
+- `start()` is abstract because it has no implementation.
+- `stop()` is concrete because it has an implementation.
+
+## 2. What Is a Concrete Class?
+
+A **concrete class** is a class that can be instantiated to create objects.
+
+**Example:**
+
+```java
+class Car {
+    void start() {
+        System.out.println("Car starts");
+    }
+}
+```
+
+We can create an object of `Car`:
+
+```java
+Car c = new Car();  // Valid
+c.start();
+```
+
+**Output:**
+
+```text
+Car starts
+```
+
+Therefore, `Car` is a concrete class.
+
+Now consider an abstract class:
+
+```java
+abstract class Vehicle {
+    abstract void start();
+}
+```
+
+```java
+Vehicle v = new Vehicle(); // Compilation error
+```
+
+We cannot instantiate `Vehicle` because it is declared `abstract`.
+
+## 3. Difference at a Glance
+
+| Term | Meaning | Example |
+|---|---|---|
+| Concrete method | A method with an implementation | `void start() { ... }` |
+| Abstract method | A method without an implementation | `abstract void start();` |
+| Concrete class | A class that can be instantiated | `class Car { ... }` |
+| Abstract class | A class that cannot be instantiated directly | `abstract class Vehicle { ... }` |
+
+## 4. One Important Thing to Remember
+
+A concrete class does not mean that every method must be written directly inside that class. It can inherit concrete implementations from its parent.
+
+**For example:**
+
+```java
+abstract class Vehicle {
+    abstract void start();
+
+    void stop() {
+        System.out.println("Vehicle stops");
+    }
+}
+
+class Car extends Vehicle {
+    @Override
+    void start() {
+        System.out.println("Car starts");
+    }
+}
+```
+
+`Car` is a concrete class because it implements the inherited abstract `start()` method. It also inherits the already implemented `stop()` method.
+```text
+Remember: You cannot instantiate an abstract class directly, but you can use an abstract class as a reference type to refer to an object of a concrete subclass.
+you cannot create an object of the abstract class.
+In Java, static methods and fields cannot be overridden. However, static methods can be hidden, and fields can be hidden when a subclass declares members with the same names.
+```
+### Example Using an Abstract Class
+
+```java
+abstract class Shape {
+    abstract void area(); // What needs to be done
+}
+
+class Circle extends Shape {
+    double radius = 5;
+
+    @Override
+    void area() {
+        System.out.println(3.14 * radius * radius);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Shape shape = new Circle();
+
+        shape.area();
+    }
+}
+```
+
+### Output
+
+```text
+78.5
+```
+
+### How Does Abstraction Work?
+
+- `Shape` declares an abstract method `area()` without providing its implementation.
+- `Circle` implements `area()` and defines how to calculate its area.
+- The caller invokes `shape.area()` without needing to know the calculation details.
+- The abstract class defines what operation is required, while the concrete subclass provides how the operation works.
+
+## 1. Why Can't a Static Method Be Abstract?
+
+An abstract method has no implementation in the parent class and is meant to be implemented by a subclass.
+
+A static method belongs to the class, not to an individual object. Static methods are hidden rather than overridden, so they cannot use runtime polymorphism in the way abstract instance methods do.
+
+❌ **Invalid code:**
+
+```java
+abstract class Parent {
+    abstract static void display(); // Compilation error
+}
+```
+
+✅ **Correct code:**
+
+```java
+abstract class Parent {
+    static void display() {
+        System.out.println("Static method");
+    }
+
+    abstract void show();
+}
+```
+
+Here, `display()` is a normal static method, while `show()` is an abstract instance method.
+
+## 2. Why Can't a Constructor Be Abstract?
+
+A constructor initializes an object when it is created. An abstract constructor would have no implementation, which conflicts with the purpose of a constructor.
+
+❌ **Invalid code:**
+
+```java
+abstract class Parent {
+    abstract Parent(); // Compilation error
+}
+```
+
+✅ **Correct code:**
+
+```java
+abstract class Parent {
+    Parent() {
+        System.out.println("Parent constructor");
+    }
+
+    abstract void display();
+}
+
+class Child extends Parent {
+    @Override
+    void display() {
+        System.out.println("Child display");
+    }
+}
+```
+
+**Usage:**
+
+```java
+Parent p = new Child();
+p.display();
+```
+
+**Output:**
+
+```text
+Parent constructor
+Child display
+```
+
+When `new Child()` executes, the parent constructor runs as part of the initialization process, even though `Parent` is abstract.
+
+## 3. Quick Revision Table
+
+| Member | Can Be `abstract`? | Reason |
+|---|---|---|
+| Instance method | Yes | Subclass can implement it |
+| Static method | No | Static methods are hidden, not overridden |
+| Constructor | No | Constructors initialize objects and cannot be overridden |
+| Instance field | No | Fields cannot be abstract |
+| Static field | No | Fields cannot be abstract |
+
+## 3. Difference Between Encapsulation and Abstraction
+
+| Feature | Encapsulation | Abstraction |
+|---|---|---|
+| Main purpose | Control access to data and implementation | Hide unnecessary implementation details |
+| Focus | How data and access are managed | What functionality is exposed |
+| Achieved through | Classes, access modifiers, controlled methods | Abstract classes and interfaces, among other techniques |
+| Example | `private balance` with `deposit()` | `Shape` declares `area()`; `Circle` implements it |
+| Main benefit | Data integrity and controlled modification | Reduced complexity and clear interfaces |
+
+![Abstraction Vs Encapsulation](images\AbstractionVsEncapsulation.png)
+
+# 1. Encapsulation — Bank Account Management
+
+**Professional definition:** Encapsulation bundles data and related methods within a class while restricting direct access to internal state and providing controlled operations to maintain data integrity.
+
+Imagine you're developing banking software. You should not allow other classes to directly change a customer's account balance.
+
+## BankAccount.java
+
+```java
+import java.math.BigDecimal;
+
+public class BankAccount {
+
+    private final String accountNumber;
+    private BigDecimal balance;
+
+    public BankAccount(String accountNumber, BigDecimal initialBalance) {
+        if (initialBalance == null ||
+            initialBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid initial balance");
+        }
+
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void deposit(BigDecimal amount) {
+        if (amount == null ||
+            amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Invalid deposit amount");
+        }
+
+        balance = balance.add(amount);
+    }
+
+    public void withdraw(BigDecimal amount) {
+        if (amount == null ||
+            amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Invalid withdrawal amount");
+        }
+
+        if (balance.compareTo(amount) < 0) {
+            throw new IllegalStateException("Insufficient balance");
+        }
+
+        balance = balance.subtract(amount);
+    }
+}
+```
+
+## Main.java
+
+```java
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount(
+            "ACC101",
+            new BigDecimal("10000.00")
+        );
+
+        account.deposit(new BigDecimal("2000.00"));
+        account.withdraw(new BigDecimal("1500.00"));
+
+        System.out.println(account.getBalance());
+    }
+}
+```
+
+### Output
+
+```text
+10500.00
+```
+
+### How Is Encapsulation Achieved?
+
+- `private balance` prevents other classes from directly modifying the balance.
+- `deposit()` and `withdraw()` provide controlled ways to update it.
+- Validation prevents invalid amounts and withdrawals exceeding the available balance.
+- `getBalance()` allows the balance to be read without allowing direct assignment.
+
+For example:
+
+```java
+// Compilation error: balance is private
+// account.balance = new BigDecimal("-5000");
+```
+
+**Professional benefit:** The class protects its internal state and enforces business rules. This is especially important in financial applications.
+
+
+# What Is `BigDecimal` in Java?
+
+Yes! ✅ `BigDecimal` is a **class in Java**, and when you create an instance of it, you get an **object**.
+
+It belongs to the `java.math` package and is used to represent decimal numbers with arbitrary precision. It is particularly useful for financial calculations, such as banking and payments.
+
+## 1. How Do We Create a `BigDecimal` Object?
+
+Consider this statement from our previous example:
+
+```java
+BigDecimal balance = new BigDecimal("10000.00");
+```
+
+Let's break it down:
+
+| Part | Meaning |
+|---|---|
+| `BigDecimal` | Class name |
+| `balance` | Reference variable |
+| `new` | Creates an object |
+| `BigDecimal("10000.00")` | Calls the constructor with a `String` argument |
+| `"10000.00"` | The decimal value represented by the object |
+
+Conceptually, it works like this:
+
+- `BigDecimal` is the class.
+- `new BigDecimal("10000.00")` creates an object.
+- `balance` refers to that object.
+
+## 2. Why Use `BigDecimal` Instead of `double`?
+
+Consider this example:
+
+```java
+double price = 0.1 + 0.2;
+System.out.println(price);
+```
+
+**Output:**
+
+```text
+0.30000000000000004
+```
+
+This happens because `double` uses binary floating-point representation, which cannot represent many decimal fractions exactly.
+
+Using `BigDecimal`:
+
+```java
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        BigDecimal a = new BigDecimal("0.1");
+        BigDecimal b = new BigDecimal("0.2");
+
+        BigDecimal result = a.add(b);
+
+        System.out.println(result);
+    }
+}
+```
+
+**Output:**
+
+```text
+0.3
+```
+
+**Important:** Prefer constructing `BigDecimal` from a `String` when exact decimal values matter. Using `new BigDecimal(0.1)` can preserve the floating-point approximation instead.
+
+## 3. How Does It Work in Our Banking Example?
+
+```java
+private BigDecimal balance;
+```
+
+Here, `balance` is a **reference variable** declared as a field of the `BankAccount` class.
+
+Then:
+
+```java
+this.balance = initialBalance;
+```
+
+This assigns the reference held by `initialBalance` to the `balance` field. Both references refer to the same `BigDecimal` object.
+
+When we write:
+
+```java
+balance = balance.add(amount);
+```
+
+`add()` returns a new `BigDecimal` object representing the sum because `BigDecimal` is **immutable**. It does not modify the original object.
+
+## Remember
+
+- `BigDecimal` → Class.
+- `new BigDecimal("100.00")` → Creates an object.
+- `balance` → Reference variable.
+- `add()` → Adds two values and returns a new `BigDecimal` object.
+
+Unlike primitive types such as `int` and `double`, `BigDecimal` is a **reference type**.
+
+
+# 1. Is `balance` Pointing to the New Object?
+
+Yes! ✅ Exactly. But there is one important detail: `balance.add(amount)` returns a `BigDecimal` reference representing the result, but `balance` will refer to that returned object only when you assign the result back to it.
+
+Let's understand step by step.
+
+## 1. Consider This Statement
+
+```java
+balance = balance.add(amount);
+```
+
+Suppose initially:
+
+```java
+balance = new BigDecimal("1000.00");
+amount = new BigDecimal("500.00");
+```
+
+### Step 1: Before Addition
+
+Conceptually:
+
+```text
+balance ──────► BigDecimal object (1000.00)
+
+amount  ──────► BigDecimal object (500.00)
+```
+
+### Step 2: Java Executes `balance.add(amount)`
+
+```java
+balance.add(amount);
+```
+
+The `add()` method calculates the sum and returns a `BigDecimal` reference representing `1500.00`.
+
+Conceptually:
+
+```text
+balance ──────► BigDecimal object (1000.00)
+
+amount  ──────► BigDecimal object (500.00)
+
+                  BigDecimal object (1500.00)
+                  ▲
+                  │
+                  Returned by add()
+```
+
+At this point, the original `balance` reference still points to `1000.00` because we haven't reassigned it.
+
+### Step 3: Assignment Takes Place
+
+```java
+balance = balance.add(amount);
+```
+
+Now `balance` refers to the returned result:
+
+```text
+balance ──────► BigDecimal object (1500.00)
+
+amount  ──────► BigDecimal object (500.00)
+```
+
+The original `BigDecimal` object representing `1000.00` remains unchanged.
+
+## 2. What If We Don't Assign the Result?
+
+```java
+balance.add(amount);
+```
+
+The addition result is returned but ignored.
+
+Therefore, `balance` still refers to the original `BigDecimal` value of `1000.00`.
+
+**Output of `balance` would still be:**
+
+```text
+1000.00
+```
+
+## Remember This Rule
+
+`BigDecimal` is immutable, meaning its value cannot be changed after its creation.
+
+- `balance.add(amount)` → Returns a `BigDecimal` reference representing the sum.
+- `balance = balance.add(amount)` → Assigns the returned reference to `balance`.
+
+This is different from mutable objects, whose internal state can be changed without replacing the reference.
+
+---
+
+# 3. How Does `add()` Create an Object?
+
+Great question! The key is understanding that `add()` is a method already implemented inside Java's `BigDecimal` class. Its implementation calculates the sum and returns a `BigDecimal` reference representing the result.
+
+Let's understand this step by step.
+
+## 1. How Does `add()` Create an Object?
+
+Consider this code:
+
+```java
+BigDecimal balance = new BigDecimal("1000.00");
+BigDecimal amount = new BigDecimal("500.00");
+
+balance = balance.add(amount);
+```
+
+When Java executes:
+
+```java
+balance.add(amount);
+```
+
+The `add()` method performs the addition and returns a `BigDecimal` representing the result.
+
+Conceptually, you can imagine its implementation working like this:
+
+```java
+public BigDecimal add(BigDecimal other) {
+    // Calculate the sum.
+    BigDecimal result = new BigDecimal(/* sum */);
+
+    return result;
+}
+```
+
+**Important:** This is simplified illustrative code, not the actual implementation of Java's `BigDecimal.add()` method.
+
+The real implementation is more sophisticated and can reuse an existing object in certain cases. You should not assume that every call necessarily allocates a new object.
+
+## 2. Let's Trace the Execution
+
+Initially:
+
+```java
+BigDecimal balance = new BigDecimal("1000.00");
+BigDecimal amount = new BigDecimal("500.00");
+```
+
+Conceptually:
+
+```text
+balance ──────► BigDecimal object (1000.00)
+
+amount  ──────► BigDecimal object (500.00)
+```
+
+Now execute:
+
+```java
+balance = balance.add(amount);
+```
+
+**Step 1:** Java calls `add()` on the object referenced by `balance`.
+
+**Step 2:** The method calculates `1000.00 + 500.00`.
+
+**Step 3:** The method returns a `BigDecimal` representing `1500.00`.
+
+**Step 4:** The assignment makes `balance` refer to the returned result.
+
+Conceptually, the final state is:
+
+```text
+balance ──────► BigDecimal object (1500.00)
+
+amount  ──────► BigDecimal object (500.00)
+```
+
+The original `1000.00` object remains unchanged.
+
+## 3. But How Can a Method Return an Object?
+
+In Java, a method can return a reference to an object.
+
+For example:
+
+```java
+class Student {
+    String name;
+
+    Student(String name) {
+        this.name = name;
+    }
+}
+
+public class Main {
+
+    static Student createStudent() {
+        Student s = new Student("Rahul");
+        return s;
+    }
+
+    public static void main(String[] args) {
+        Student student = createStudent();
+
+        System.out.println(student.name);
+    }
+}
+```
+
+**Output:**
+
+```text
+Rahul
+```
+
+Here, `createStudent()` creates a `Student` object and returns a reference to it.
+
+Similarly, `BigDecimal.add()` returns a `BigDecimal` reference representing the calculated result.
+
+## Remember These Three Things
+
+1. `add()` is a method defined by the `BigDecimal` class.
+2. Its return type is `BigDecimal`, so it returns a reference to a `BigDecimal` object.
+3. `balance = balance.add(amount);` assigns the returned reference to `balance`.
+
+**The important distinction is that a method returning an object does not necessarily mean it creates a brand-new object on every call.**
+
+# Can an Abstract Class Have a Constructor in Java?
+
+Yes! ✅ An abstract class in Java can have a constructor.
+
+Although we cannot instantiate an abstract class directly, its constructor is called when an object of its concrete subclass is created.
+
+## 1. Example
+
+```java
+abstract class Vehicle {
+
+    Vehicle() {
+        System.out.println("Vehicle constructor called");
+    }
+}
+
+class Car extends Vehicle {
+
+    Car() {
+        System.out.println("Car constructor called");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Car c = new Car();
+    }
+}
+```
+
+**Output:**
+
+```text
+Vehicle constructor called
+Car constructor called
+```
+
+## 2. Why Is the Abstract Class Constructor Called?
+
+When you execute:
+
+```java
+Car c = new Car();
+```
+
+Java performs these steps:
+
+1. Memory is allocated for the `Car` object.
+2. The `Car` constructor invokes the parent class constructor using `super()` implicitly.
+3. The `Vehicle` constructor executes first.
+4. The `Car` constructor executes next.
+
+## 3. Why Does an Abstract Class Need a Constructor?
+
+An abstract class can have instance variables that need initialization.
+
+```java
+abstract class Vehicle {
+
+    String brand;
+
+    Vehicle(String brand) {
+        this.brand = brand;
+    }
+}
+
+class Car extends Vehicle {
+
+    Car(String brand) {
+        super(brand);
+    }
+}
+```
+
+Now:
+
+```java
+Car c = new Car("Toyota");
+System.out.println(c.brand);
+```
+
+**Output:**
+
+```text
+Toyota
+```
+
+Here, the abstract class constructor initializes the inherited `brand` field.
+
+## 4. Important Interview Distinction
+
+| Statement | Valid? |
+|---|---|
+| An abstract class can have a constructor. | ✅ Yes |
+| We can directly instantiate an abstract class. | ❌ No |
+| An abstract class constructor can execute when a subclass object is created. | ✅ Yes |
+| An abstract class constructor initializes inherited state. | ✅ Yes |
+
+**Interview-ready answer:** An abstract class can have a constructor because it may need to initialize instance variables. Although we cannot instantiate an abstract class directly, its constructor executes during the construction of a concrete subclass object.
+
+# Access Modifiers in Java
+
+In Java, **access modifiers** (also called access specifiers) control where classes, variables, constructors, and methods can be accessed from.
+
+Java has four access levels:
+
+- `private`
+- Default (package-private)
+- `protected`
+- `public`
+
+## Access Modifiers Table
+
+| Access Modifier | Class | Package | Subclass (Same Package) | Subclass (Different Package) | World (Different Package, Not Subclass) |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `public` | + | + | + | + | + |
+| `protected` | + | + | + | + | |
+| Default (no modifier) | + | + | + | | |
+| `private` | + | | | | |
+
+**Legend:**
+- `+` : Accessible
+- Blank : Not accessible
+
+# Protected Access Modifier in Java
+
+`protected` members can be accessed from a different package through inheritance, but not by every unrelated class in that package.
+
+There are two main cases.
+
+## 1. Same Package — Subclass Is Not Required
+
+```java
+// File: package1/Animal.java
+package package1;
+
+public class Animal {
+    protected void sound() {
+        System.out.println("Animal sound");
+    }
+}
+```
+
+```java
+// File: package1/Test.java
+package package1;
+
+public class Test {
+    public static void main(String[] args) {
+        Animal a = new Animal();
+        a.sound(); // Allowed
+    }
+}
+```
+
+Both classes belong to `package1`, so access is allowed.
+
+## 2. Different Package — Subclass Is Required
+
+```java
+// File: package1/Animal.java
+package package1;
+
+public class Animal {
+    protected void sound() {
+        System.out.println("Animal sound");
+    }
+}
+```
+
+```java
+// File: package2/Dog.java
+package package2;
+
+import package1.Animal;
+
+public class Dog extends Animal {
+    public void test() {
+        sound(); // Allowed
+    }
+}
+```
+
+`Dog` can access `sound()` because it extends `Animal`.
+
+However, an unrelated class in `package2` cannot access it directly:
+
+```java
+package package2;
+
+import package1.Animal;
+
+public class Test {
+    public static void main(String[] args) {
+        Animal a = new Animal();
+        // a.sound(); // Compilation error
+    }
+}
+```
+
+## Important Detail About Cross-Package Subclasses
+
+Inside a subclass in another package, protected access has additional restrictions. For instance, `Dog` can call `sound()` through itself or a `Dog` reference, but generally cannot access it through an arbitrary `Animal` reference.
+
+## Remember This Rule
+
+| Location | Can Access `protected` Member? |
+|---|---|
+| Same class | Yes |
+| Different class, same package | Yes |
+| Subclass in a different package | Yes, subject to protected-access rules |
+| Unrelated class in a different package | No |
+
+**Exam-ready answer:** The `protected` access modifier allows access within the same package and in subclasses located in different packages, subject to Java's inheritance access rules.
+
+When a `protected` member is accessed from a different package, access is allowed through inheritance, subject to Java's protected-access rules. An unrelated class in that different package cannot access it directly.
+``` text
+implicitly means something happens automatically or without stating it directly, whereas explicitly means stating or writing it directly.
+```
