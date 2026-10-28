@@ -7,7 +7,11 @@ public class Main {
 
         Node(int data) {
             this.data = data;
-            this.next = null;
+        }
+
+        Node(int data, Node next) {
+            this.data = data;
+            this.next = next;
         }
     }
 
@@ -57,8 +61,8 @@ public class Main {
                 previous = previous.next;
             }
 
-            Node node = new Node(data);
-            node.next = previous.next;
+            Node node = new Node(data, previous.next);
+            // node.next = previous.next;
             previous.next = node;
             size++;
         }
@@ -81,11 +85,20 @@ public class Main {
             if (head == null) {
                 throw new IllegalStateException("List is emoty");
             }
+            // Node previous = head;
+            // while (previous.next != tail) {
+            // previous = previous.next;
+            // }
+
+            // We use size - 2 because we need to reach the second-last node.
+            // Starting from head (index 0), the second-last node is at index size - 2.
+            // For example, if size = 4, we need 2 moves to reach node at index 2.
+            // Once previous reaches the second-last node, we can disconnect the last node
+            // using previous.next = null and update tail = previous.
             Node previous = head;
-            while (previous.next != tail) {
+            for (int i = 0; i < size - 2; i++) {
                 previous = previous.next;
             }
-
             int removed = tail.data;
             previous.next = null;
             tail = previous;
@@ -152,22 +165,30 @@ public class Main {
 
     public static void main(String[] args) {
         LinkedList list = new LinkedList();
-        
-        list.addFirst(20);
-        list.addFirst(10);
-        list.addLast(40);
-        list.add(2, 30);
 
+        list.addFirst(20);
+        list.display();
+
+        list.addFirst(10);
+        list.display();
+
+        list.addLast(40);
+        list.display();
+
+        list.add(2, 30);
         list.display();
         // 10 -> 20 -> 30 -> 40 -> null
 
         System.out.println(list.sizeOf()); // 4
         System.out.println(list.indexOf(30)); // 2
 
-        list.removeFirst();
-        list.removeLast();
-        list.remove(1);
+        System.out.println("Delete : " + list.removeFirst());
+        list.display();
 
+        System.out.println("Delete : " + list.removeLast());
+        list.display();
+
+        System.out.println("Delete : " + list.remove(1));
         list.display();
         // 20 -> null
     }
