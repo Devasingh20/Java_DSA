@@ -1,6 +1,6 @@
 package DSA.Linked_List;
 
-public class Main {
+public class LinkedList {
     static class Node {
         int data;
         Node next;
@@ -15,7 +15,7 @@ public class Main {
         }
     }
 
-    static class LinkedList {
+    static class linkedList {
         private Node head;
         private Node tail;
         private int size;
@@ -164,7 +164,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        LinkedList list = new LinkedList();
+        linkedList list = new linkedList();
 
         list.addFirst(20);
         list.display();
