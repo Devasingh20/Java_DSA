@@ -103,8 +103,8 @@ public class LinkedList {
                 previous = previous.next;
             }
             int removed = tail.data;
-            previous.next = null;
             tail = previous;
+            tail.next = null;
             size--;
 
             return removed;
@@ -158,6 +158,10 @@ public class LinkedList {
         }
 
         public void display() {
+            if (head == null) {
+                System.out.println("List is empty");
+                return;
+            }
             Node current = head;
 
             while (current != null) {
@@ -199,6 +203,6 @@ public class LinkedList {
 
         System.out.println("Delete : " + list.remove(0));
         list.display();
-        //  null
+        // null
     }
 }
