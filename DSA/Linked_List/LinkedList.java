@@ -85,6 +85,9 @@ public class LinkedList {
             if (head == null) {
                 throw new IllegalStateException("List is emoty");
             }
+            if (head == tail) {
+                return removeFirst();
+            }
             // Node previous = head;
             // while (previous.next != tail) {
             // previous = previous.next;
@@ -116,16 +119,19 @@ public class LinkedList {
                 return removeFirst();
             }
 
+            if (index == size - 1) {
+                return removeLast();
+            }
+
             Node previous = head;
+
             for (int i = 0; i < index - 1; i++) {
                 previous = previous.next;
             }
+
             Node target = previous.next;
             previous.next = target.next;
 
-            if (target == tail) {
-                tail = previous;
-            }
             size--;
             return target.data;
         }
@@ -179,7 +185,10 @@ public class LinkedList {
         list.display();
         // 10 -> 20 -> 30 -> 40 -> null
 
-        System.out.println(list.sizeOf()); // 4
+        System.out.println("Delete : " + list.remove(3));
+        list.display();
+
+        System.out.println(list.sizeOf()); // 3
         System.out.println(list.indexOf(30)); // 2
 
         System.out.println("Delete : " + list.removeFirst());
@@ -188,8 +197,8 @@ public class LinkedList {
         System.out.println("Delete : " + list.removeLast());
         list.display();
 
-        System.out.println("Delete : " + list.remove(1));
+        System.out.println("Delete : " + list.remove(0));
         list.display();
-        // 20 -> null
+        //  null
     }
 }
