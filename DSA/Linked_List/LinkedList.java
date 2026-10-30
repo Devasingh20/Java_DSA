@@ -67,6 +67,20 @@ public class LinkedList {
             size++;
         }
 
+        public void insertRec(int index, int val) {
+            head = insertRec(index, val, head);
+        }
+
+        public Node insertRec(int index, int val, Node node) {
+            if (index == 0) {
+                Node temp = new Node(val, node);
+                size++;
+                return temp;
+            }
+            node.next = insertRec(index - 1, val, node.next);
+            return node;
+        }
+
         public int removeFirst() {
             if (head == null) {
                 throw new IllegalStateException("List is emoty");
@@ -185,14 +199,18 @@ public class LinkedList {
         list.addLast(40);
         list.display();
 
-        list.add(2, 30);
+        // list.add(2, 30);
+        // list.display();
+        // // 10 -> 20 -> 30 -> 40 -> null
+
+        list.insertRec(2, 30);
         list.display();
         // 10 -> 20 -> 30 -> 40 -> null
 
         System.out.println("Delete : " + list.remove(3));
         list.display();
 
-        System.out.println(list.sizeOf()); // 3
+        System.out.println(list.sizeOf());
         System.out.println(list.indexOf(30)); // 2
 
         System.out.println("Delete : " + list.removeFirst());
