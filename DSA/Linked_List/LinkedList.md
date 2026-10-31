@@ -753,3 +753,379 @@ ListNode tail = dummy;
 ```
 
 `tail` is simply a reference that you maintain yourself. It does not have to be a member variable of a Linked List class.
+
+
+
+# Cycle Detection in a Linked List (Floyd's Cycle Detection Algorithm)
+
+Cycle detection is one of the most important patterns in Linked List problems, especially in DSA interviews and LeetCode.
+
+Let's understand it from the basics, using Java, with diagrams, dry runs, and code.
+
+## 1. First, What Is a Cycle in a Linked List?
+
+Normally, a singly linked list looks like this:
+
+![alt text](images/image5.png))
+
+Each node points to the next node, and the last node points to `null`.
+
+But sometimes, the last node points back to an already existing node instead of pointing to `null`.
+
+This creates a cycle (loop).
+
+![Linked list cycle detection](https://images.openai.com/static-rsc-4/95nK6smlwfoiF6ppo3O1poz0T28V2NtR_wOwviw__1mC0fJTQN-NiaXguh-McHmy1Ng3p3OQc1KXAv90a9aJ0zyb1rH0M1kuvwrRQpfvrS0NmNGLhA3PPK6eC38o6QSalTXnFHk1fhtfbQahUQ6Ik4h8RJoOB6Dlyf06IrGAkH8?purpose=inline)
+
+[Source: TutorialHorizon – Linked List Cycle Detection](https://tutorialhorizon.com/algorithms/linked-list-cycle-detection-tortoise-and-hare-algorithm/)
+
+For example:
+
+```text
+10 → 20 → 30 → 40 → 50
+      ↑              |
+      |______________|
+```
+
+Here:
+
+- Node 10 points to 20.
+- Node 20 points to 30.
+- Node 30 points to 40.
+- Node 40 points to 50.
+- Node 50 points back to 20.
+
+Notice: There is no `null` at the end.
+
+Therefore, if we traverse this linked list normally, we will never reach `null`. The traversal will continue infinitely.
+
+This is called a cycle.
+
+## 2. How Do We Detect a Cycle?
+
+There are two common approaches.
+
+| Approach | Time Complexity | Space Complexity |
+|---|---|---|
+| HashSet | O(n) | O(n) |
+| Floyd's Algorithm | O(n) | O(1) |
+
+We'll focus on Floyd's Cycle Detection Algorithm because it is the optimal approach.
+
+## 3. Floyd's Cycle Detection Algorithm (Slow and Fast Pointers)
+
+The main idea is very simple.
+
+We use two pointers:
+
+1. **Slow pointer:** Moves one node at a time.
+2. **Fast pointer:** Moves two nodes at a time.
+
+```java
+slow = slow.next;
+fast = fast.next.next;
+```
+
+Now, there are two possibilities.
+
+**Case 1: No cycle exists**
+
+Eventually, the fast pointer reaches `null` (or its next node is `null`).
+
+**Case 2: A cycle exists**
+
+The fast pointer will eventually meet the slow pointer.
+
+**Why?**
+
+Imagine two people running on a circular track:
+
+- Person A runs 1 step at a time.
+- Person B runs 2 steps at a time.
+
+Eventually, the faster person catches the slower person.
+
+The same principle works in a circular linked list.
+
+## 4. Dry Run with an Example
+
+Consider this linked list:
+
+```text
+10 → 20 → 30 → 40 → 50
+      ↑              |
+      |______________|
+```
+
+Initially:
+
+```java
+slow = head;
+fast = head;
+```
+
+**Initial position:**
+
+- Slow = 10
+- Fast = 10
+
+**Movement:**
+
+| Step | Slow | Fast |
+|---|---:|---:|
+| 0 | 10 | 10 |
+| 1 | 20 | 30 |
+| 2 | 30 | 50 |
+| 3 | 40 | 30 |
+| 4 | 50 | 50 |
+
+<badge color="success">Cycle detected at node 50</badge>
+
+Both pointers meet at node 50.
+
+The important observation is:
+
+```java
+slow == fast
+```
+
+When both pointers reference the same node, a cycle exists.
+
+**Important:** We compare node references, not node values.
+
+## 5. Java Implementation (LeetCode 141)
+
+Linked List Cycle asks us to determine whether a linked list contains a cycle.
+
+```java
+public class Solution {
+
+    public boolean hasCycle(ListNode head) {
+
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (slow == fast) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+### Let's Understand Every Important Line
+
+**1. Initialize both pointers**
+
+```java
+ListNode slow = head;
+ListNode fast = head;
+```
+
+Both pointers initially point to the first node.
+
+**2. The while condition**
+
+```java
+while (fast != null && fast.next != null)
+```
+
+Why do we need two conditions?
+
+- `fast != null`: Ensures fast itself exists.
+- `fast.next != null`: Ensures fast can move two steps ahead.
+
+Without these checks, we might get a `NullPointerException`.
+
+**3. Move the pointers**
+
+```java
+slow = slow.next;
+fast = fast.next.next;
+```
+
+Slow moves one step, and fast moves two steps.
+
+**4. Check whether they meet**
+
+```java
+if (slow == fast) {
+    return true;
+}
+```
+
+If both references point to the same node, the cycle exists.
+
+**5. Return false**
+
+```java
+return false;
+```
+
+If fast reaches `null`, no cycle exists.
+
+## 6. Why Does the Fast Pointer Always Catch the Slow Pointer?
+
+This is an important interview question.
+
+Suppose both pointers enter a cycle.
+
+- Slow moves 1 step.
+- Fast moves 2 steps.
+
+Therefore, the relative distance between them decreases by one node on every iteration (considering the circular distance).
+
+Eventually, the distance becomes zero, meaning both pointers meet.
+
+That's why Floyd's algorithm works.
+
+## 7. Complexity Analysis
+
+| Complexity | Value | Reason |
+|---|---|---|
+| Time | O(n) | Pointers traverse the linked list |
+| Space | O(1) | Only two pointers are used |
+
+This is better than the HashSet approach in terms of auxiliary space.
+
+
+
+
+# Linked List Cycle II (LeetCode 142) – Find the Starting Node of a Cycle
+
+In LeetCode 142, we don't just detect whether a cycle exists; we have to find the exact node where the cycle begins.
+
+This requires one additional step after detecting the cycle using Floyd's algorithm.
+
+## 1. Understand the Example
+
+Consider this linked list:
+
+```text
+10 → 20 → 30 → 40 → 50
+      ↑              |
+      |______________|
+```
+
+Here:
+
+- Head = 10
+- Cycle starts at node 20.
+- Both slow and fast eventually meet at node 50.
+
+Our objective is to return node 20, not node 50.
+
+## 2. The Additional Step
+
+Once slow and fast meet:
+
+1. Move the `slow` pointer back to `head`.
+2. Keep the `fast` pointer at the meeting point.
+3. Now move BOTH pointers one step at a time.
+4. The node where they meet again is the starting node of the cycle.
+
+![LeetCode 142 – Linked List Cycle II](https://images.openai.com/static-rsc-4/JFPGU7YW2kFaG0lIe8o_-bUpqCYWwSJLFjE8ooRq7jFQ-DaxvmQ3eJ0ThXCAcedgh1ykO_OoASNbhK9InMi20-SIzJeki-9hWrKZKAfozVADbd_tYAO2X2YT6YcF1x96ucUG0hGvBXkbeCDJs-zhf4xOTDoWbMgAThpxJpQ4YNo?purpose=inline)
+
+[Source: Nick Li – LeetCode 142](https://nicklee1006.github.io/Leetcode-142-Linked-List-Cycle-II/)
+
+**The logic:**
+
+```java
+slow = head;
+
+while (slow != fast) {
+    slow = slow.next;
+    fast = fast.next;
+}
+
+return slow;
+```
+
+## 3. Complete Java Code (LeetCode 142)
+
+```java
+public class Solution {
+
+    public ListNode detectCycle(ListNode head) {
+
+        ListNode slow = head;
+        ListNode fast = head;
+
+        // Step 1: Detect cycle
+        while (fast != null && fast.next != null) {
+
+            slow = slow.next;
+            fast = fast.next.next;
+
+            // Step 2: Find the meeting point
+            if (slow == fast) {
+
+                // Step 3: Reset slow to head
+                slow = head;
+
+                // Step 4: Move both one step at a time
+                while (slow != fast) {
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+
+                // Step 5: Return cycle starting node
+                return slow;
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+## 4. Why Does This Work Mathematically?
+
+Let's understand the mathematical reasoning.
+
+Suppose:
+
+- `L` = Distance from head to cycle starting node.
+- `C` = Distance from cycle starting node to meeting point.
+- `K` = Length of the entire cycle.
+
+When slow and fast meet:
+
+- Slow travels: \(L+C\)
+- Fast travels: \(2(L+C)\)
+
+Since fast travels twice the distance:
+
+\[
+2(L+C)-(L+C)=L+C
+\]
+
+The difference is a multiple of the cycle length:
+
+\[
+L+C=nK
+\]
+
+Therefore:
+
+\[
+L=nK-C
+\]
+
+This means that if one pointer starts from the head and another starts from the meeting point, moving both one step at a time makes them meet at the cycle entrance.
+
+## 5. Important Difference Between LC 141 and LC 142
+
+| Feature | LC 141 | LC 142 |
+|---|---|---|
+| Detect cycle | Yes | Yes |
+| Find cycle starting node | No | Yes |
+| Floyd's algorithm | Yes | Yes |
+| Additional pointer movement | No | Yes |
+| Return type | `boolean` | `ListNode` |
