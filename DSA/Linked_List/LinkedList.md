@@ -1369,3 +1369,530 @@ This means that if one pointer starts from the head and another starts from the 
 | Floyd's algorithm | Yes | Yes |
 | Additional pointer movement | No | Yes |
 | Return type | `boolean` | `ListNode` |
+
+
+
+# LeetCode 82 – Remove Duplicates from Sorted List II
+
+## Recommended Approach: Dummy Node + Two Pointers
+
+The easiest way to solve LC 82 is to use a dummy node.
+
+**Consider:**
+
+```text
+1 → 2 → 3 → 3 → 4 → 4 → 5
+```
+
+**Expected output:**
+
+```text
+1 → 2 → 5 → null
+```
+
+**Why?**
+
+- 1 appears once → Keep.
+- 2 appears once → Keep.
+- 3 appears twice → Remove both.
+- 4 appears twice → Remove both.
+- 5 appears once → Keep.
+
+## 3. Java Solution (LeetCode 82)
+
+```java
+class Solution {
+
+    public ListNode deleteDuplicates(ListNode head) {
+
+        ListNode dummy = new ListNode(-1);
+        dummy.next = head;
+
+        ListNode prev = dummy;
+        ListNode curr = head;
+
+        while (curr != null) {
+
+            // Check whether current value is duplicated
+            if (curr.next != null && curr.val == curr.next.val) {
+
+                // Skip all nodes having the same value
+                while (curr.next != null &&
+                       curr.val == curr.next.val) {
+
+                    curr = curr.next;
+                }
+
+                // Remove the entire duplicate group
+                prev.next = curr.next;
+
+            } else {
+
+                // Current value is unique
+                prev = prev.next;
+            }
+
+            curr = curr.next;
+        }
+
+        return dummy.next;
+    }
+}
+```
+
+## Pointer Responsibilities
+
+### `prev` (Previous Pointer)
+
+Points to the last node that we know is unique and should remain in the final linked list.
+
+### `curr` (Current Pointer)
+
+Checks the current node and identifies whether its value is duplicated.
+
+
+# LeetCode 82 – Remove Duplicates from Sorted List II: Complete Dry Run
+
+Let's dry-run your LeetCode 82 – Remove Duplicates from Sorted List II code with the input:
+
+```text
+1 → 2 → 3 → 3 → 4 → 4 → 5 → null
+```
+
+**Expected output:**
+
+```text
+1 → 2 → 5 → null
+```
+
+We'll track three pointers/variables:
+
+- `dummy`: A node before the head.
+- `prev`: Points to the last node confirmed to be unique.
+- `curr`: Used to traverse the linked list.
+
+# 1. Initial Setup
+
+Execute:
+
+```java
+ListNode dummy = new ListNode(-1);
+dummy.next = head;
+
+ListNode prev = dummy;
+ListNode curr = head;
+```
+
+Our initial structure:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5 → null
+  ↑      ↑
+ prev   curr
+```
+
+| Variable | Points to |
+|---|---|
+| `dummy` | -1 |
+| `prev` | -1 |
+| `curr` | 1 |
+
+# 2. Complete Dry Run
+
+## Iteration 1: curr = 1
+
+Current structure:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+  ↑      ↑
+ prev   curr
+```
+
+Check:
+
+```java
+if (curr.next != null && curr.val == curr.next.val)
+```
+
+Substitute values:
+
+```java
+if (1 == 2)  // false
+```
+
+Since 1 is unique, execute:
+
+```java
+prev = prev.next;
+```
+
+Now:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+         ↑   ↑
+        prev curr
+```
+
+Updated pointers:
+
+- `prev = 1`
+- `curr = 1` (temporarily, before the final statement)
+
+Then execute:
+
+```java
+curr = curr.next;
+```
+
+Now `curr = 2`.
+
+**Node 1 retained.**
+
+## Iteration 2: curr = 2
+
+Current structure:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+         ↑   ↑
+        prev curr
+```
+
+Check:
+
+```java
+if (2 == 3) // false
+```
+
+Node 2 is unique.
+
+Execute:
+
+```java
+prev = prev.next;
+```
+
+Now:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+             ↑   ↑
+            prev curr
+```
+
+Then:
+
+```java
+curr = curr.next;
+```
+
+Now `curr = 3`.
+
+**Node 2 retained.**
+
+## Iteration 3: curr = 3
+
+Current structure:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+             ↑   ↑
+            prev curr
+```
+
+Check:
+
+```java
+if (3 == 3) // true
+```
+
+We found a duplicate!
+
+Now execute the inner while loop:
+
+```java
+while (curr.next != null &&
+       curr.val == curr.next.val) {
+
+    curr = curr.next;
+}
+```
+
+Let's understand this carefully.
+
+**First inner iteration:**
+
+```java
+3 == 3 // true
+```
+
+Move:
+
+```java
+curr = curr.next;
+```
+
+Now `curr` points to the second 3.
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+             ↑       ↑
+            prev    curr
+```
+
+Check the inner condition again:
+
+```java
+3 == 4 // false
+```
+
+The inner loop terminates.
+
+Now `curr` points to the last node containing 3.
+
+**Duplicate group identified: 3, 3**
+
+## Iteration 3 Continued: Remove the Duplicate Group
+
+Execute:
+
+```java
+prev.next = curr.next;
+```
+
+Let's understand the references:
+
+Before:
+
+```text
+dummy → 1 → 2 → 3 → 3 → 4 → 4 → 5
+             ↑       ↑
+            prev    curr
+```
+
+Here:
+
+- `prev` points to node 2.
+- `curr` points to the second node 3.
+- `curr.next` points to node 4.
+
+We execute:
+
+```java
+prev.next = curr.next;
+```
+
+This means:
+
+```java
+node2.next = node4;
+```
+
+After:
+
+```text
+dummy → 1 → 2 ─────────→ 4 → 4 → 5
+             ↑           ↑
+            prev        curr
+```
+
+Both nodes containing 3 are now disconnected from the linked list.
+
+**Important:** Notice that `prev` did not move. It remains at node 2 because we haven't confirmed that the next value (4) is unique yet.
+
+Finally:
+
+```java
+curr = curr.next;
+```
+
+Now `curr` moves from the second 3 to node 4.
+
+**Both nodes containing 3 removed.**
+
+## Iteration 4: curr = 4
+
+Current structure:
+
+```text
+dummy → 1 → 2 → 4 → 4 → 5
+             ↑   ↑
+            prev curr
+```
+
+Check:
+
+```java
+if (4 == 4) // true
+```
+
+Another duplicate group!
+
+Execute the inner while loop:
+
+```java
+while (curr.next != null &&
+       curr.val == curr.next.val) {
+
+    curr = curr.next;
+}
+```
+
+**First check:**
+
+```java
+4 == 4 // true
+```
+
+Move `curr` to the second 4.
+
+```text
+dummy → 1 → 2 → 4 → 4 → 5
+             ↑       ↑
+            prev    curr
+```
+
+Check again:
+
+```java
+4 == 5 // false
+```
+
+The inner loop stops.
+
+Now execute:
+
+```java
+prev.next = curr.next;
+```
+
+This means:
+
+```java
+node2.next = node5;
+```
+
+After removing both 4s:
+
+```text
+dummy → 1 → 2 ─────────→ 5
+             ↑           ↑
+            prev        curr
+```
+
+Finally:
+
+```java
+curr = curr.next;
+```
+
+Now `curr = 5`.
+
+**Both nodes containing 4 removed.**
+
+## Iteration 5: curr = 5
+
+Current structure:
+
+```text
+dummy → 1 → 2 → 5
+             ↑   ↑
+            prev curr
+```
+
+Check:
+
+```java
+if (5 == null) // Cannot compare this way
+```
+
+Actually, the condition evaluates as follows:
+
+```java
+curr.next != null
+```
+
+Since `curr.next == null`, the condition is false.
+
+Node 5 is unique.
+
+Execute:
+
+```java
+prev = prev.next;
+```
+
+Now:
+
+```text
+dummy → 1 → 2 → 5
+                 ↑
+                prev
+                curr (temporarily)
+```
+
+Finally:
+
+```java
+curr = curr.next;
+```
+
+Now `curr = null`.
+
+The outer while loop terminates.
+
+# 3. Complete Iteration Summary
+
+| Iteration | curr value | Duplicate? | Operation |
+|---|---:|---|---|
+| 1 | 1 | No | Move prev |
+| 2 | 2 | No | Move prev |
+| 3 | 3 | Yes | Remove both 3s |
+| 4 | 4 | Yes | Remove both 4s |
+| 5 | 5 | No | Move prev |
+
+**Final output:**
+
+```text
+1 → 2 → 5 → null
+```
+
+**Original nodes:** 7
+
+**Removed nodes:** 4
+
+**Remaining nodes:** 3
+
+# 4. The Most Important Concept: Why Don't We Move `prev` When Duplicates Are Found?
+
+This is the key to understanding LC 82.
+
+Consider:
+
+```text
+1 → 2 → 3 → 3 → 4
+```
+
+When we find duplicate 3s:
+
+```java
+prev.next = curr.next;
+```
+
+We connect node 2 directly to node 4.
+
+Why don't we move `prev` to node 4?
+
+Because we haven't checked whether 4 is also duplicated!
+
+If 4 is duplicated, we must remove it too.
+
+Therefore:
+
+- If the current value is unique, move `prev`.
+- If the current value is duplicated, keep `prev` where it is.
+- Always move `curr` forward after processing the current group.
+
+This is the fundamental pointer-management idea behind this solution.
