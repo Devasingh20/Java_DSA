@@ -609,3 +609,147 @@ No. This is a common interview misconception.
 A linked list has \(O(1)\) insertion or deletion when you already have the appropriate node reference. If you must search for that node first, the complete operation can take \(O(n)\).
 
 Arrays and `ArrayList` also benefit from better cache locality, which can make them faster in real-world workloads despite shifting elements.
+
+
+# Linked List Patterns: Dummy Node, Head, and Tail
+
+This is a very important pattern in Linked List problems, especially on LeetCode.
+
+When a question says return the head and provides only `ListNode head` (without `tail`), you generally need to manipulate the linked list using references.
+
+There are three common patterns.
+
+## 1. When You Need to Create a New Linked List: Dummy Node
+
+Use this when you are building a result linked list.
+
+```java
+ListNode dummy = new ListNode(-1);
+ListNode tail = dummy;
+
+// Add a new node
+tail.next = new ListNode(10);
+tail = tail.next;
+
+// Add another node
+tail.next = new ListNode(20);
+tail = tail.next;
+
+return dummy.next;
+```
+
+**Visual representation:**
+
+```text
+dummy
+  |
+  v
+ -1 → 10 → 20 → null
+```
+
+Return `dummy.next`, not `dummy`.
+
+**Why dummy?**
+
+It eliminates the special condition for inserting the first node.
+
+**Examples:**
+
+- [LC 21 – Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
+- [LC 86 – Partition List](https://leetcode.com/problems/partition-list/)
+
+## 2. When Modifying the Existing Linked List: Use Head
+
+If you only need to modify existing nodes, you generally don't need a dummy node.
+
+**Example: Remove Duplicates (LC 83)**
+
+```java
+public ListNode deleteDuplicates(ListNode head) {
+
+    if (head == null) {
+        return head;
+    }
+
+    ListNode node = head;
+
+    while (node.next != null) {
+
+        if (node.val == node.next.val) {
+            node.next = node.next.next;
+        } else {
+            node = node.next;
+        }
+    }
+
+    return head;
+}
+```
+
+Here:
+
+- `head` maintains the starting reference.
+- `node` traverses the linked list.
+- You return `head` because the first node is still valid.
+
+## 3. When the Head Itself Might Change: Use Dummy
+
+Suppose you want to delete the first node.
+
+**Original:**
+
+```text
+10 → 20 → 30 → null
+```
+
+**After deleting 10:**
+
+```text
+20 → 30 → null
+```
+
+If you use only `head`, you must update it:
+
+```java
+head = head.next;
+return head;
+```
+
+Alternatively, use a dummy node:
+
+```java
+ListNode dummy = new ListNode(-1);
+dummy.next = head;
+
+ListNode prev = dummy;
+
+prev.next = prev.next.next;
+
+return dummy.next;
+```
+
+**Examples:**
+
+- [LC 203 – Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/)
+- [LC 19 – Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
+
+## 4. Your Quick Decision-Making Guide
+
+| Situation | Pattern |
+|---|---|
+| Creating a new result list | Dummy + Tail |
+| Modifying existing nodes | Head + Traversal pointer |
+| First node might be deleted | Dummy node |
+| Reversing a linked list | Previous + Current + Next |
+| Merging two sorted lists | Dummy + Tail |
+
+## Important Concept
+
+Even if LeetCode doesn't provide `tail`, you can create your own:
+
+```java
+ListNode dummy = new ListNode(-1);
+ListNode tail = dummy;
+```
+
+`tail` is simply a reference that you maintain yourself. It does not have to be a member variable of a Linked List class.
