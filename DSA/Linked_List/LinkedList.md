@@ -2208,3 +2208,530 @@ Instead of counting all nodes:
 5. Remove it using `slow.next = slow.next.next`.
 
 This avoids the separate counting traversal.
+
+
+
+# LeetCode 1472 – Design Browser History
+
+**Difficulty:** Medium  
+**Data Structure:** Doubly Linked List
+
+**Official problem:** [Design Browser History – LeetCode 1472](https://leetcode.com/problems/design-browser-history/)
+
+Let's understand this problem from the basics, then implement it using a Doubly Linked List in Java.
+
+## 1. Understand the Problem
+
+Imagine you're using a web browser such as Chrome.
+
+You open these websites in order:
+
+1. google.com
+2. youtube.com
+3. facebook.com
+4. instagram.com
+
+Now, suppose you press the Back button twice.
+
+You move:
+
+```text
+instagram.com → facebook.com → youtube.com
+```
+
+Your current webpage is now `youtube.com`.
+
+If you press Forward once, you return to `facebook.com`.
+
+This is exactly what we need to implement.
+
+## 2. Understand the Three Operations
+
+LeetCode gives you four methods:
+
+```java
+public BrowserHistory(String homepage)
+
+public void visit(String url)
+
+public String back(int steps)
+
+public String forward(int steps)
+```
+
+Let's understand each one.
+
+### Operation 1: Constructor
+
+```java
+public BrowserHistory(String homepage)
+```
+
+It initializes the browser with the homepage.
+
+For example:
+
+```java
+BrowserHistory obj = new BrowserHistory("google.com");
+```
+
+Initially:
+
+```text
+google.com
+    ↑
+  current
+```
+
+### Operation 2: Visit
+
+```java
+public void visit(String url)
+```
+
+It visits a new webpage.
+
+Suppose you have:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com
+```
+
+Currently, you're on `youtube.com`.
+
+Now execute:
+
+```java
+obj.visit("instagram.com");
+```
+
+The new history becomes:
+
+```text
+google.com ⇄ youtube.com ⇄ instagram.com
+```
+
+Notice something important:
+
+`facebook.com` is removed from the forward history.
+
+**This is a very important rule:**
+
+Whenever you visit a new website, all forward history is deleted.
+
+### Operation 3: Back
+
+```java
+public String back(int steps)
+```
+
+Moves backward by at most the specified number of steps.
+
+For example:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com ⇄ instagram.com
+```
+
+Currently at `instagram.com`.
+
+```java
+obj.back(2);
+```
+
+Result:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com ⇄ instagram.com
+                         ↑
+                       current
+```
+
+Returns `"facebook.com"`.
+
+### Operation 4: Forward
+
+```java
+public String forward(int steps)
+```
+
+Moves forward by at most the specified number of steps.
+
+For example, if you're currently at `facebook.com`:
+
+```java
+obj.forward(1);
+```
+
+You move to `instagram.com` and return `"instagram.com"`.
+
+## 3. Why Use a Doubly Linked List?
+
+A browser needs to move in two directions:
+
+- Backward using `prev`.
+- Forward using `next`.
+
+A DLL is perfect for this.
+
+Let's create a Node class:
+
+```java
+static class Node {
+    String url;
+    Node prev;
+    Node next;
+
+    Node(String url) {
+        this.url = url;
+    }
+}
+```
+
+Each node stores:
+
+- `url`: Webpage address.
+- `prev`: Previous webpage.
+- `next`: Next webpage.
+
+### Which Pointers Do We Need?
+
+For this problem, we can solve everything using just one pointer: `curr`.
+
+```java
+Node curr;
+```
+
+It represents the webpage currently open in the browser.
+
+We don't actually need `head`, `tail`, or `size`.
+
+Why? Because all operations start from the current webpage, and we only need to move backward or forward from there.
+
+## 4. Implement Each Method Step by Step
+
+### A. Constructor
+
+```java
+public BrowserHistory(String homepage) {
+    curr = new Node(homepage);
+}
+```
+
+Suppose:
+
+```java
+BrowserHistory obj = new BrowserHistory("google.com");
+```
+
+A new node is created:
+
+```text
+google.com
+    ↑
+   curr
+```
+
+Both `prev` and `next` are initially `null`.
+
+### B. Visit a New Webpage
+
+```java
+public void visit(String url) {
+    Node node = new Node(url);
+
+    curr.next = node;
+    node.prev = curr;
+
+    curr = node;
+}
+```
+
+Let's understand this carefully.
+
+Initially:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com
+               ↑
+              curr
+```
+
+Now execute:
+
+```java
+visit("instagram.com");
+```
+
+**Step 1: Create a new node.**
+
+```java
+Node node = new Node(url);
+```
+
+**Step 2: Connect the current node to the new node.**
+
+```java
+curr.next = node;
+```
+
+**Step 3: Connect the new node back to the current node.**
+
+```java
+node.prev = curr;
+```
+
+**Step 4: Move `curr` to the newly visited webpage.**
+
+```java
+curr = node;
+```
+
+Result:
+
+```text
+google.com ⇄ youtube.com ⇄ instagram.com
+                                ↑
+                               curr
+```
+
+Notice that `facebook.com` is no longer reachable.
+
+Why?
+
+Because this statement:
+
+```java
+curr.next = node;
+```
+
+overwrites the old forward connection from `youtube.com` to `facebook.com`.
+
+This automatically discards the forward history from our linked-list structure.
+
+### C. Back Operation
+
+```java
+public String back(int steps) {
+    while (steps > 0 && curr.prev != null) {
+        curr = curr.prev;
+        steps--;
+    }
+
+    return curr.url;
+}
+```
+
+Let's say:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com ⇄ instagram.com
+                                             ↑
+                                            curr
+```
+
+Execute:
+
+```java
+back(2);
+```
+
+**Dry run:**
+
+| Step | Operation | Current webpage |
+|---|---|---|
+| Initial | — | instagram.com |
+| 1 | `curr = curr.prev` | facebook.com |
+| 2 | `curr = curr.prev` | youtube.com |
+
+Returns:
+
+```text
+youtube.com
+```
+
+Why do we use this condition?
+
+```java
+steps > 0 && curr.prev != null
+```
+
+Because:
+
+- `steps > 0` ensures we still have backward movements remaining.
+- `curr.prev != null` ensures we don't move before the homepage.
+
+### D. Forward Operation
+
+```java
+public String forward(int steps) {
+    while (steps > 0 && curr.next != null) {
+        curr = curr.next;
+        steps--;
+    }
+
+    return curr.url;
+}
+```
+
+Suppose:
+
+```text
+google.com ⇄ youtube.com ⇄ facebook.com ⇄ instagram.com
+               ↑
+              curr
+```
+
+Execute:
+
+```java
+forward(2);
+```
+
+**Dry run:**
+
+| Step | Operation | Current webpage |
+|---|---|---|
+| Initial | — | youtube.com |
+| 1 | `curr = curr.next` | facebook.com |
+| 2 | `curr = curr.next` | instagram.com |
+
+Returns:
+
+```text
+instagram.com
+```
+
+We use `curr.next != null` to ensure we never move beyond the latest visited webpage.
+
+## 5. Complete LeetCode Solution
+
+Now combine all four methods.
+
+```java
+class BrowserHistory {
+
+    static class Node {
+        String url;
+        Node prev;
+        Node next;
+
+        Node(String url) {
+            this.url = url;
+        }
+    }
+
+    Node curr;
+
+    // Constructor
+    public BrowserHistory(String homepage) {
+        curr = new Node(homepage);
+    }
+
+    // Visit a new webpage
+    public void visit(String url) {
+        Node node = new Node(url);
+
+        curr.next = node;
+        node.prev = curr;
+
+        curr = node;
+    }
+
+    // Move backward
+    public String back(int steps) {
+        while (steps > 0 && curr.prev != null) {
+            curr = curr.prev;
+            steps--;
+        }
+
+        return curr.url;
+    }
+
+    // Move forward
+    public String forward(int steps) {
+        while (steps > 0 && curr.next != null) {
+            curr = curr.next;
+            steps--;
+        }
+
+        return curr.url;
+    }
+}
+```
+
+## 6. Complete Dry Run
+
+Consider these operations from the problem:
+
+```java
+BrowserHistory browserHistory =
+    new BrowserHistory("leetcode.com");
+
+browserHistory.visit("google.com");
+browserHistory.visit("facebook.com");
+browserHistory.visit("youtube.com");
+
+browserHistory.back(1);
+
+browserHistory.back(1);
+
+browserHistory.forward(1);
+
+browserHistory.visit("linkedin.com");
+
+browserHistory.forward(2);
+
+browserHistory.back(2);
+
+browserHistory.back(7);
+```
+
+Let's execute them one by one.
+
+| Operation | Returned value | Current webpage |
+|---|---|---|
+| Constructor | — | leetcode.com |
+| `visit(google.com)` | — | google.com |
+| `visit(facebook.com)` | — | facebook.com |
+| `visit(youtube.com)` | — | youtube.com |
+| `back(1)` | facebook.com | facebook.com |
+| `back(1)` | google.com | google.com |
+| `forward(1)` | facebook.com | facebook.com |
+| `visit(linkedin.com)` | — | linkedin.com |
+| `forward(2)` | linkedin.com | linkedin.com |
+| `back(2)` | google.com | google.com |
+| `back(7)` | leetcode.com | leetcode.com |
+
+Pay special attention to this operation:
+
+```java
+browserHistory.visit("linkedin.com");
+```
+
+At that point, the current webpage is `facebook.com`, and the forward history contains `youtube.com`.
+
+After visiting LinkedIn:
+
+```text
+leetcode.com ⇄ google.com ⇄ facebook.com ⇄ linkedin.com
+                              ↑
+                            current
+```
+
+`youtube.com` is discarded!
+
+That's the most important concept in this problem.
+
+## 7. Time and Space Complexity
+
+Let `k` be the number of steps requested and `n` the number of stored webpage nodes.
+
+| Method | Time Complexity |
+|---|---|
+| Constructor | O(1) |
+| `visit()` | O(1) |
+| `back(k)` | O(min(k, available backward nodes)) |
+| `forward(k)` | O(min(k, available forward nodes)) |
+
+**Space complexity:** O(n), where n is the number of webpages retained in the history.
