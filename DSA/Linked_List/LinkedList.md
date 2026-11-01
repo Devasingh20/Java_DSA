@@ -1896,3 +1896,315 @@ Therefore:
 - Always move `curr` forward after processing the current group.
 
 This is the fundamental pointer-management idea behind this solution.
+
+
+
+
+# LeetCode 19 – Remove Nth Node From End of List (Two-Pass Approach)
+
+Yes! Absolutely. Your approach is 100% correct, and it is one of the standard ways to solve LeetCode 19.
+
+You can solve this problem using:
+
+- One pointer (`pre`)
+- One counter (`count`)
+- Two traversals
+- Reference manipulation (`next.next`)
+
+Let's understand it.
+
+# 1. Your Approach
+
+Suppose the input is:
+
+```text
+1 → 2 → 3 → 4 → 5 → null
+```
+
+And:
+
+```java
+n = 2;
+```
+
+We need to remove the 2nd node from the end.
+
+**Expected output:**
+
+```text
+1 → 2 → 3 → 5 → null
+```
+
+### Step 1: Count the Total Nodes
+
+```java
+int count = 0;
+ListNode pre = head;
+
+while (pre != null) {
+    count++;
+    pre = pre.next;
+}
+```
+
+After traversal:
+
+```java
+count = 5;
+```
+
+### Step 2: Calculate the Position
+
+```java
+int index = count - n;
+```
+
+Therefore:
+
+```text
+index = 5 - 2
+      = 3
+```
+
+Here, `index = 3` means we need to reach the node immediately before the node we want to delete (using zero-based indexing).
+
+Our positions are:
+
+| Index | Node |
+|---|---|
+| 0 | 1 |
+| 1 | 2 |
+| 2 | 3 |
+| 3 | 4 |
+| 4 | 5 |
+
+So we need to reach node 3 (index 2), not node 4.
+
+**Correction to the calculation:** The previous node's index is `count - n - 1`, which is `2`.
+
+### Step 3: Traverse to the Previous Node
+
+Reset the pointer:
+
+```java
+pre = head;
+```
+
+Move it `count - n - 1` times:
+
+```java
+int steps = count - n - 1;
+
+while (steps > 0) {
+    pre = pre.next;
+    steps--;
+}
+```
+
+Now:
+
+```text
+1 → 2 → 3 → 4 → 5
+          ↑
+         pre
+```
+
+### Step 4: Remove the Node
+
+Execute:
+
+```java
+pre.next = pre.next.next;
+```
+
+This changes the connection:
+
+**Before:**
+
+```text
+3 → 4 → 5
+```
+
+**After:**
+
+```text
+3 ─────→ 5
+```
+
+**Final result:**
+
+```text
+1 → 2 → 3 → 5 → null
+```
+
+# 2. Complete Java Solution (VS Code)
+
+```java
+package DSA.Linked_List;
+
+// LeetCode 19: Remove Nth Node From End of List
+// https://leetcode.com/problems/remove-nth-node-from-end-of-list/
+
+public class LC_19 {
+
+    // Linked List Node
+    static class ListNode {
+        int val;
+        ListNode next;
+
+        ListNode(int val) {
+            this.val = val;
+            this.next = null;
+        }
+    }
+
+    // Solution
+    static class Solution {
+
+        public ListNode removeNthFromEnd(ListNode head, int n) {
+
+            int count = 0;
+            ListNode pre = head;
+
+            // Step 1: Count total nodes
+            while (pre != null) {
+                count++;
+                pre = pre.next;
+            }
+
+            // Step 2: Calculate steps to previous node
+            int steps = count - n - 1;
+
+            // Special case: Remove the head
+            if (steps < 0) {
+                return head.next;
+            }
+
+            // Step 3: Reset pointer
+            pre = head;
+
+            // Step 4: Reach the previous node
+            while (steps > 0) {
+                pre = pre.next;
+                steps--;
+            }
+
+            // Step 5: Remove the target node
+            pre.next = pre.next.next;
+
+            return head;
+        }
+    }
+
+    // Print Linked List
+    static void printList(ListNode head) {
+
+        ListNode temp = head;
+
+        while (temp != null) {
+            System.out.print(temp.val + " -> ");
+            temp = temp.next;
+        }
+
+        System.out.println("null");
+    }
+
+    // Main Method
+    public static void main(String[] args) {
+
+        // Creating Linked List:
+        // 1 -> 2 -> 3 -> 4 -> 5
+
+        ListNode head = new ListNode(1);
+        head.next = new ListNode(2);
+        head.next.next = new ListNode(3);
+        head.next.next.next = new ListNode(4);
+        head.next.next.next.next = new ListNode(5);
+
+        int n = 2;
+
+        System.out.println("Original Linked List:");
+        printList(head);
+
+        Solution obj = new Solution();
+
+        head = obj.removeNthFromEnd(head, n);
+
+        System.out.println("\nAfter Removing " + n + "nd Node From End:");
+        printList(head);
+    }
+}
+```
+
+**Expected output:**
+
+```text
+Original Linked List:
+1 -> 2 -> 3 -> 4 -> 5 -> null
+
+After Removing 2nd Node From End:
+1 -> 2 -> 3 -> 5 -> null
+```
+
+# 3. Important Edge Case: Removing the Head
+
+Consider:
+
+```text
+1 → 2 → 3 → 4 → 5
+```
+
+If:
+
+```java
+n = 5;
+```
+
+We need to remove node 1.
+
+**Calculation:**
+
+\[
+steps = count-n-1
+\]
+
+\[
+steps = 5-5-1=-1
+\]
+
+Since `steps < 0`, we remove the head:
+
+```java
+return head.next;
+```
+
+**Result:**
+
+```text
+2 → 3 → 4 → 5 → null
+```
+
+This is why we need the special case.
+
+# 4. Complexity Analysis
+
+| Complexity | Value |
+|---|---|
+| Time | O(n) |
+| Space | O(1) |
+
+Your approach uses two traversals, but it still has O(n) time complexity.
+
+# 5. One More Approach You Should Learn
+
+There is also a **One-Pass Slow and Fast Pointer** approach.
+
+Instead of counting all nodes:
+
+1. Move `fast` ahead by `n` nodes.
+2. Start `slow` at `head` (using a dummy node).
+3. Move both pointers one step at a time.
+4. When `fast` reaches `null`, `slow.next` is the node to remove.
+5. Remove it using `slow.next = slow.next.next`.
+
+This avoids the separate counting traversal.
