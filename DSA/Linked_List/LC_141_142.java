@@ -1,7 +1,7 @@
 package DSA.Linked_List;
 
 public class LC_141_142 {
-      static class ListNode {
+    static class ListNode {
 
         int val;
         ListNode next;
@@ -11,7 +11,6 @@ public class LC_141_142 {
             this.next = null;
         }
     }
-
 
     // LC 141: Floyd's algorithm
     static boolean hasCycle(ListNode head) {
@@ -59,6 +58,27 @@ public class LC_141_142 {
         return null;
     }
 
+    static int cycleLength(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+            if (slow == fast) {
+                int length = 0;
+                ListNode temp = slow;
+                do {
+                    temp = temp.next;
+                    length++;
+                } while (temp != slow);
+                return length;
+            }
+
+        }
+        return 0;
+    }
+
     public static void main(String[] args) {
 
         // Create linked list
@@ -80,8 +100,7 @@ public class LC_141_142 {
         System.out.println("LC 141 - Cycle Detection");
 
         System.out.println(
-            "Floyd: " + hasCycle(head)
-        );
+                "Floyd: " + hasCycle(head));
 
         // LC 142
         System.out.println("\nLC 142 - Cycle Starting Node");
@@ -89,8 +108,9 @@ public class LC_141_142 {
         ListNode result2 = detectCycle(head);
 
         System.out.println(
-            "Floyd: " +
-            (result2 != null ? result2.val : "No Cycle")
-        );
+                "Floyd: " +
+                        (result2 != null ? result2.val : "No Cycle"));
+        System.out.println("\nCycle Length");
+        System.out.println("Floyd: " + cycleLength(head));
     }
 }
