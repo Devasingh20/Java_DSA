@@ -2735,3 +2735,814 @@ Let `k` be the number of steps requested and `n` the number of stored webpage no
 | `forward(k)` | O(min(k, available forward nodes)) |
 
 **Space complexity:** O(n), where n is the number of webpages retained in the history.
+
+
+
+
+# LeetCode 148 – Sort List (Merge Sort on a Linked List)
+
+Let's understand the complete Merge Sort on a Linked List using your original Slow-Fast Pointer (`middleNode2`) approach.
+
+We'll use your preferred `getMid()` implementation, where:
+
+- `slow` moves one step.
+- `fast` moves two steps.
+- `prev` keeps track of the node before `slow`.
+- `prev.next = null` separates the two halves.
+
+**Our example:**
+
+```text
+10 → 5 → 3 → 8 → 2
+```
+
+**Expected output:**
+
+```text
+2 → 3 → 5 → 8 → 10
+```
+
+## 1. Complete Java Code
+
+```java
+public class MergeSort {
+
+    public ListNode sortList(ListNode head) {
+
+        // Base condition
+        if (head == null || head.next == null) {
+            return head;
+        }
+
+        // Find middle and split the list
+        ListNode mid = getMid(head);
+
+        // Recursively sort left half
+        ListNode left = sortList(head);
+
+        // Recursively sort right half
+        ListNode right = sortList(mid);
+
+        // Merge both sorted halves
+        return merge(left, right);
+    }
+
+    // Merge two sorted linked lists
+    ListNode merge(ListNode list1, ListNode list2) {
+
+        ListNode dummyHead = new ListNode();
+        ListNode tail = dummyHead;
+
+        while (list1 != null && list2 != null) {
+
+            if (list1.val < list2.val) {
+                tail.next = list1;
+                list1 = list1.next;
+                tail = tail.next;
+            } else {
+                tail.next = list2;
+                list2 = list2.next;
+                tail = tail.next;
+            }
+        }
+
+        tail.next = (list1 != null) ? list1 : list2;
+
+        return dummyHead.next;
+    }
+
+    // Your slow-fast pointer approach
+    ListNode getMid(ListNode head) {
+
+        ListNode slow = head;
+        ListNode fast = head;
+        ListNode prev = null;
+
+        while (fast != null && fast.next != null) {
+
+            prev = slow;
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        prev.next = null;
+
+        return slow;
+    }
+}
+```
+
+## 2. First Understand getMid()
+
+This method finds the middle and splits the linked list into two independent lists.
+
+```java
+ListNode getMid(ListNode head) {
+
+    ListNode slow = head;
+    ListNode fast = head;
+    ListNode prev = null;
+
+    while (fast != null && fast.next != null) {
+
+        prev = slow;
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+
+    prev.next = null;
+
+    return slow;
+}
+```
+
+Let's dry-run it.
+
+**Initial linked list:**
+
+```text
+10 → 5 → 3 → 8 → 2
+```
+
+**Initial state:**
+
+- slow = 10
+- fast = 10
+- prev = null
+
+**After iteration 1:**
+
+```text
+10 → 5 → 3 → 8 → 2
+```
+
+- prev = 10
+- slow = 5
+- fast = 3
+
+**After iteration 2:**
+
+```text
+10 → 5 → 3 → 8 → 2
+```
+
+- prev = 5
+- slow = 3
+- fast = 2
+
+**Loop stops**
+
+`fast.next == null`, so we exit.
+
+Then:
+
+```java
+prev.next = null;
+```
+
+**Two independent lists:**
+
+```text
+10 → 5
+
+3 → 8 → 2
+```
+
+The method returns node 3 as the head of the second list.
+
+Notice something important:
+
+- `head` still points to node 10.
+- `mid` (the returned `slow`) points to node 3.
+- The connection between 5 and 3 has been broken.
+
+So now we have two independent lists.
+
+## 3. Understand sortList() – Recursive Division
+
+This is the most important part of Merge Sort.
+
+```java
+public ListNode sortList(ListNode head) {
+
+    if (head == null || head.next == null) {
+        return head;
+    }
+
+    ListNode mid = getMid(head);
+
+    ListNode left = sortList(head);
+    ListNode right = sortList(mid);
+
+    return merge(left, right);
+}
+```
+
+Let's execute it step by step.
+
+### Step 1: First Function Call
+
+Initially:
+
+```java
+sortList(10 → 5 → 3 → 8 → 2)
+```
+
+The base condition is false.
+
+We call:
+
+```java
+ListNode mid = getMid(head);
+```
+
+Our modified `getMid()` divides the list:
+
+```text
+Left:  10 → 5
+
+Right: 3 → 8 → 2
+```
+
+Now:
+
+```java
+ListNode left = sortList(head);
+```
+
+Since `head` still points to node 10, the next recursive call is:
+
+```java
+sortList(10 → 5)
+```
+
+### Step 2: Sort the Left Half
+
+Inside `sortList(10 → 5)`:
+
+The base condition is false because there are two nodes.
+
+We call `getMid()` again.
+
+Using slow and fast:
+
+| Variable | Initial | After one iteration |
+|---|---|---|
+| slow | 10 | 5 |
+| fast | 10 | null |
+| prev | null | 10 |
+
+Now:
+
+```java
+prev.next = null;
+```
+
+The list becomes:
+
+```text
+10       5
+```
+
+Here:
+
+```java
+ListNode left = sortList(head);
+```
+
+Calls:
+
+```java
+sortList(10);
+```
+
+The base condition is true, so node 10 is returned.
+
+Then:
+
+```java
+ListNode right = sortList(mid);
+```
+
+Calls:
+
+```java
+sortList(5);
+```
+
+Again, the base condition is true, so node 5 is returned.
+
+Now we have:
+
+```text
+left = 10;
+right = 5;
+```
+
+Finally:
+
+```java
+return merge(left, right);
+```
+
+Result:
+
+```text
+5 → 10
+```
+
+**Left half sorted.**
+
+### Step 3: Sort the Right Half
+
+Remember, we originally called:
+
+```java
+sortList(10 → 5 → 3 → 8 → 2);
+```
+
+Its left recursive call has now finished.
+
+Java moves to:
+
+```java
+ListNode right = sortList(mid);
+```
+
+Here `mid` points to node 3.
+
+So we call:
+
+```java
+sortList(3 → 8 → 2)
+```
+
+Now `getMid()` divides it:
+
+```text
+Left:  3
+
+Right: 8 → 2
+```
+
+The left recursive call:
+
+```java
+sortList(3);
+```
+
+Returns node 3 because of the base condition.
+
+Next:
+
+```java
+sortList(8 → 2);
+```
+
+This list is divided again:
+
+```text
+Left:  8
+
+Right: 2
+```
+
+Both calls reach the base condition and return their respective nodes.
+
+Now:
+
+```java
+return merge(8, 2);
+```
+
+Produces:
+
+```text
+2 → 8
+```
+
+Finally, the previous recursive call merges:
+
+```text
+left  = 3
+
+right = 2 → 8
+```
+
+Result:
+
+```text
+2 → 3 → 8
+```
+
+**Right half sorted.**
+
+## 4. Complete Recursion Tree
+
+Now you can see how the entire list gets divided and merged.
+
+### Division Phase
+
+```text
+          10 → 5 → 3 → 8 → 2
+                    |
+             ---------------
+             |             |
+           10 → 5        3 → 8 → 2
+             |             |
+          --------       --------
+          |      |       |      |
+          10     5       3     8 → 2
+                                |
+                              -----
+                              |   |
+                              8   2
+```
+
+### Merging Phase
+
+```text
+          5 → 10
+          Merge 10 and 5
+
+          2 → 8
+          Merge 8 and 2
+
+          2 → 3 → 8
+          Merge node 3 with 2 → 8
+
+          2 → 3 → 5 → 8 → 10
+          Final sorted list
+```
+
+## 5. How merge() Works
+
+Now let's understand why the merging works.
+
+Suppose we have two already sorted lists:
+
+```text
+list1: 5 → 10
+
+list2: 2 → 3 → 8
+```
+
+Your method:
+
+```java
+ListNode merge(ListNode list1, ListNode list2) {
+
+    ListNode dummyHead = new ListNode();
+    ListNode tail = dummyHead;
+
+    while (list1 != null && list2 != null) {
+
+        if (list1.val < list2.val) {
+
+            tail.next = list1;
+            list1 = list1.next;
+            tail = tail.next;
+
+        } else {
+
+            tail.next = list2;
+            list2 = list2.next;
+            tail = tail.next;
+        }
+    }
+
+    tail.next = (list1 != null) ? list1 : list2;
+
+    return dummyHead.next;
+}
+```
+
+**Let's dry-run:**
+
+| Comparison | Selected node | Result |
+|---|---|---|
+| 5 vs 2 | 2 | 2 |
+| 5 vs 3 | 3 | 2 → 3 |
+| 5 vs 8 | 5 | 2 → 3 → 5 |
+| 10 vs 8 | 8 | 2 → 3 → 5 → 8 |
+| 10 vs null | 10 | 2 → 3 → 5 → 8 → 10 |
+
+Notice:
+
+```java
+tail.next = list1;
+list1 = list1.next;
+tail = tail.next;
+```
+
+We are reusing the existing nodes, not creating new nodes.
+
+Also, when one list becomes empty, we attach the remaining nodes of the other list directly.
+
+## 6. Complexity Analysis
+
+| Complexity | Value |
+|---|---|
+| Time | O(n log n) |
+| Recursion stack | O(log n) |
+| Extra space for merging | O(1) |
+
+The list gets divided into approximately `log n` levels, and each level requires O(n) merging work.
+
+
+
+
+# Understanding Recursion in Merge Sort – How `return` Works and Why Each Call Has Its Own `mid`
+
+Node 10 is returned to its caller first, and then it gets stored in `left`.
+
+Let's understand exactly what happens.
+
+### Step 1: Parent Function Calls sortList(10)
+
+Suppose we are currently executing:
+
+```java
+ListNode left = sortList(head);
+```
+
+Here, `head` points to node 10.
+
+Java makes another function call:
+
+```java
+sortList(10);
+```
+
+### Step 2: Base Condition Executes
+
+Inside this new function call:
+
+```java
+if (head == null || head.next == null) {
+    return head;
+}
+```
+
+Since node 10 is the only node:
+
+```java
+return head;
+```
+
+This returns the reference to node 10 to the previous function call.
+
+### Step 3: Value Gets Stored in left
+
+Now Java resumes execution at the exact place where the function was called:
+
+```java
+ListNode left = sortList(head);
+```
+
+Since `sortList(head)` returned node 10, it becomes equivalent to:
+
+```java
+ListNode left = node10;
+```
+
+**Execution flow:**
+
+```text
+Parent call
+
+sortList(10 → 5)
+
+       |
+       | Calls sortList(10)
+       |
+       v
+
+Child call
+
+sortList(10)
+
+       |
+       | return head
+       |
+       v
+
+    Node 10
+
+       |
+       | Returns to parent
+       v
+
+left = Node 10
+```
+
+### Step 4: What Executes Next?
+
+After `left` receives node 10, Java executes the next statement:
+
+```java
+ListNode right = sortList(mid);
+```
+
+So the right recursive call starts.
+
+**Remember this rule:**
+
+Whenever Java encounters:
+
+```java
+int result = someMethod();
+```
+
+It first executes `someMethod()` completely. When that method returns a value, Java assigns that value to `result`.
+
+The same principle applies to your linked list:
+
+```java
+ListNode left = sortList(head);
+```
+
+The returned node reference is stored in `left` only after the recursive call finishes.
+
+---
+
+## So, the Returned 10 Goes to sortList(10) or sortList(10 → 5)?
+
+The returned `10` goes to `sortList(10 → 5)`, not directly to the original `sortList(10 → 5 → 3 → 8 → 2)`.
+
+Let's see the call hierarchy:
+
+```text
+sortList(10 → 5 → 3 → 8 → 2)
+    |
+    | calls sortList(10 → 5)
+    |
+    └── sortList(10 → 5)
+            |
+            | calls sortList(10)
+            |
+            └── sortList(10)
+                    |
+                    └── return 10
+```
+
+Now, where does `return 10` go?
+
+It goes back to the function that called `sortList(10)`, which is:
+
+```java
+sortList(10 → 5)
+```
+
+There, this statement receives the returned node:
+
+```java
+ListNode left = sortList(head);
+```
+
+So now:
+
+```java
+left = 10;
+```
+
+**Remember:** A recursive function always returns to its immediate caller, not directly to the first function call.
+
+This is exactly how the recursion stack works (LIFO).
+
+---
+
+## So at This Stage the mid Is 3, Then Why Does the Right Call Call with mid 5?
+
+Excellent! You're mixing up the `mid` values belonging to two different recursive function calls. Each call has its own local `mid` variable.
+
+Let's trace it carefully.
+
+### 1. First Call: sortList(10 → 5 → 3 → 8 → 2)
+
+We execute:
+
+```java
+ListNode mid = getMid(head);
+```
+
+Your `getMid()` divides the list:
+
+```text
+10 → 5       3 → 8 → 2
+             ↑
+            mid
+```
+
+So, in this function call:
+
+```java
+mid = 3;
+```
+
+Then:
+
+```java
+ListNode left = sortList(head);
+```
+
+This calls:
+
+```java
+sortList(10 → 5);
+```
+
+### 2. Second Call: sortList(10 → 5)
+
+Now we are inside a completely new function call.
+
+It executes its own:
+
+```java
+ListNode mid = getMid(head);
+```
+
+This time the list is:
+
+```text
+10       5
+         ↑
+        mid
+```
+
+So, in this function call:
+
+```java
+mid = 5;
+```
+
+Notice the difference:
+
+| Function call | Its mid |
+|---|---|
+| `sortList(10 → 5 → 3 → 8 → 2)` | 3 |
+| `sortList(10 → 5)` | 5 |
+
+### 3. Now the Execution Continues
+
+Inside `sortList(10 → 5)`:
+
+```java
+ListNode left = sortList(head);
+```
+
+Calls `sortList(10)`.
+
+It returns node 10, which gets stored in `left`.
+
+Then Java executes:
+
+```java
+ListNode right = sortList(mid);
+```
+
+But remember, this `mid` belongs to `sortList(10 → 5)`.
+
+Therefore:
+
+```java
+sortList(5);
+```
+
+It does NOT call `sortList(3)`.
+
+### 4. Visualize the Two Different mid Variables
+
+**Function call 1**
+
+`sortList(10 → 5 → 3 → 8 → 2)`
+
+```text
+mid = 3
+```
+
+Its own local mid variable.
+
+Calls `sortList(10 → 5)`.
+
+**Function call 2**
+
+`sortList(10 → 5)`
+
+```text
+mid = 5
+```
+
+A separate local mid variable.
+
+Calls `sortList(mid)`.
+
+```text
+sortList(5)
+```
+
+Base condition.
+
+**The key concept:** Every recursive function call gets its own local variables (`head`, `mid`, `left`, `right`). They don't overwrite the variables of the previous function call.
+
+This is why Java can remember `mid = 3` in the first call while simultaneously having `mid = 5` in the second call.
