@@ -150,6 +150,24 @@ public class LinkedList {
             return target.data;
         }
 
+        public void reverse() {
+            if (head == null || head.next == null) {
+                return;
+            }
+            reverse(head);
+        }
+
+        public void reverse(Node node) {
+            if (node == tail) {
+                head = tail;
+                return;
+            }
+            reverse(node.next);
+            tail.next = node;
+            tail = node;
+            tail.next = null;
+        }
+
         public int indexOf(int target) {
             Node current = head;
             int index = 0;
@@ -206,7 +224,10 @@ public class LinkedList {
         list.insertRec(2, 30);
         list.display();
         // 10 -> 20 -> 30 -> 40 -> null
+        list.reverse();
 
+        System.out.println("After Reversing:");
+        list.display();
         System.out.println("Delete : " + list.remove(3));
         list.display();
 
