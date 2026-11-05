@@ -5142,3 +5142,155 @@ class Solution {
 
 Remember this rule for linked lists: Before overwriting a `next` reference, save the node it currently points to if you still need that node later.
 
+
+
+# Optimized Approach – O(n)
+
+Instead of rotating the list one time at a time:
+
+1. Calculate the length of the linked list.
+2. Reduce rotations using `k = k % length`.
+3. Connect the tail to the head to form a circular linked list.
+4. Find the new tail at position `length - k - 1`.
+5. Break the circle after the new tail.
+
+## Optimized Java Code
+
+```java
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+
+        if (head == null || head.next == null || k == 0) {
+            return head;
+        }
+
+        // Calculate length and find the tail
+        ListNode tail = head;
+        int length = 1;
+
+        while (tail.next != null) {
+            tail = tail.next;
+            length++;
+        }
+
+        // Avoid unnecessary rotations
+        k = k % length;
+
+        if (k == 0) {
+            return head;
+        }
+
+        // Make the list circular
+        tail.next = head;
+
+        // Find the new tail
+        int rotations = length - k;
+
+        ListNode newTail = head;
+
+        for (int i = 1; i < rotations; i++) {
+            newTail = newTail.next;
+        }
+
+        // Set the new head and break the circle
+        ListNode newHead = newTail.next;
+        newTail.next = null;
+
+        return newHead;
+    }
+}
+```
+
+## Dry Run with Actual Input
+
+```text
+Input:
+head = [1, 2, 3, 4, 5]
+k = 2
+```
+
+### Step 1. Calculate length
+
+```text
+1 → 2 → 3 → 4 → 5
+                    ↑
+                   tail
+
+length = 5
+```
+
+### Step 2. Calculate effective rotations
+
+```java
+k = k % length;
+k = 2 % 5;
+k = 2;
+```
+
+Why? Rotating a list 5 times brings it back to its original position.
+
+### Step 3. Make the list circular
+
+```java
+tail.next = head;
+```
+
+Circular linked list:
+
+```text
+1 → 2 → 3 → 4 → 5
+↑               |
+└───────────────┘
+```
+
+### Step 4. Find the new tail
+
+```java
+int rotations = length - k;
+// 5 - 2 = 3
+```
+
+We move `newTail` two times from the head:
+
+| Iteration | `newTail` |
+|---|---|
+| Initially | 1 |
+| i = 1 | 2 |
+| i = 2 | 3 |
+
+So:
+
+```java
+newTail = 3;
+newHead = newTail.next; // 4
+```
+
+### Step 5. Break the circular connection
+
+```java
+newTail.next = null;
+```
+
+Final result:
+
+```text
+4 → 5 → 1 → 2 → 3 → null
+```
+
+<badge color="success">Optimized</badge>
+
+## Complexity Comparison
+
+| Approach | Time | Space |
+|---|---|---|
+| Your original solution | \(O(n \times k)\) | \(O(1)\) |
+| Optimized solution | \(O(n)\) | \(O(1)\) |
+
+**Important formula to remember:**
+
+\[
+\boxed{\text{New tail position} = n-k}
+\]
+
+(Using 1-based positions.)
+
