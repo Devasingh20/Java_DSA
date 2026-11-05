@@ -4663,3 +4663,187 @@ It has four phases:
 | `[1,2,3]`, left=2, right=2 | `[1,2,3]` |
 | `[1]`, left=1, right=1 | `[1]` |
 
+
+
+
+
+# LeetCode 234 – Palindrome Linked List
+
+The correct approach is **Find Middle → Reverse Second Half → Compare Both Halves**.
+
+## Step 1. Find the middle node
+
+Use slow and fast pointers.
+
+```java
+static ListNode middleNode(ListNode head) {
+
+    ListNode slow = head;
+    ListNode fast = head;
+
+    while (fast != null && fast.next != null) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+
+    return slow;
+}
+```
+
+Example:
+
+```text
+1 → 2 → 2 → 1 → null
+        ↑
+       slow
+```
+
+Here, `slow` points to the first node of the second half.
+
+## Step 2. Reverse the second half
+
+```java
+ListNode secondHead = reverseList(mid);
+```
+
+Before reversing:
+
+```text
+1 → 2 → 2 → 1 → null
+        ↑
+       mid
+```
+
+After reversing:
+
+```text
+First half:           1 → 2
+
+Reversed second half: 1 → 2 → null
+```
+
+## Step 3. Compare both halves
+
+```java
+while (secondHead != null) {
+
+    if (head.val != secondHead.val) {
+        return false;
+    }
+
+    head = head.next;
+    secondHead = secondHead.next;
+}
+
+return true;
+```
+
+We compare:
+
+| First half | Second half | Result |
+|---|---|---|
+| 1 | 1 | Match |
+| 2 | 2 | Match |
+
+All elements match, so return `true`.
+
+## Step 4. Complete LeetCode Java solution
+
+```java
+class Solution {
+
+    public boolean isPalindrome(ListNode head) {
+
+        if (head == null || head.next == null) {
+            return true;
+        }
+
+        // Step 1: Find middle
+        ListNode mid = middleNode(head);
+
+        // Step 2: Reverse second half
+        ListNode secondHead = reverseList(mid);
+
+        // Step 3: Compare both halves
+        ListNode firstHead = head;
+
+        while (secondHead != null) {
+
+            if (firstHead.val != secondHead.val) {
+                return false;
+            }
+
+            firstHead = firstHead.next;
+            secondHead = secondHead.next;
+        }
+
+        return true;
+    }
+
+    static ListNode middleNode(ListNode head) {
+
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return slow;
+    }
+
+    static ListNode reverseList(ListNode head) {
+
+        ListNode prev = null;
+        ListNode curr = head;
+
+        while (curr != null) {
+
+            ListNode next = curr.next;
+
+            curr.next = prev;
+
+            prev = curr;
+            curr = next;
+        }
+
+        return prev;
+    }
+}
+```
+
+## Step 5. Complexity analysis
+
+| Operation | Complexity |
+|---|---|
+| Find middle | O(n) |
+| Reverse second half | O(n) |
+| Compare both halves | O(n) |
+| **Total time** | **O(n)** |
+| **Auxiliary space** | **O(1)** |
+
+## Important note: Odd-length linked lists
+
+Consider:
+
+```text
+1 → 2 → 3 → 2 → 1
+```
+
+Our `middleNode()` returns node `3`.
+
+Reversing from `mid` gives:
+
+```text
+First half:           1 → 2 → 3
+
+Reversed second half: 1 → 2 → 3
+```
+
+The middle node gets compared with itself. This is completely fine.
+
+You can also optimize this slightly by reversing from `mid.next` for odd-length lists, thereby skipping the middle node. But the current solution is correct.
+
+Remember this pattern: **Slow/Fast Pointer + Reverse Linked List + Two-Pointer Comparison.**
+
