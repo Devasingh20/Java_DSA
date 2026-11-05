@@ -4847,3 +4847,298 @@ You can also optimize this slightly by reversing from `mid.next` for odd-length 
 
 Remember this pattern: **Slow/Fast Pointer + Reverse Linked List + Two-Pointer Comparison.**
 
+
+
+
+
+# Reorder List – LeetCode 143
+
+Let's understand this using actual input values and trace every pointer.
+
+We will use:
+
+```text
+1 → 2 → 3 → 4 → 5
+```
+
+The expected output of `reorderList()` is:
+
+```text
+1 → 5 → 2 → 4 → 3
+```
+
+## 1. After finding the middle
+
+Your `getMid()` method returns node `3`.
+
+```java
+ListNode mid = getMid(head);
+```
+
+So:
+
+```text
+Original list:
+
+1 → 2 → 3 → 4 → 5
+        ↑
+       mid
+```
+
+## 2. Reverse the second half
+
+For this example, the correct operation is:
+
+```java
+ListNode hs = reverse(mid.next);
+mid.next = null;
+```
+
+Now we have two separate lists:
+
+**First half**
+
+```text
+1 → 2 → 3
+```
+
+**Second half (reversed)**
+
+```text
+5 → 4
+```
+
+```java
+hf = head;  // 1
+hs = reverse(mid.next); // 5
+```
+
+## 3. First iteration: Understand both temp variables
+
+Initially:
+
+```text
+hf = 1
+hs = 5
+
+First:  1 → 2 → 3
+Second: 5 → 4
+```
+
+**Statement 1:**
+
+```java
+ListNode temp = hf.next;
+```
+
+Since `hf` is node 1:
+
+```text
+temp = 2
+```
+
+We save node 2 because we will change node 1's `next`.
+
+**Statement 2:**
+
+```java
+hf.next = hs;
+```
+
+Now node 1 points to node 5.
+
+```text
+1 → 5 → 4
+```
+
+**Statement 3:**
+
+```java
+hf = temp;
+```
+
+Now `hf` points to node 2.
+
+```text
+hf = 2
+```
+
+**Statement 4:**
+
+```java
+temp = hs.next;
+```
+
+Since `hs` is node 5, its next node is 4.
+
+```text
+temp = 4
+```
+
+**Statement 5:**
+
+```java
+hs.next = hf;
+```
+
+Now node 5 points to node 2.
+
+```text
+1 → 5 → 2 → 3
+```
+
+**Statement 6:**
+
+```java
+hs = temp;
+```
+
+Now `hs` points to node 4.
+
+```text
+hf = 2
+hs = 4
+```
+
+## 4. Why can't we use hf.next instead of temp?
+
+Let's continue from the same position:
+
+```text
+hf = 2
+hs = 5
+
+2 → 3
+5 → 4
+```
+
+Suppose you write:
+
+```java
+hs.next = hf;
+hs = hf.next;
+```
+
+First:
+
+```java
+hs.next = hf;
+```
+
+You change the connection:
+
+```text
+5 → 2 → 3
+```
+
+Now execute:
+
+```java
+hs = hf.next;
+```
+
+What is `hf.next`?
+
+It is node `3`.
+
+Therefore:
+
+```text
+hs = 3
+```
+
+But we actually needed `hs = 4`!
+
+## Compare the results
+
+**Using temp**
+
+Correct:
+
+```java
+temp = hs.next;
+hs.next = hf;
+hs = temp;
+```
+
+`hs = 4`
+
+**Using hf.next**
+
+Incorrect:
+
+```java
+hs.next = hf;
+hs = hf.next;
+```
+
+`hs = 3`
+
+The important point is that `hf.next` and `hs.next` represent different things.
+
+- `hf.next` is the next node in the first half.
+- `hs.next` is the next node in the reversed second half.
+
+When you modify `hs.next`, you destroy the original connection to node 4 unless you save it first.
+
+## 5. Complete corrected code
+
+One important correction: your original code uses `reverse(mid)`. To split the list properly, use `reverse(mid.next)` and set `mid.next = null`.
+
+```java
+class Solution {
+    public void reorderList(ListNode head) {
+
+        if (head == null || head.next == null) {
+            return;
+        }
+
+        ListNode mid = getMid(head);
+
+        ListNode hs = reverse(mid.next);
+        mid.next = null;
+
+        ListNode hf = head;
+
+        while (hf != null && hs != null) {
+
+            ListNode temp = hf.next;
+            hf.next = hs;
+            hf = temp;
+
+            temp = hs.next;
+            hs.next = hf;
+            hs = temp;
+        }
+    }
+
+    static ListNode getMid(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return slow;
+    }
+
+    static ListNode reverse(ListNode head) {
+        ListNode prev = null;
+        ListNode curr = head;
+
+        while (curr != null) {
+            ListNode next = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = next;
+        }
+
+        return prev;
+    }
+}
+```
+
+Remember this rule for linked lists: Before overwriting a `next` reference, save the node it currently points to if you still need that node later.
+
