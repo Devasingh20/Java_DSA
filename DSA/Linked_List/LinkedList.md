@@ -5294,3 +5294,148 @@ Final result:
 
 (Using 1-based positions.)
 
+
+
+
+
+# Linked List – Complete DSA Roadmap
+
+**16 Linked List problems**
+
+**6 learning phases**
+
+## Phase 1 – Basic pointer manipulation
+
+**Start here**
+
+Learn how to delete nodes, handle head changes, use dummy nodes, and modify `next` connections.
+
+| Order | Problem | Concept to master |
+|---|---|---|
+| 1 | [LC 203 – Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/?utm_source=chatgpt.com) | Deletion, head handling |
+| 2 | [LC 83 – Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/?utm_source=chatgpt.com) | Removing consecutive duplicates |
+| 3 | [LC 82 – Remove Duplicates from Sorted List II](https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/?utm_source=chatgpt.com) | Dummy node, deleting duplicate groups |
+| 4 | [LC 21 – Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/?utm_source=chatgpt.com) | Two pointers, dummy node, merging |
+| 5 | [LC 86 – Partition List](https://leetcode.com/problems/partition-list/?utm_source=chatgpt.com) | Splitting into two lists and reconnecting |
+
+**Relationship:**
+
+- LC 203 teaches basic deletion.
+- LC 83 builds on deletion but handles adjacent duplicates.
+- LC 82 makes deletion more challenging because you must remove entire duplicate groups.
+- LC 21 teaches how to combine two lists.
+- LC 86 uses a similar idea to LC 21, but separates nodes based on a condition instead of sorting.
+
+## Phase 2 – Fast and slow pointers
+
+Learn how to find the middle, detect cycles, and use two pointers with different speeds.
+
+| Order | Problem | Concept to master |
+|---|---|---|
+| 6 | [LC 876 – Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/?utm_source=chatgpt.com) | Slow and fast pointers |
+| 7 | [LC 19 – Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/?utm_source=chatgpt.com) | Two pointers, gap technique |
+| 8 | [LC 141 – Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/?utm_source=chatgpt.com) | Floyd's cycle detection |
+| 9 | [LC 142 – Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/?utm_source=chatgpt.com) | Finding the cycle starting point |
+
+**Relationship:**
+
+Pointer progression:
+
+**LC 876 – Find Middle**
+
+Understand how slow and fast pointers move.
+
+**LC 19 – Remove Nth From End**
+
+Understand the gap between two pointers.
+
+**LC 141 – Detect Cycle**
+
+Understand Floyd's algorithm.
+
+**LC 142 – Find Cycle Starting Point**
+
+Extend Floyd's algorithm.
+
+## Phase 3 – Reversal techniques
+
+This is one of the most important phases. You should become comfortable with `prev`, `curr`, `next`, and reconnecting nodes.
+
+| Order | Problem | Concept to master |
+|---|---|---|
+| 10 | [LC 206 – Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/?utm_source=chatgpt.com) | Complete iterative and recursive reversal |
+| 11 | [LC 92 – Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/?utm_source=chatgpt.com) | Reverse between two positions |
+| 12 | [LC 25 – Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/?utm_source=chatgpt.com) | Reverse groups of K nodes |
+
+**Relationship:**
+
+- LC 206 is the foundation.
+- LC 92 applies reversal to a selected portion.
+- LC 25 extends partial reversal to multiple groups.
+
+Master LC 206 before moving to LC 92 and LC 25. These three problems are closely connected.
+
+## Phase 4 – Advanced rearrangement
+
+Now combine the concepts you have learned: middle finding, reversal, merging, and pointer reconnection.
+
+| Order | Problem | Concept to master |
+|---|---|---|
+| 13 | [LC 61 – Rotate List](https://leetcode.com/problems/rotate-list/?utm_source=chatgpt.com) | Length calculation, circular linked list |
+| 14 | [LC 234 – Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/?utm_source=chatgpt.com) | Middle + reverse + comparison |
+| 15 | [LC 143 – Reorder List](https://leetcode.com/problems/reorder-list/?utm_source=chatgpt.com) | Middle + reverse + alternating merge |
+
+**Relationship:**
+
+- LC 61 uses tail connection and circular list manipulation.
+- LC 234 combines slow/fast pointers with reversal.
+- LC 143 combines middle finding, reversal, and two-list merging.
+
+## Phase 5 – Doubly Linked List and design problems
+
+| Order | Problem | Concept to master |
+|---|---|---|
+| 16 | [LC 1472 – Design Browser History](https://leetcode.com/problems/design-browser-history/?utm_source=chatgpt.com) | Doubly linked list, navigation, data structure design |
+
+You should understand:
+
+- `next` and `prev` pointers.
+- Forward and backward navigation.
+- Insertion and connection of nodes.
+- Handling browser forward history after visiting a new URL.
+
+## Phase 6 – Separate problem
+
+| Problem | Why separate? |
+|---|---|
+| [LC 202 – Happy Number](https://leetcode.com/problems/happy-number/?utm_source=chatgpt.com) | Uses Floyd's cycle detection idea, but it is not a linked-list problem. |
+
+It is useful to practice after LC 141 and LC 142 because the same slow/fast pointer concept can detect cycles in a sequence of numbers.
+
+# Visual dependency map
+
+This shows how the main concepts connect to each other.
+
+**Basic Linked List Operations**
+
+LC 203 → LC 83 → LC 82 → LC 21 → LC 86
+
+**Fast & Slow Pointers**
+
+LC 876 → LC 19 → LC 141 → LC 142
+
+**Reversal Techniques**
+
+LC 206 → LC 92 → LC 25
+
+**Advanced Combinations**
+
+LC 61 → LC 234 → LC 143
+
+**Data Structure Design**
+
+LC 1472 – Browser History
+
+<p align="center">
+  <img src="images/Linked_List_Roadmap.png" alt="linked list" width="900">
+</p>
